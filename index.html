@@ -88,7 +88,8 @@ canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; t
   animation: bob 2.4s ease-in-out infinite;
 }
 @keyframes bob { 50% { transform: translateY(-6px); } }
-.sub { color: var(--ink-dim); letter-spacing: .3em; font-size: 12px; margin-bottom: 32px; font-weight: 700; }
+.sub { color: var(--ink-dim); letter-spacing: .3em; font-size: 12px; margin-bottom: 10px; font-weight: 700; }
+.inspired { color: var(--ink-dim); opacity: .75; font-size: 12px; letter-spacing: .06em; margin-bottom: 26px; }
 .big-label { color: var(--ink-dim); font-size: 12px; letter-spacing: .2em; font-weight: 700; }
 .big-num { font-size: 54px; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.1; margin-bottom: 6px; }
 .hi { margin: 4px 0 28px; font-size: 15px; color: var(--ink-dim); }
@@ -130,6 +131,7 @@ h2 { margin: 0 0 18px; font-size: 26px; letter-spacing: .2em; }
 <div class="screen" id="scTitle">
   <div class="logo" id="logo"></div>
   <div class="sub">BLOCK PUZZLE</div>
+  <div class="inspired">Inspired by Block Blast!</div>
   <div class="big-label">BEST</div>
   <div class="big-num" id="titleBest" style="color:var(--accent)">0</div>
   <div style="height:22px"></div>
