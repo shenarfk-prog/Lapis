@@ -207,6 +207,7 @@ const CONFIG = {
   SOUND: {
     BGM_VOLUME: 0.5,   // BGMの音量（0〜1、0でBGM無し）
     BGM_BPM: 92,       // BGMのテンポ
+    IGNORE_SILENT_SWITCH: true,  // iPhoneの消音スイッチがオンでも鳴らす（アプリ内の消音ボタンは有効）
   },
 
   // 演出
@@ -435,6 +436,27 @@ function openTitle() {
 /* ---------- サウンド ---------- */
 const Sound = {
   ctx: null, master: null, muted: lsGet(MUTE_KEY) === '1',
+  primed: false, el: null,
+  // 消音スイッチを無視して鳴らすための、無音ループ再生（iOS対策）
+  keepAlive() {
+    if (!CONFIG.SOUND.IGNORE_SILENT_SWITCH) return;
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* ignore */ }
+    try {
+      if (!this.el) {
+        const sr = 8000, n = sr, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+        const str = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+        str(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); str(8, 'WAVEfmt '); v.setUint32(16, 16, true);
+        v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true);
+        v.setUint16(32, 2, true); v.setUint16(34, 16, true); str(36, 'data'); v.setUint32(40, n * 2, true);
+        let bin = ''; const u8 = new Uint8Array(buf); for (let i = 0; i < u8.length; i++) bin += String.fromCharCode(u8[i]);
+        const el = new Audio('data:audio/wav;base64,' + btoa(bin));
+        el.loop = true; el.setAttribute('playsinline', ''); el.preload = 'auto';
+        this.el = el;
+      }
+      if (this.el.paused) { const pr = this.el.play(); if (pr && pr.catch) pr.catch(() => {}); }
+    } catch (e) { /* ignore */ }
+  },
+  onHide() { try { if (this.el) this.el.pause(); } catch (e) { /* ignore */ } },
   unlock() {
     try {
       if (!this.ctx) {
@@ -449,6 +471,12 @@ const Sound = {
         this.bgmGain.connect(this.master);
       }
       if (this.ctx.state !== 'running') this.ctx.resume();
+      if (!this.primed) {   // 無音を1回鳴らして、iOSの音出力を有効にする
+        const b = this.ctx.createBuffer(1, 1, 22050), src = this.ctx.createBufferSource();
+        src.buffer = b; src.connect(this.ctx.destination); src.start(0);
+        this.primed = true;
+      }
+      this.keepAlive();
     } catch (e) { /* ignore */ }
   },
   tone(freq, dur, type = 'sine', vol = 0.2, slideTo = 0, delay = 0) {
@@ -1015,9 +1043,12 @@ $('btnSound').addEventListener('click', () => { Sound.unlock(); Sound.setMuted(!
 document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 ['gesturestart', 'gesturechange', 'gestureend', 'contextmenu', 'dragstart', 'selectstart'].forEach(t =>
   document.addEventListener(t, e => e.preventDefault()));
-document.addEventListener('pointerdown', () => Sound.unlock(), { passive: true });
+// iOSは「指を離した」「クリック」の時点でないと音を許可しないことがあるので、全部で解除を試す
+['pointerdown', 'pointerup', 'touchstart', 'touchend', 'click'].forEach(t =>
+  document.addEventListener(t, () => Sound.unlock(), { passive: true, capture: true }));
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) { if (screen === 'play' && !state.over) { saveGame(); showScreen('pause'); } }
+  if (document.hidden) { Sound.onHide(); if (screen === 'play' && !state.over) { saveGame(); showScreen('pause'); } }
+  else Sound.unlock();
 });
 window.addEventListener('pagehide', () => { if (!state.over && screen !== 'title') saveGame(); });
 window.addEventListener('resize', layout);
