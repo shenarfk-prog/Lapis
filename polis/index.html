@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>polis～政経ドリル～</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="polis">
+<meta name="theme-color" content="#f6f1e7">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root { --bg: #f6f1e7; --card: #fffdf8; --ink: #1f2a37; --dim: #6b7280; --acc: #1c7c6b; --acc-soft: #e4f1ed; --ng: #c0392b; --ng-soft: #fbe6e3; --gold: #c9972b; --line: #e2dccd; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; overscroll-behavior: none; background: var(--bg); color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", system-ui, sans-serif; -webkit-text-size-adjust: 100%;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+#app { position: fixed; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y;
+  padding: calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 28px); }
+.view { max-width: 640px; margin: 0 auto; }
+.hidden { display: none !important; }
+textarea, input[type=text] { -webkit-user-select: text; user-select: text; font-family: inherit; }
+button { font-family: inherit; touch-action: manipulation; }
+
+/* タイトル */
+.logo { text-align: center; padding: 18px 0 6px; position: relative; }
+.logo svg { width: 84px; height: 84px; }
+.logo .name { font-size: 46px; font-weight: 900; letter-spacing: .04em; line-height: 1.1; margin-top: 4px; }
+.logo .name em { font-style: normal; color: var(--acc); }
+.logo .sub { margin-top: 4px; font-size: 14px; font-weight: 800; letter-spacing: .3em; color: var(--dim); }
+.title-snd, .icon-btn { border: 0; background: rgba(31,42,55,.08); color: var(--ink); border-radius: 22px; height: 44px; min-width: 44px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-weight: 800; font-size: 14px; }
+.title-snd { position: absolute; right: 0; top: 4px; }
+.title-snd svg, .icon-btn svg { width: 22px; height: 22px; fill: currentColor; }
+.title-snd .lbl::after { content: 'おとON'; } .title-snd.off .lbl::after { content: 'おとOFF'; }
+.off .wave { display: none; } :not(.off) > svg .cross { display: none; }
+.statline { text-align: center; font-weight: 800; font-size: 15px; margin: 10px 0 4px; }
+.statline b { color: var(--acc); font-size: 20px; }
+.banner { background: #fff4d6; border: 1px solid #ecd9a0; color: #6b5200; border-radius: 12px; padding: 8px 12px; font-size: 13px; font-weight: 700; text-align: center; margin: 8px 0; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px; margin: 12px 0; box-shadow: 0 2px 0 rgba(0,0,0,.03); }
+.card h3 { margin: 0 0 8px; font-size: 14px; color: var(--dim); font-weight: 800; letter-spacing: .06em; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 2px solid var(--line); background: #fff; color: var(--ink); border-radius: 99px; padding: 7px 12px; font-size: 14px; font-weight: 700; }
+.chip.on { background: var(--acc); border-color: var(--acc); color: #fff; }
+.seg { display: flex; gap: 6px; } .seg .chip { flex: 1; text-align: center; padding: 9px 4px; border-radius: 12px; }
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+.mode { border: 0; border-radius: 18px; padding: 16px 10px; background: var(--acc); color: #fff; font-size: 17px; font-weight: 900; box-shadow: 0 5px 0 #125548; text-align: center; line-height: 1.35; }
+.mode small { display: block; font-size: 12px; font-weight: 700; opacity: .85; margin-top: 3px; }
+.mode:active { transform: translateY(3px); box-shadow: 0 2px 0 #125548; }
+.mode.alt { background: #2f5d8a; box-shadow: 0 5px 0 #1f3f60; } .mode.alt:active { box-shadow: 0 2px 0 #1f3f60; }
+.mode.gold { background: var(--gold); box-shadow: 0 5px 0 #8a6616; } .mode.gold:active { box-shadow: 0 2px 0 #8a6616; }
+.mode.rose { background: #b5486b; box-shadow: 0 5px 0 #7d2d49; } .mode.rose:active { box-shadow: 0 2px 0 #7d2d49; }
+.links { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 6px; }
+.link { border: 2px solid var(--line); background: #fff; border-radius: 14px; padding: 12px 4px; font-size: 14px; font-weight: 800; color: var(--ink); text-align: center; }
+.toggle { display: flex; align-items: center; justify-content: space-between; font-weight: 700; font-size: 15px; }
+.toggle .sw { width: 46px; height: 26px; border-radius: 99px; background: #c9c3b3; position: relative; transition: background .15s; flex: none; }
+.toggle .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.toggle.on .sw { background: var(--acc); } .toggle.on .sw::after { transform: translateX(20px); }
+.back { display: block; text-align: center; margin: 18px 0 0; color: var(--dim); font-weight: 700; font-size: 14px; text-decoration: none; padding: 10px; }
+
+/* クイズ */
+.qtop { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.qtop .prog { flex: 1; }
+.bar { height: 8px; border-radius: 99px; background: #e5dfd0; overflow: hidden; } .bar i { display: block; height: 100%; background: var(--acc); border-radius: 99px; transition: width .25s; }
+.qtop .count { font-weight: 900; font-size: 15px; white-space: nowrap; }
+.qcat { display: inline-block; background: var(--acc-soft); color: var(--acc); font-weight: 800; font-size: 12px; border-radius: 99px; padding: 3px 10px; margin-bottom: 8px; }
+.qtext { font-size: 19px; line-height: 1.75; font-weight: 700; }
+.qterm { font-size: 30px; font-weight: 900; line-height: 1.4; text-align: center; padding: 22px 6px; }
+.choices { display: grid; gap: 10px; margin: 14px 0 6px; }
+.choice { text-align: left; border: 2px solid var(--line); background: #fff; border-radius: 14px; padding: 14px; font-size: 17px; font-weight: 800; color: var(--ink); line-height: 1.55; }
+.choice.def { font-size: 14.5px; font-weight: 600; line-height: 1.65; }
+.choice:active { background: #f1ede1; }
+.choice.ok { border-color: var(--acc); background: var(--acc-soft); } .choice.ng { border-color: var(--ng); background: var(--ng-soft); } .choice.dim { opacity: .55; }
+.tf { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0 6px; }
+.tf button { border: 0; border-radius: 18px; padding: 22px 0; font-size: 40px; font-weight: 900; color: #fff; }
+.tf .t { background: var(--acc); box-shadow: 0 5px 0 #125548; } .tf .f { background: var(--ng); box-shadow: 0 5px 0 #8c2a1f; }
+.tf button:disabled { opacity: .35; box-shadow: none; }
+.fb { margin-top: 12px; border-radius: 16px; padding: 14px; border: 2px solid var(--line); background: #fff; }
+.fb.ok { border-color: var(--acc); } .fb.ng { border-color: var(--ng); }
+.fb .head { font-size: 22px; font-weight: 900; } .fb.ok .head { color: var(--acc); } .fb.ng .head { color: var(--ng); }
+.fb .ans { font-size: 20px; font-weight: 900; margin: 6px 0 2px; } .fb .def { font-size: 15px; line-height: 1.7; margin: 4px 0; }
+.fb .note { background: #fff4d6; border-radius: 10px; padding: 8px 10px; font-size: 14px; line-height: 1.65; margin: 8px 0; }
+.fb textarea { width: 100%; min-height: 64px; border: 2px solid var(--line); border-radius: 12px; padding: 8px 10px; font-size: 15px; line-height: 1.5; margin-top: 6px; background: #fffef9; }
+.btn { display: block; width: 100%; border: 0; border-radius: 16px; padding: 15px; font-size: 18px; font-weight: 900; color: #fff; background: var(--acc); box-shadow: 0 4px 0 #125548; margin-top: 12px; }
+.btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #125548; }
+.btn.sec { background: #fff; color: var(--ink); border: 2px solid var(--line); box-shadow: none; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn.know { background: var(--acc); } .btn.dont { background: var(--ng); box-shadow: 0 4px 0 #8c2a1f; }
+
+/* 結果・きろく・確認 */
+h2 { margin: 6px 0 10px; font-size: 24px; }
+.big { font-size: 56px; font-weight: 900; text-align: center; color: var(--acc); line-height: 1.1; margin: 8px 0; }
+.big small { font-size: 22px; color: var(--dim); }
+.msg { text-align: center; font-weight: 800; margin-bottom: 8px; }
+.wlist .item { border-top: 1px solid var(--line); padding: 10px 0; } .wlist .item:first-child { border-top: 0; }
+.wlist .t { font-weight: 900; font-size: 16px; } .wlist .d { font-size: 14px; line-height: 1.65; color: #374151; margin-top: 2px; } .wlist .m { font-size: 13px; color: var(--acc); margin-top: 4px; }
+.catbar { margin: 8px 0; } .catbar .l { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; margin-bottom: 3px; }
+details { border: 1px solid var(--line); border-radius: 14px; background: #fff; margin: 8px 0; padding: 4px 12px; }
+summary { font-weight: 900; padding: 10px 0; font-size: 15px; }
+.rv { border-top: 1px solid var(--line); padding: 10px 0; }
+.rv .t { font-weight: 900; } .rv .d { font-size: 13.5px; line-height: 1.65; margin: 3px 0; } .rv .n { font-size: 12.5px; color: #8a6616; margin: 3px 0; }
+.rv .acts { display: flex; gap: 6px; margin-top: 6px; }
+.rv .acts button { flex: 1; border: 2px solid var(--line); background: #fff; border-radius: 10px; padding: 8px 0; font-weight: 800; font-size: 14px; }
+.rv .acts button.ok.on { background: var(--acc); border-color: var(--acc); color: #fff; } .rv .acts button.fix.on { background: var(--ng); border-color: var(--ng); color: #fff; }
+.rv input { width: 100%; border: 2px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 14px; margin-top: 6px; }
+.rv.s-ok { background: #f3faf7; margin: 0 -12px; padding: 10px 12px; } .rv.s-fix { background: #fdf0ee; margin: 0 -12px; padding: 10px 12px; }
+.toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 28px); transform: translateX(-50%); background: rgba(31,42,55,.92); color: #fff; padding: 10px 18px; border-radius: 99px; font-weight: 800; font-size: 14px; z-index: 60; }
+#tapSplash { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; background: rgba(246,241,231,.9); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); color: var(--ink); font-weight: 900; font-size: 22px; touch-action: manipulation; }
+#tapSplash .msg { padding: 16px 28px; border-radius: 99px; background: #fff; border: 2px solid var(--line); animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(1.06); } }
+#tapSplash.hidden-s { opacity: 0; pointer-events: none; transition: opacity .25s; }
+</style>
+</head>
+<body>
+<div id="tapSplash"><div class="msg">♪ タップして はじめる</div></div>
+<div id="app">
+
+<!-- タイトル -->
+<section class="view" id="vTitle">
+  <div class="logo">
+    <button id="btnSoundTitle" class="title-snd" aria-label="サウンド"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7l-1.4-1.4a3 3 0 0 0 0-4.2l1.4-1.4zM18.4 5.6a9 9 0 0 1 0 12.8L17 17a7 7 0 0 0 0-10l1.4-1.4z"/><path class="cross" d="M15 9.4 16.4 8 18.5 10.1 20.6 8 22 9.4 19.9 11.5 22 13.6 20.6 15 18.5 12.9 16.4 15 15 13.6 17.1 11.5z"/></svg><span class="lbl"></span></button>
+    <svg viewBox="0 0 100 100"><path d="M10 38 L50 12 L90 38 Z" fill="#c9972b"/><rect x="14" y="42" width="72" height="7" rx="2" fill="#1f2a37"/><g fill="#1c7c6b"><rect x="20" y="52" width="10" height="30" rx="2"/><rect x="38" y="52" width="10" height="30" rx="2"/><rect x="56" y="52" width="10" height="30" rx="2"/><rect x="74" y="52" width="8" height="30" rx="2"/></g><rect x="10" y="84" width="80" height="8" rx="2" fill="#1f2a37"/></svg>
+    <div class="name">pol<em>is</em></div>
+    <div class="sub">～ 政経ドリル ～</div>
+  </div>
+  <div class="statline" id="statLine"></div>
+  <div class="banner" id="reviewBanner"></div>
+
+  <div class="modes">
+    <button class="mode" data-m="def2term">説明 → 用語<small>4択</small></button>
+    <button class="mode alt" data-m="term2def">用語 → 説明<small>4択</small></button>
+    <button class="mode gold" data-m="card">暗記カード<small>思い出して確かめる</small></button>
+    <button class="mode rose" data-m="stmt">正誤判定<small>○ か ×</small></button>
+  </div>
+  <div style="margin:14px 4px 0;font-size:13px;font-weight:800;color:var(--dim)">▼ 出題のしぼりこみ</div>
+  <div class="card"><h3>分野（えらばないと ぜんぶ）</h3><div class="chips" id="catChips"></div></div>
+  <div class="card"><h3>出題</h3><div class="seg" id="segPool">
+    <button class="chip" data-v="all">ぜんぶ</button><button class="chip" data-v="weak">苦手</button><button class="chip" data-v="new">未学習</button></div></div>
+  <div class="card"><h3>問題数</h3><div class="seg" id="segN"></div></div>
+
+  <div class="links">
+    <button class="link" id="goStats">📊 きろく</button>
+    <button class="link" id="goReview">✎ データかくにん</button>
+    <button class="link" id="goOpt">♪ BGM</button>
+  </div>
+  <div class="card toggle" id="tgBgm" style="margin-top:12px"><span>BGMを流す（ローファイ）</span><span class="sw"></span></div>
+  <a class="back" href="../">← Lapis にもどる</a>
+</section>
+
+<!-- クイズ -->
+<section class="view hidden" id="vQuiz">
+  <div class="qtop">
+    <button class="icon-btn" id="btnQuit">← やめる</button>
+    <div class="prog"><div class="bar"><i id="qBar" style="width:0%"></i></div></div>
+    <div class="count" id="qCount">1 / 10</div>
+    <button class="icon-btn" id="btnSound" aria-label="サウンド"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7l-1.4-1.4a3 3 0 0 0 0-4.2l1.4-1.4zM18.4 5.6a9 9 0 0 1 0 12.8L17 17a7 7 0 0 0 0-10l1.4-1.4z"/><path class="cross" d="M15 9.4 16.4 8 18.5 10.1 20.6 8 22 9.4 19.9 11.5 22 13.6 20.6 15 18.5 12.9 16.4 15 15 13.6 17.1 11.5z"/></svg></button>
+  </div>
+  <div class="card" id="qBody"></div>
+  <div id="qFeedback"></div>
+</section>
+
+<!-- 結果 -->
+<section class="view hidden" id="vResult">
+  <h2>けっか</h2>
+  <div class="big" id="resScore"></div>
+  <div class="msg" id="resMsg"></div>
+  <div class="card wlist" id="resWrong"></div>
+  <button class="btn" id="btnRetryWrong">まちがえたものを もういちど</button>
+  <button class="btn sec" id="btnAgain">あたらしい問題で もういちど</button>
+  <button class="btn sec" id="btnCopyRes">結果をコピー（ノート用）</button>
+  <button class="btn sec" id="btnResTitle">タイトルへ</button>
+</section>
+
+<!-- きろく -->
+<section class="view hidden" id="vStats">
+  <h2>きろく</h2>
+  <div class="big" id="stBig"></div>
+  <div class="msg" id="stMsg"></div>
+  <div class="card" id="stCats"></div>
+  <div class="card wlist" id="stWeak"></div>
+  <button class="btn sec" id="btnResetProg">きろくをリセット</button>
+  <button class="btn sec" id="btnStatsBack">タイトルへ</button>
+</section>
+
+<!-- データかくにん（先生用） -->
+<section class="view hidden" id="vReview">
+  <h2>データかくにん</h2>
+  <div class="banner" id="rvSummary"></div>
+  <div class="seg" id="rvFilter" style="margin-bottom:8px"><button class="chip on" data-v="all">ぜんぶ</button><button class="chip" data-v="todo">未確認</button><button class="chip" data-v="fix">要修正</button></div>
+  <div id="rvList"></div>
+  <button class="btn" id="btnCopyRv">要修正・コメントをコピー</button>
+  <button class="btn sec" id="btnRvBack">タイトルへ</button>
+</section>
+</div>
+
+<script src="terms.js"></script>
+<script>
+'use strict';
+/* =====================================================================
+ * 調整用定数
+ * ===================================================================== */
+const CONFIG = {
+  SOUND: {
+    TAP_SPLASH: true,   // BGMをONにしているとき、起動時に「タップしてはじめる」を出す（iPhoneは最初のタップまで音が出せないため）
+    SFX_VOLUME: 2.0, BGM_VOLUME: 0.26, BGM_BPM: 74,
+  },
+  N_OPTIONS: [5, 10, 20, 40],            // 問題数の選択肢
+  BOX_WEIGHTS: [10, 6, 3, 1.5, 0.6],      // 習熟度(0〜4)ごとの出やすさ。間違えた用語ほど、よく出る
+  NEW_WEIGHT: 5,                          // まだ解いていない用語の出やすさ
+  MASTERED_BOX: 3,                        // この習熟度以上を「覚えた」とみなす
+};
+const $ = id => document.getElementById(id);
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } };
+const lsJson = (k, d) => { try { return JSON.parse(lsGet(k)) || d; } catch (e) { return d; } };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* ---------- サウンド ---------- */
+const Sound = {
+  ctx: null, master: null, sfx: null, bgmGain: null, revSend: null, primed: false,
+  muted: lsGet('polis.mute') === '1',
+  unlock() {
+    try {
+      if (!this.ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        const c = this.ctx = new AC();
+        this.master = c.createGain(); this.master.gain.value = 1.8;
+        const comp = c.createDynamicsCompressor(); comp.threshold.value = -12; comp.knee.value = 6; comp.ratio.value = 14; comp.attack.value = 0.003; comp.release.value = 0.2;
+        const outG = c.createGain(); outG.gain.value = 0.9; this.master.connect(comp); comp.connect(outG); outG.connect(c.destination); this.comp = outG;
+        this.sfx = c.createGain(); this.sfx.gain.value = CONFIG.SOUND.SFX_VOLUME; this.sfx.connect(this.master);
+        this.bgmGain = c.createGain(); this.bgmGain.gain.value = this.bgmOn ? this.bgmLevel() : 0; this.bgmGain.connect(this.master);
+        { // BGMだけに、まるい音色（ローパス）と部屋の響き（リバーブ）をかける
+          const bin = c.createGain(), lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3400; lp.Q.value = 0.4;
+          bin.connect(lp); lp.connect(this.bgmGain);
+          const rlen = Math.floor(c.sampleRate * 2.2), rir = c.createBuffer(2, rlen, c.sampleRate);
+          for (let ch = 0; ch < 2; ch++) { const d = rir.getChannelData(ch); for (let k = 0; k < rlen; k++) d[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / rlen, 2.2); }
+          const rc = c.createConvolver(); rc.buffer = rir; const rw = c.createGain(); rw.gain.value = 0.5;
+          bin.connect(rc); rc.connect(rw); rw.connect(this.bgmGain); this.bgmIn = bin;
+        }
+        const len = Math.floor(c.sampleRate * 1.2), ir = c.createBuffer(2, len, c.sampleRate);
+        for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let k = 0; k < len; k++) d[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / len, 2.6); }
+        const conv = c.createConvolver(); conv.buffer = ir; this.revSend = c.createGain();
+        const wet = c.createGain(); wet.gain.value = 0.3; this.revSend.connect(conv); conv.connect(wet); wet.connect(this.sfx);
+      }
+      if (!this._stateHook) { this._stateHook = true; this.ctx.addEventListener('statechange', () => { if (this.ctx.state === 'running' && this.bgmOn && this.bgmGain) { const g = this.bgmGain.gain; g.cancelScheduledValues(0); g.setValueAtTime(this.bgmLevel(), this.ctx.currentTime); } }); }
+      if (this.ctx.state !== 'running') this.ctx.resume();
+      if (!this.primed) { const b = this.ctx.createBuffer(1, 1, 22050), s = this.ctx.createBufferSource(); s.buffer = b; s.connect(this.ctx.destination); s.start(0); this.primed = true; }
+    } catch (e) { /* ignore */ }
+  },
+  ready() { return !(this.muted || !this.ctx || this.ctx.state !== 'running'); },
+  tone(freq, dur, type = 'sine', vol = 0.2, slideTo = 0, delay = 0) {
+    if (!this.ready()) return;
+    const t = this.ctx.currentTime + delay, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(this.sfx); o.start(t); o.stop(t + dur + 0.02);
+  },
+  bell(freq, delay, vol, dur) {
+    if (!this.ready()) return;
+    const c = this.ctx, t = c.currentTime + delay, car = c.createOscillator(), mod = c.createOscillator(), mg = c.createGain(), g = c.createGain();
+    car.frequency.value = freq; mod.frequency.value = freq * 3.5;
+    mg.gain.setValueAtTime(freq * 1.5, t); mg.gain.exponentialRampToValueAtTime(1, t + dur * 0.6); mod.connect(mg); mg.connect(car.frequency);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    car.connect(g); g.connect(this.sfx); g.connect(this.revSend); car.start(t); mod.start(t); car.stop(t + dur + 0.05); mod.stop(t + dur + 0.05);
+  },
+  noise() {
+    if (!this._noise) { const len = this.ctx.sampleRate, b = this.ctx.createBuffer(1, len, this.ctx.sampleRate), d = b.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1; this._noise = b; }
+    return this._noise;
+  },
+  burstNoise(delay, dur, freq, q, vol) {
+    const c = this.ctx, t = c.currentTime + delay, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+    s.buffer = this.noise(); f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(this.sfx); s.start(t, Math.random() * 0.5, dur + 0.02);
+  },
+  select() { this.tone(900, 0.04, 'sine', 0.12); },
+  place() { this.bell(1047, 0, 0.14, 0.35); },
+  note() { this.tone(1400, 0.03, 'triangle', 0.1); },
+  erase() { this.tone(500, 0.07, 'triangle', 0.14, 300); },
+  wrong() { this.tone(220, 0.22, 'sawtooth', 0.12, 150); },
+  unit() { [0, 4, 7, 12].forEach((s, i) => this.bell(784 * Math.pow(2, s / 12), i * 0.06, 0.13, 0.5)); },
+  hintSnd() { this.bell(1319, 0, 0.14, 0.4); this.bell(1760, 0.08, 0.12, 0.5); },
+  win() {
+    if (!this.ready()) return;
+    [0, 4, 7, 12, 16, 19, 24].forEach((s, i) => this.bell(523 * Math.pow(2, s / 12), i * 0.09, 0.2, 0.7));
+    this.burstNoise(0.2, 0.12, 3000, 0.6, 0.5);
+    for (let i = 0; i < 55; i++) this.burstNoise(0.3 + Math.random() * 1.2, 0.035 + Math.random() * 0.03, 2500 + Math.random() * 3500, 0.7, 0.2 + Math.random() * 0.14);
+  },
+  // BGM: lofi（ローファイ）。やわらかいエレピのコード + 重めの低音 + ゆるくはねたドラム + レコードのノイズ
+  // title = コード・低音・ノイズ / play = そこに、ドラムとメロディを足す
+  bgmOn: false, bgmTimer: null, bgmNext: 0, bgmStep: 0, bgmScene: 'title', mel: 3, _vinyl: null, _lfo: null,
+  bgmLevel() { return this.muted ? 0 : CONFIG.SOUND.BGM_VOLUME; },
+  bgmFade(to, sec) { if (!this.ctx || !this.bgmGain) return; const g = this.bgmGain.gain, t = this.ctx.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(to, t + sec); },
+  lfos() {       // エレピのゆらぎ用（トレモロ=音量のゆれ / テープのよれ=音程のゆれ）。全部の音で共有する
+    if (this._lfo) return this._lfo;
+    const c = this.ctx, tr = c.createOscillator(), trg = c.createGain(), wb = c.createOscillator(), wbg = c.createGain();
+    tr.frequency.value = 4.6; trg.gain.value = 0.16; tr.connect(trg); wb.frequency.value = 0.35; wbg.gain.value = 9; wb.connect(wbg);   // wbg は ±9セント
+    tr.start(); wb.start(); this._lfo = { trem: trg, wobble: wbg }; return this._lfo;
+  },
+  rhodes(freq, t, dur, vol) {       // ローズ風のエレピ（FM合成のやわらかい音）
+    const c = this.ctx, L = this.lfos();
+    const car = c.createOscillator(), m1 = c.createOscillator(), m2 = c.createOscillator(), g1 = c.createGain(), g2 = c.createGain(), amp = c.createGain(), tre = c.createGain();
+    car.frequency.value = freq; m1.frequency.value = freq; m2.frequency.value = freq * 7;
+    g1.gain.setValueAtTime(freq * 0.9, t); g1.gain.exponentialRampToValueAtTime(freq * 0.08, t + 0.7);          // 全体のやわらかい倍音
+    g2.gain.setValueAtTime(freq * 1.6, t); g2.gain.exponentialRampToValueAtTime(0.01, t + 0.09);                 // 「ポロン」というタインの出だし
+    m1.connect(g1); g1.connect(car.frequency); m2.connect(g2); g2.connect(car.frequency); L.wobble.connect(car.detune);
+    amp.gain.setValueAtTime(0.0001, t); amp.gain.exponentialRampToValueAtTime(vol, t + 0.008);
+    amp.gain.exponentialRampToValueAtTime(vol * 0.5, t + 0.5); amp.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    tre.gain.value = 0.84; L.trem.connect(tre.gain);
+    car.connect(amp); amp.connect(tre); tre.connect(this.bgmIn);
+    const end = t + dur + 0.1; car.start(t); m1.start(t); m2.start(t); car.stop(end); m1.stop(end); m2.stop(end);
+    car.onended = () => { try { L.wobble.disconnect(car.detune); L.trem.disconnect(tre.gain); } catch (e) { /* ignore */ } };
+  },
+  subBass(freq, t, dur, vol) {       // まるい低音（スマホでも聞こえるよう、少し倍音をのせる）
+    const c = this.ctx, o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain();
+    o.type = 'sine'; o.frequency.value = freq; o2.type = 'triangle'; o2.frequency.value = freq * 2;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(vol * 0.5, t + dur * 0.6); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    const g2 = c.createGain(); g2.gain.value = 0.8; o.connect(g); o2.connect(g2); g2.connect(g); g.connect(this.bgmIn);
+    o.start(t); o2.start(t); o.stop(t + dur + 0.05); o2.stop(t + dur + 0.05);
+  },
+  bgmNoise(t, dur, freq, q, vol, type) {
+    const c = this.ctx, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+    s.buffer = this.noise(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); s.connect(f); f.connect(g); g.connect(this.bgmIn); s.start(t, Math.random() * 0.5, dur + 0.02);
+  },
+  kick(t, vol) {
+    const c = this.ctx, o = c.createOscillator(), g = c.createGain();
+    o.type = 'sine'; o.frequency.setValueAtTime(125, t); o.frequency.exponentialRampToValueAtTime(48, t + 0.14);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28); o.connect(g); g.connect(this.bgmIn); o.start(t); o.stop(t + 0.3);
+  },
+  snare(t, vol) {       // 軽いスナップ（ノイズ + 低めの胴鳴り）
+    this.bgmNoise(t, 0.2, 1900, 0.7, vol, 'bandpass');
+    const c = this.ctx, o = c.createOscillator(), g = c.createGain();
+    o.type = 'triangle'; o.frequency.setValueAtTime(200, t); o.frequency.exponentialRampToValueAtTime(130, t + 0.1);
+    g.gain.setValueAtTime(vol * 0.7, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.14); o.connect(g); g.connect(this.bgmIn); o.start(t); o.stop(t + 0.16);
+  },
+  bgmStart(scene) {
+    if (scene) this.bgmScene = scene;
+    if (this.bgmOn || !CONFIG.SOUND.BGM_VOLUME) return;
+    this.bgmOn = true; this.bgmNext = 0; this.bgmStep = 0; this.bgmFade(this.bgmLevel(), 0.05); this.bgmTimer = setInterval(() => this.bgmTick(), 100);
+  },
+  bgmStop() {
+    if (!this.bgmOn) return;
+    this.bgmOn = false; clearInterval(this.bgmTimer); this.bgmTimer = null; this.bgmFade(0, 0.3);
+    if (this._vinyl) { const v = this._vinyl; this._vinyl = null; try { v.stop(this.ctx.currentTime + 0.35); } catch (e) { /* ignore */ } }
+  },
+  bgmTick() {
+    if (!this.ctx || this.ctx.state !== 'running' || !this.bgmIn) { this.bgmNext = 0; return; }
+    const c = this.ctx, now = c.currentTime;
+    if (!this._vinyl) {         // レコードの「サー」というノイズ（ずっと小さく流しておく）
+      const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+      s.buffer = this.noise(); s.loop = true; f.type = 'bandpass'; f.frequency.value = 1800; f.Q.value = 0.25; g.gain.value = 0.012;
+      s.connect(f); f.connect(g); g.connect(this.bgmGain); s.start(); this._vinyl = s;
+    }
+    if (!this.bgmNext || this.bgmNext < now) this.bgmNext = now + 0.15;
+    const e = 60 / CONFIG.SOUND.BGM_BPM / 2, play = this.bgmScene === 'play';
+    const CH = [[-4, 0, 3, 7], [-4, 2, 5, 7], [-5, 2, 5, 10], [-2, 3, 7, 14]];       // Dm9 - G13 - Cmaj9 - Am9（A3からの半音数）
+    const BASS = [-7, -14, -9, -12], PENTA = [3, 5, 7, 10, 12, 15, 17, 19], hz = n => 220 * Math.pow(2, n / 12);
+    while (this.bgmNext < now + 0.5) {
+      const bar = Math.floor(this.bgmStep / 8) % 4, k = this.bgmStep % 8, ch = CH[bar];
+      const t = this.bgmNext + (k % 2 ? e * 0.22 : 0);          // ゆるくはねる（スイング）
+      if (k === 0) ch.forEach((n, i) => this.rhodes(hz(n + 12), t + i * 0.022, e * 3.6, 0.22));        // コード（スマホのスピーカーで聞こえる高さ）
+      if (k === 3) ch.forEach((n, i) => this.rhodes(hz(n + 12), t + i * 0.022, e * 2.2, 0.14));          // 裏拍でもう一度（少し弱く）
+      if (k === 0) this.subBass(hz(BASS[bar]), t, e * 2.6, 0.2);
+      if (k === 3) this.subBass(hz(BASS[bar]), t, e * 1.4, 0.13);
+      if (k === 6 && bar % 2 === 1) this.subBass(hz(BASS[bar] + 7), t, e * 1.6, 0.11);
+      if (play) {
+        if (k === 0 || k === 3) this.kick(t, k === 0 ? 0.22 : 0.15);                                // ボスッとしたキック
+        if (k === 2 || k === 6) this.snare(t, 0.2);                                                 // 2拍目と4拍目に、軽いスナップ
+        this.bgmNoise(t, k % 2 ? 0.07 : 0.045, 7500, 0.7, k % 2 ? 0.035 : 0.05, 'highpass');       // ハット
+        if ([2, 5, 7].includes(k) && Math.random() < 0.28) {                                        // ときどき入る、エレピの単音メロディ
+          this.mel = Math.max(0, Math.min(7, this.mel + Math.floor(Math.random() * 5) - 2));
+          this.rhodes(hz(PENTA[this.mel] + 12), t, e * 3, 0.14);
+        }
+      }
+      if (Math.random() < 0.3) this.bgmNoise(this.bgmNext + Math.random() * e, 0.006, 3500, 0.8, 0.03, 'highpass');   // レコードのプチッという音
+      this.bgmNext += e; this.bgmStep++;
+    }
+  },
+  setMuted(m) { this.muted = m; lsSet('polis.mute', m ? '1' : '0'); $('btnSound').classList.toggle('off', m); { const tb = document.getElementById('btnSoundTitle'); if (tb) tb.classList.toggle('off', m); } if (this.bgmOn) this.bgmFade(this.bgmLevel(), 0.2); },
+};
+
+
+
+/* ---------- データ ---------- */
+const D = window.POLIS_DATA;
+D.terms.forEach(t => { t.id = 't:' + t.t; });
+D.stmts.forEach(s => { s.id = 's:' + s.s.slice(0, 24); });
+const TERM = new Map(D.terms.map(t => [t.id, t])), STMT = new Map(D.stmts.map(s => [s.id, s]));
+const catName = c => D.cats[c] || c;
+
+let prog = lsJson('polis.prog.v1', {}), sprog = lsJson('polis.sprog.v1', {}), memos = lsJson('polis.memo.v1', {}), review = lsJson('polis.review.v1', {});
+const settings = Object.assign({ cats: [], pool: 'all', n: 10, bgm: false }, lsJson('polis.settings.v1', {}));
+const saveAll = () => { lsSet('polis.prog.v1', JSON.stringify(prog)); lsSet('polis.sprog.v1', JSON.stringify(sprog)); };
+const saveSettings = () => lsSet('polis.settings.v1', JSON.stringify(settings));
+function toast(msg) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = msg; document.body.appendChild(d); setTimeout(() => d.remove(), 2200); }
+function copyText(text) {
+  const done = () => toast('コピーしました');
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => fallback());
+  else fallback();
+  function fallback() {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;left:-999px;top:0'; document.body.appendChild(ta);
+    ta.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('コピーできませんでした'); } ta.remove();
+  }
+}
+
+/* ---------- 画面 ---------- */
+let view = 'title';
+function showView(name) {
+  view = name;
+  for (const v of ['Title', 'Quiz', 'Result', 'Stats', 'Review']) $('v' + v).classList.toggle('hidden', v.toLowerCase() !== name);
+  $('app').scrollTop = 0;
+}
+function syncBgm() { Sound.bgmScene = 'title'; if (settings.bgm) Sound.bgmStart('title'); else Sound.bgmStop(); }
+
+/* ---------- タイトル ---------- */
+function reviewCounts() {
+  const all = [...D.terms, ...D.stmts]; let ok = 0, fix = 0;
+  for (const x of all) { const r = review[x.id]; if (r && r.s === 'ok') ok++; else if (r && r.s === 'fix') fix++; }
+  return { total: all.length, ok, fix };
+}
+function renderTitle() {
+  const mastered = D.terms.filter(t => prog[t.id] && prog[t.id].b >= CONFIG.MASTERED_BOX).length;
+  $('statLine').innerHTML = `覚えた用語 <b>${mastered}</b> / ${D.terms.length}`;
+  const rc = reviewCounts();
+  $('reviewBanner').classList.toggle('hidden', rc.ok === rc.total);
+  $('reviewBanner').textContent = `内容は先生が確認中です（確認ずみ ${rc.ok} / ${rc.total}　要修正 ${rc.fix}）　データ ${D.version}`;
+  $('catChips').innerHTML = Object.keys(D.cats).map(c => `<button class="chip${settings.cats.includes(c) ? ' on' : ''}" data-c="${c}">${esc(catName(c))}</button>`).join('');
+  document.querySelectorAll('#segPool .chip').forEach(b => b.classList.toggle('on', b.dataset.v === settings.pool));
+  $('segN').innerHTML = [...CONFIG.N_OPTIONS, 9999].map(n => `<button class="chip${settings.n === n ? ' on' : ''}" data-n="${n}">${n === 9999 ? 'ぜんぶ' : n + '問'}</button>`).join('');
+  $('tgBgm').classList.toggle('on', settings.bgm);
+}
+$('catChips').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; const c = b.dataset.c; const i = settings.cats.indexOf(c); if (i >= 0) settings.cats.splice(i, 1); else settings.cats.push(c); saveSettings(); renderTitle(); });
+$('segPool').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; settings.pool = b.dataset.v; saveSettings(); renderTitle(); });
+$('segN').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; settings.n = +b.dataset.n; saveSettings(); renderTitle(); });
+$('tgBgm').addEventListener('click', () => { Sound.unlock(); settings.bgm = !settings.bgm; saveSettings(); renderTitle(); syncBgm(); });
+$('goOpt').addEventListener('click', () => { Sound.unlock(); settings.bgm = !settings.bgm; saveSettings(); renderTitle(); syncBgm(); toast(settings.bgm ? 'BGM ON' : 'BGM OFF'); });
+document.querySelectorAll('.mode').forEach(b => b.addEventListener('click', () => { Sound.unlock(); startQuiz(b.dataset.m); }));
+$('btnSoundTitle').addEventListener('click', () => { Sound.unlock(); Sound.setMuted(!Sound.muted); });
+$('btnSound').addEventListener('click', () => { Sound.unlock(); Sound.setMuted(!Sound.muted); });
+
+/* ---------- 出題 ---------- */
+function poolList(kind) {
+  const items = kind === 'stmt' ? D.stmts : D.terms, P = kind === 'stmt' ? sprog : prog;
+  let list = items.filter(x => !settings.cats.length || settings.cats.includes(x.c));
+  if (settings.pool === 'weak') list = list.filter(x => P[x.id] && P[x.id].s > 0 && P[x.id].b <= 1);
+  else if (settings.pool === 'new') list = list.filter(x => !P[x.id] || !P[x.id].s);
+  return list;
+}
+function sample(list, n, P) {
+  const arr = list.slice(), out = [];
+  while (out.length < n && arr.length) {
+    const ws = arr.map(x => (P[x.id] && P[x.id].s) ? CONFIG.BOX_WEIGHTS[P[x.id].b] : CONFIG.NEW_WEIGHT);
+    let r = Math.random() * ws.reduce((a, b) => a + b, 0), k = 0;
+    for (; k < arr.length - 1; k++) { r -= ws[k]; if (r <= 0) break; }
+    out.push(arr.splice(k, 1)[0]);
+  }
+  return out;
+}
+function distractors(t, n) {
+  const ok = x => x !== t && !x.t.includes(t.t) && !t.t.includes(x.t);
+  const pool = shuffle(D.terms.filter(x => ok(x) && x.c === t.c)).slice(0, n);
+  if (pool.length < n) pool.push(...shuffle(D.terms.filter(x => ok(x) && x.c !== t.c)).slice(0, n - pool.length));
+  return pool;
+}
+let quiz = null;
+function startQuiz(mode, items) {
+  const kind = mode === 'stmt' ? 'stmt' : 'term';
+  if (!items) {
+    const list = poolList(kind);
+    if (!list.length) { toast('その条件の問題がありません。分野や出題をかえてね'); return; }
+    items = sample(list, settings.n, kind === 'stmt' ? sprog : prog);
+  }
+  quiz = { mode, kind, items, i: 0, right: 0, wrongs: [], answered: false, correctIdx: -1, pick: [], flipped: false };
+  showView('quiz'); renderQ();
+}
+const MODE_LABEL = { def2term: '説明→用語', term2def: '用語→説明', card: '暗記カード', stmt: '正誤判定' };
+function renderQ() {
+  const it = quiz.items[quiz.i], n = quiz.items.length;
+  quiz.answered = false; quiz.flipped = false;
+  $('qCount').textContent = `${quiz.i + 1} / ${n}`; $('qBar').style.width = (quiz.i / n * 100) + '%';
+  $('qFeedback').innerHTML = '';
+  const cat = `<span class="qcat">${esc(catName(it.c))}</span>`;
+  let h = '';
+  if (quiz.mode === 'def2term') {
+    const ch = shuffle([it, ...distractors(it, 3)]); quiz.pick = ch; quiz.correctIdx = ch.indexOf(it);
+    h = `${cat}<div class="qtext">${esc(it.d)}</div><div class="choices">${ch.map((c, i) => `<button class="choice" data-i="${i}">${esc(c.t)}</button>`).join('')}</div>`;
+  } else if (quiz.mode === 'term2def') {
+    const ch = shuffle([it, ...distractors(it, 3)]); quiz.pick = ch; quiz.correctIdx = ch.indexOf(it);
+    h = `${cat}<div class="qterm">${esc(it.t)}</div><div class="choices">${ch.map((c, i) => `<button class="choice def" data-i="${i}">${esc(c.d)}</button>`).join('')}</div>`;
+  } else if (quiz.mode === 'card') {
+    h = `${cat}<div class="qterm">${esc(it.t)}</div><div id="cardBack"></div><button class="btn" id="btnFlip">こたえを見る</button>`;
+  } else {
+    h = `${cat}<div class="qtext">${esc(it.s)}</div><div class="tf"><button class="t" data-a="1">○</button><button class="f" data-a="0">×</button></div>`;
+  }
+  $('qBody').innerHTML = h;
+  window.scrollTo(0, 0); $('app').scrollTop = 0;
+}
+function record(ok) {
+  const it = quiz.items[quiz.i], P = quiz.kind === 'stmt' ? sprog : prog;
+  const p = P[it.id] || (P[it.id] = { b: 0, s: 0, r: 0, w: 0 });
+  p.s++; if (ok) { p.r++; p.b = Math.min(4, p.b + 1); } else { p.w++; p.b = 0; }
+  saveAll(); if (ok) quiz.right++; else quiz.wrongs.push(it);
+}
+function feedback(ok, it, extraHead) {
+  const last = quiz.i === quiz.items.length - 1, memo = memos[it.id] || '';
+  const isStmt = quiz.kind === 'stmt';
+  const body = isStmt
+    ? `<div class="ans">${it.a ? '○（正しい）' : '×（誤り）'}</div><div class="def">${esc(it.e)}</div>`
+    : `<div class="ans">${esc(it.t)}</div><div class="def">${esc(it.d)}</div>${it.n ? `<div class="note">💡 考察：${esc(it.n)}</div>` : ''}`;
+  $('qFeedback').innerHTML = `<div class="fb ${ok ? 'ok' : 'ng'}"><div class="head">${extraHead || (ok ? '○ 正解！' : '× ざんねん')}</div>${body}
+    <textarea id="memo" placeholder="自分の言葉で、ひとこと（なぜ？ ほかとの違いは？）">${esc(memo)}</textarea></div>
+    <button class="btn" id="btnNext">${last ? 'けっかを見る' : 'つぎへ'}</button>`;
+  $('memo').addEventListener('input', e => { memos[it.id] = e.target.value; lsSet('polis.memo.v1', JSON.stringify(memos)); });
+  $('btnNext').addEventListener('click', next);
+  $('btnNext').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+function next() { if (quiz.i < quiz.items.length - 1) { quiz.i++; renderQ(); } else finish(); }
+$('qBody').addEventListener('click', e => {
+  if (!quiz) return;
+  const it = quiz.items[quiz.i];
+  const ch = e.target.closest('.choice');
+  if (ch && !quiz.answered) {
+    quiz.answered = true; const i = +ch.dataset.i, ok = i === quiz.correctIdx;
+    document.querySelectorAll('#qBody .choice').forEach((b, k) => { b.classList.add(k === quiz.correctIdx ? 'ok' : (k === i ? 'ng' : 'dim')); });
+    record(ok); ok ? Sound.place() : Sound.wrong(); feedback(ok, it); return;
+  }
+  const tf = e.target.closest('.tf button');
+  if (tf && !quiz.answered) {
+    quiz.answered = true; const ok = (tf.dataset.a === '1') === it.a;
+    document.querySelectorAll('#qBody .tf button').forEach(b => { b.disabled = b !== tf; });
+    record(ok); ok ? Sound.place() : Sound.wrong(); feedback(ok, it); return;
+  }
+  if (e.target.id === 'btnFlip') {
+    quiz.flipped = true;
+    $('cardBack').innerHTML = `<div class="fb"><div class="def">${esc(it.d)}</div>${it.n ? `<div class="note">💡 考察：${esc(it.n)}</div>` : ''}</div>`;
+    $('btnFlip').outerHTML = `<div class="row2"><button class="btn dont" data-k="0">まだ</button><button class="btn know" data-k="1">覚えた</button></div>`;
+    Sound.select && Sound.select(); return;
+  }
+  const kb = e.target.closest('[data-k]');
+  if (kb && quiz.flipped && !quiz.answered) {
+    quiz.answered = true; const ok = kb.dataset.k === '1'; record(ok); ok ? Sound.place() : Sound.wrong();
+    $('qFeedback').innerHTML = `<div class="fb ${ok ? 'ok' : 'ng'}"><div class="head">${ok ? '○ 覚えた！' : '× もう一度'}</div>
+      <textarea id="memo" placeholder="自分の言葉で、ひとこと">${esc(memos[it.id] || '')}</textarea></div>
+      <button class="btn" id="btnNext">${quiz.i === quiz.items.length - 1 ? 'けっかを見る' : 'つぎへ'}</button>`;
+    $('memo').addEventListener('input', ev => { memos[it.id] = ev.target.value; lsSet('polis.memo.v1', JSON.stringify(memos)); });
+    $('btnNext').addEventListener('click', next);
+  }
+});
+$('btnQuit').addEventListener('click', () => { if (confirm('ここでやめますか？（ここまでの記録は残ります）')) { showView('title'); renderTitle(); } });
+
+/* ---------- 結果 ---------- */
+function wrongHtml(list) {
+  if (!list.length) return '<div class="msg">ぜんぶ せいかい！ すごい！</div>';
+  return '<h3 style="margin:0 0 6px;font-size:14px;color:var(--dim)">まちがえた問題</h3>' + list.map(x => `<div class="item"><div class="t">${esc(x.t || x.s)}</div><div class="d">${esc(x.d || x.e)}</div>${memos[x.id] ? `<div class="m">✎ ${esc(memos[x.id])}</div>` : ''}</div>`).join('');
+}
+function finish() {
+  const n = quiz.items.length, r = quiz.right, pct = Math.round(r / n * 100);
+  showView('result'); $('qBar').style.width = '100%';
+  $('resScore').innerHTML = `${r}<small> / ${n}</small>`;
+  $('resMsg').textContent = pct === 100 ? '満点！' : pct >= 80 ? 'よくできました！' : pct >= 50 ? 'あと少し。まちがえた用語を、もう一度。' : '大丈夫。まちがえた用語から、もう一度。';
+  $('resWrong').innerHTML = wrongHtml(quiz.wrongs);
+  $('btnRetryWrong').classList.toggle('hidden', !quiz.wrongs.length);
+  pct >= 80 ? Sound.win() : Sound.unit();
+}
+$('btnRetryWrong').addEventListener('click', () => startQuiz(quiz.mode, shuffle(quiz.wrongs)));
+$('btnAgain').addEventListener('click', () => startQuiz(quiz.mode));
+$('btnResTitle').addEventListener('click', () => { showView('title'); renderTitle(); });
+$('btnCopyRes').addEventListener('click', () => {
+  const d = new Date(), ds = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+  let t = `【polis 政経ドリル】${ds}　${MODE_LABEL[quiz.mode]}　${quiz.right} / ${quiz.items.length}\n`;
+  if (quiz.wrongs.length) { t += '\nまちがえた問題:\n'; for (const x of quiz.wrongs) t += `・${x.t || x.s}\n   ${x.d || x.e}${memos[x.id] ? '\n   ✎ ' + memos[x.id] : ''}\n`; }
+  copyText(t);
+});
+
+/* ---------- きろく ---------- */
+function renderStats() {
+  const mastered = D.terms.filter(t => prog[t.id] && prog[t.id].b >= CONFIG.MASTERED_BOX).length;
+  $('stBig').innerHTML = `${mastered}<small> / ${D.terms.length} 語 覚えた</small>`;
+  const seen = D.terms.filter(t => prog[t.id] && prog[t.id].s > 0).length;
+  $('stMsg').textContent = `解いたことのある用語 ${seen} 語`;
+  $('stCats').innerHTML = '<h3>分野ごと</h3>' + Object.keys(D.cats).map(c => {
+    const ts = D.terms.filter(t => t.c === c), m = ts.filter(t => prog[t.id] && prog[t.id].b >= CONFIG.MASTERED_BOX).length;
+    return `<div class="catbar"><div class="l"><span>${esc(catName(c))}</span><span>${m} / ${ts.length}</span></div><div class="bar"><i style="width:${ts.length ? m / ts.length * 100 : 0}%"></i></div></div>`;
+  }).join('');
+  const weak = D.terms.filter(t => prog[t.id] && prog[t.id].s > 0 && prog[t.id].b <= 1).sort((a, b) => prog[b.id].w - prog[a.id].w).slice(0, 25);
+  $('stWeak').innerHTML = weak.length ? '<h3 style="margin:0 0 6px;font-size:14px;color:var(--dim)">苦手な用語（まちがえた回数が多い順）</h3>' + weak.map(x => `<div class="item"><div class="t">${esc(x.t)}　<span style="font-size:12px;color:var(--ng)">×${prog[x.id].w}</span></div><div class="d">${esc(x.d)}</div>${memos[x.id] ? `<div class="m">✎ ${esc(memos[x.id])}</div>` : ''}</div>`).join('') : '<div class="msg">苦手な用語は、まだありません</div>';
+}
+$('goStats').addEventListener('click', () => { renderStats(); showView('stats'); });
+$('btnStatsBack').addEventListener('click', () => { showView('title'); renderTitle(); });
+$('btnResetProg').addEventListener('click', () => { if (confirm('学習のきろく（覚えた用語・苦手）を、すべて消します。メモは残ります。よろしいですか？')) { prog = {}; sprog = {}; saveAll(); renderStats(); toast('リセットしました'); } });
+
+/* ---------- データかくにん（先生用） ---------- */
+let rvFilter = 'all';
+function rvStatus(id) { return (review[id] && review[id].s) || ''; }
+function renderReview() {
+  const rc = reviewCounts();
+  $('rvSummary').textContent = `確認ずみ ${rc.ok} / ${rc.total}　要修正 ${rc.fix}　未確認 ${rc.total - rc.ok - rc.fix}　（データ ${D.version}）`;
+  document.querySelectorAll('#rvFilter .chip').forEach(b => b.classList.toggle('on', b.dataset.v === rvFilter));
+  const show = x => rvFilter === 'all' || (rvFilter === 'todo' && !rvStatus(x.id)) || (rvFilter === 'fix' && rvStatus(x.id) === 'fix');
+  const row = (x, isS) => { const st = rvStatus(x.id), c = (review[x.id] && review[x.id].c) || ''; return `<div class="rv ${st ? 's-' + st : ''}" data-id="${esc(x.id)}">
+    <div class="t">${esc(isS ? x.s : x.t)}${isS ? `　<span style="font-weight:700;color:var(--dim)">【${x.a ? '○' : '×'}】</span>` : ''}</div><div class="d">${esc(isS ? x.e : x.d)}</div>${x.n ? `<div class="n">💡 ${esc(x.n)}</div>` : ''}
+    <div class="acts"><button class="ok${st === 'ok' ? ' on' : ''}" data-s="ok">○ 確認ずみ</button><button class="fix${st === 'fix' ? ' on' : ''}" data-s="fix">✎ 要修正</button></div>
+    <input type="text" placeholder="コメント（どこをどう直すか）" value="${esc(c)}"></div>`; };
+  let h = '';
+  for (const c of Object.keys(D.cats)) {
+    const ts = D.terms.filter(t => t.c === c && show(t)), ss = D.stmts.filter(s => s.c === c && show(s));
+    if (!ts.length && !ss.length) continue;
+    const allOk = D.terms.filter(t => t.c === c).every(t => rvStatus(t.id) === 'ok') && D.stmts.filter(s => s.c === c).every(s => rvStatus(s.id) === 'ok');
+    h += `<details><summary>${esc(catName(c))}（用語${ts.length}・正誤${ss.length}）${allOk ? ' ✔' : ''}</summary>${ts.map(t => row(t, false)).join('')}${ss.map(s => row(s, true)).join('')}
+      <button class="btn sec" data-allok="${c}" style="margin:8px 0">この分野を、ぜんぶ「確認ずみ」にする</button></details>`;
+  }
+  $('rvList').innerHTML = h || '<div class="msg">該当するものはありません</div>';
+}
+function setReview(id, patch) { review[id] = Object.assign({ s: '', c: '' }, review[id], patch); lsSet('polis.review.v1', JSON.stringify(review)); }
+$('rvList').addEventListener('click', e => {
+  const btn = e.target.closest('.acts button'), all = e.target.closest('[data-allok]');
+  if (btn) {
+    const id = btn.closest('.rv').dataset.id, s = btn.dataset.s;
+    setReview(id, { s: rvStatus(id) === s ? '' : s });
+    const open = [...document.querySelectorAll('#rvList details')].map(d => d.open); renderReview(); document.querySelectorAll('#rvList details').forEach((d, i) => { d.open = !!open[i]; });
+  } else if (all) {
+    const c = all.dataset.allok; [...D.terms, ...D.stmts].filter(x => x.c === c).forEach(x => setReview(x.id, { s: 'ok' }));
+    const open = [...document.querySelectorAll('#rvList details')].map(d => d.open); renderReview(); document.querySelectorAll('#rvList details').forEach((d, i) => { d.open = !!open[i]; });
+  }
+});
+$('rvList').addEventListener('input', e => { if (e.target.tagName === 'INPUT') setReview(e.target.closest('.rv').dataset.id, { c: e.target.value }); });
+$('rvFilter').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; rvFilter = b.dataset.v; renderReview(); });
+$('goReview').addEventListener('click', () => { renderReview(); showView('review'); });
+$('btnRvBack').addEventListener('click', () => { showView('title'); renderTitle(); });
+$('btnCopyRv').addEventListener('click', () => {
+  const all = [...D.terms, ...D.stmts], rc = reviewCounts();
+  let t = `【polis データ確認】データ ${D.version}\n確認ずみ ${rc.ok} / ${rc.total}　要修正 ${rc.fix}\n`;
+  const items = all.filter(x => rvStatus(x.id) === 'fix' || (review[x.id] && review[x.id].c));
+  if (!items.length) t += '\n（要修正・コメントはありません）\n';
+  for (const x of items) t += `\n・[${catName(x.c)}] ${x.t || x.s}\n   ${rvStatus(x.id) === 'fix' ? '【要修正】' : ''}${(review[x.id] && review[x.id].c) || ''}\n`;
+  copyText(t);
+});
+
+/* ---------- 起動 ---------- */
+['pointerdown', 'pointerup', 'touchstart', 'touchend', 'click'].forEach(t => document.addEventListener(t, () => { Sound.unlock(); if (settings.bgm && !Sound.bgmOn) syncBgm(); }, { passive: true, capture: true }));
+['gesturestart', 'gesturechange', 'gestureend', 'contextmenu', 'dragstart'].forEach(t => document.addEventListener(t, e => e.preventDefault()));
+document.addEventListener('visibilitychange', () => { if (document.hidden) Sound.bgmStop(); else { Sound.unlock(); if (settings.bgm) syncBgm(); } });
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
+Sound.setMuted(Sound.muted);
+renderTitle();
+(function () {
+  const sp = $('tapSplash');
+  if (!settings.bgm || Sound.muted || CONFIG.SOUND.TAP_SPLASH === false) { sp.remove(); return; }
+  let done = false;
+  const go = e => { if (done) return; done = true; Sound.unlock(); syncBgm(); sp.classList.add('hidden-s'); setTimeout(() => sp.remove(), 300); if (e) e.preventDefault(); };
+  sp.addEventListener('touchend', go); sp.addEventListener('click', go);
+})();
+syncBgm();
+if (location.search.includes('debug')) window.__p = { D, settings, startQuiz, get quiz() { return quiz; }, prog: () => prog, review: () => review, poolList, distractors };
+</script>
+</body>
+</html>
