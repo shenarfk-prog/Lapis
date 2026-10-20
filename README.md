@@ -29,6 +29,7 @@ iPhone の Safari で遊ぶ、自分用の 8×8 ブロック配置パズル。`i
 | 得点 | `CONFIG.SCORE`（`PER_CELL` / `LINES` / `EXTRA_PER_LINE_OVER_4` / `COMBO_STEP` / `CLEAR_ALL_BONUS`） |
 | ブロックの出し方 | `CONFIG.SPAWN`（`NEUTRAL_FILL` / `SIZE_BIAS` / `HELP_FILL` / `HELP_CLEAR_CHANCE` / `WEIGHTS`） |
 | ドラッグ | `CONFIG.DRAG`（指より浮かせる量など） |
+| BGM | `CONFIG.SOUND`（`BGM_VOLUME`〔0でBGM無し〕/ `BGM_BPM`） |
 | 演出 | `CONFIG.FX`（振動のON/OFFなど） |
 | ブロックの形 | `SHAPE_DEFS`（`#` が1マス） |
 | 色 | `COLORS` |

@@ -197,6 +197,12 @@ const CONFIG = {
     PICKUP_MS: 110,       // 掴んで盤面サイズに拡大するまでの時間
   },
 
+  // サウンド
+  SOUND: {
+    BGM_VOLUME: 0.5,   // BGMの音量（0〜1、0でBGM無し）
+    BGM_BPM: 92,       // BGMのテンポ
+  },
+
   // 演出
   FX: {
     CLEAR_STAGGER_MS: 28,  // 消える列が置いた位置から波のように広がる遅れ
@@ -412,6 +418,7 @@ function showScreen(name) {
   scPause.classList.toggle('hidden', name !== 'pause');
   scOver.classList.toggle('hidden', name !== 'over');
   if (name !== 'play') cancelDrag();
+  if (name === 'play' && !state.over) Sound.bgmStart(); else Sound.bgmStop();
 }
 function openTitle() {
   $('titleBest').textContent = best.toLocaleString();
@@ -431,6 +438,9 @@ const Sound = {
         this.master = this.ctx.createGain();
         this.master.gain.value = 0.5;
         this.master.connect(this.ctx.destination);
+        this.bgmGain = this.ctx.createGain();
+        this.bgmGain.gain.value = 0;
+        this.bgmGain.connect(this.master);
       }
       if (this.ctx.state !== 'running') this.ctx.resume();
     } catch (e) { /* ignore */ }
@@ -462,7 +472,57 @@ const Sound = {
     [0, 4, 7, 12, 16, 19, 24, 28].forEach((s, i) => this.tone(330 * Math.pow(2, s / 12), 0.4, 'triangle', 0.22, 0, i * 0.07));
   },
   over() { [0, -3, -7, -12].forEach((s, i) => this.tone(330 * Math.pow(2, s / 12), 0.35, 'sawtooth', 0.1, 0, i * 0.16)); },
-  setMuted(m) { this.muted = m; lsSet(MUTE_KEY, m ? '1' : '0'); $('btnSound').classList.toggle('off', m); },
+  // ---- BGM（コードで生成する穏やかなループ。音声ファイル不要）----
+  bgmOn: false, bgmTimer: null, bgmNext: 0, bgmStep: 0,
+  bgmLevel() { return this.muted ? 0 : CONFIG.SOUND.BGM_VOLUME; },
+  bgmFade(to, sec) {
+    if (!this.ctx || !this.bgmGain) return;
+    const g = this.bgmGain.gain, t = this.ctx.currentTime;
+    g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(to, t + sec);
+  },
+  bgmNote(freq, t, dur, type, vol) {
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(this.bgmGain);
+    o.start(t); o.stop(t + dur + 0.05);
+  },
+  bgmStart() {
+    if (this.bgmOn || !CONFIG.SOUND.BGM_VOLUME) return;
+    this.bgmOn = true; this.bgmNext = 0; this.bgmStep = 0;
+    this.bgmFade(this.bgmLevel(), 0.6);
+    this.bgmTimer = setInterval(() => this.bgmTick(), 100);
+  },
+  bgmStop() {
+    if (!this.bgmOn) return;
+    this.bgmOn = false; clearInterval(this.bgmTimer); this.bgmTimer = null;
+    this.bgmFade(0, 0.3);
+  },
+  bgmTick() {
+    if (!this.ctx || this.ctx.state !== 'running') { this.bgmNext = 0; return; }
+    const now = this.ctx.currentTime;
+    if (!this.bgmNext || this.bgmNext < now) this.bgmNext = now + 0.1;
+    const eighth = 60 / CONFIG.SOUND.BGM_BPM / 2;
+    // Am - F - C - G（Aからの半音数。上から 根音・3度・5度・オクターブ）
+    const CHORDS = [[0, 3, 7, 12], [-4, 0, 3, 8], [3, 7, 10, 15], [-2, 2, 5, 10]];
+    const ARP = [0, 2, 1, 2, 3, 2, 1, 2];
+    const hz = n => 220 * Math.pow(2, n / 12);
+    while (this.bgmNext < now + 0.4) {
+      const step = this.bgmStep, bar = Math.floor(step / 8) % 4, k = step % 8, ch = CHORDS[bar], t = this.bgmNext;
+      if (k === 0) {
+        for (const n of [ch[0], ch[1], ch[2]]) this.bgmNote(hz(n), t, eighth * 8.5, 'sine', 0.035);   // パッド
+      }
+      if (k === 0 || k === 4) this.bgmNote(hz(ch[0] - 12), t, eighth * 3, 'sine', 0.11);              // ベース
+      this.bgmNote(hz(ch[ARP[k]] + 12), t, eighth * 2.6, 'triangle', k % 2 ? 0.04 : 0.06);           // アルペジオ
+      this.bgmNext += eighth; this.bgmStep++;
+    }
+  },
+  setMuted(m) {
+    this.muted = m; lsSet(MUTE_KEY, m ? '1' : '0'); $('btnSound').classList.toggle('off', m);
+    if (this.bgmOn) this.bgmFade(this.bgmLevel(), 0.2);
+  },
 };
 function vibrate(ms) { if (CONFIG.FX.VIBRATE && navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) { /* ignore */ } } }
 
@@ -705,7 +765,7 @@ function checkGameOver() {
   state.over = true;
   lsDel(SAVE_KEY);
   lsSet(BEST_KEY, String(best));
-  Sound.over(); vibrate([60, 40, 120]);
+  Sound.bgmStop(); Sound.over(); vibrate([60, 40, 120]);
   setTimeout(() => {
     if (!state.over) return;
     $('overScore').textContent = state.score.toLocaleString();
