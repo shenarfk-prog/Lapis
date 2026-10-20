@@ -119,6 +119,7 @@ h2 { margin: 0 0 18px; font-size: 26px; letter-spacing: .2em; }
 .title-snd .lbl::after { content: 'おとON'; }
 .title-snd.off .lbl::after { content: 'おとOFF'; }
 .title-snd.off .wave { display: none; } .title-snd:not(.off) .cross { display: none; }
+.back { margin-top: 22px; color: var(--ink-dim); font-size: 14px; font-weight: 700; text-decoration: none; padding: 8px 12px; }
 </style>
 </head>
 <body>
@@ -150,6 +151,7 @@ h2 { margin: 0 0 18px; font-size: 26px; letter-spacing: .2em; }
   <div style="height:22px"></div>
   <button class="btn" id="btnContinue" hidden>つづきから</button>
   <button class="btn" id="btnStart">はじめる</button>
+  <a class="back" href="../">← Lapis にもどる</a>
 </div>
 
 <div class="screen hidden dim" id="scPause">
@@ -221,7 +223,7 @@ const CONFIG = {
   SOUND: {
     TAP_SPLASH: true,   // 起動時に「タップしてはじめる」を出す（iPhoneは最初のタップまで音が出せないため。falseで無効）
     SFX_VOLUME: 1.1,   // 効果音の音量（4つのゲームで同じ大きさになるように調整済み）
-    BGM_VOLUME: 0.65,  // BGMの音量（0〜1、0でBGM無し。これ以上にしてもよい）
+    BGM_VOLUME: 0.9,   // BGMの音量（0〜1、0でBGM無し。これ以上にしてもよい）
     BGM_BPM: 92,       // BGMのテンポ
     IGNORE_SILENT_SWITCH: false, // true にすると、iPhoneの消音スイッチがオンでも鳴らす（アプリ内の消音ボタンは有効）
   },
@@ -483,15 +485,16 @@ const Sound = {
         if (!AC) return;
         this.ctx = new AC();
         this.master = this.ctx.createGain();
-        this.master.gain.value = 1.0;
+        this.master.gain.value = 1.8;
         const comp = this.ctx.createDynamicsCompressor();      // 音割れ防止のリミッター（他のゲームと同じ）
-        comp.threshold.value = -14; comp.knee.value = 10; comp.ratio.value = 8; comp.attack.value = 0.003; comp.release.value = 0.2;
-        this.master.connect(comp); comp.connect(this.ctx.destination); this.comp = comp;
+        comp.threshold.value = -12; comp.knee.value = 6; comp.ratio.value = 14; comp.attack.value = 0.003; comp.release.value = 0.2;
+        const outG = this.ctx.createGain(); outG.gain.value = 0.9; this.master.connect(comp); comp.connect(outG); outG.connect(this.ctx.destination); this.comp = outG;
         this.sfx = this.ctx.createGain(); this.sfx.gain.value = CONFIG.SOUND.SFX_VOLUME; this.sfx.connect(this.master);
         this.bgmGain = this.ctx.createGain();
         this.bgmGain.gain.value = this.bgmOn ? this.bgmLevel() : 0;
         this.bgmGain.connect(this.master);
       }
+      if (!this._stateHook) { this._stateHook = true; this.ctx.addEventListener('statechange', () => { if (this.ctx.state === 'running' && this.bgmOn && this.bgmGain) { const g = this.bgmGain.gain; g.cancelScheduledValues(0); g.setValueAtTime(this.bgmLevel(), this.ctx.currentTime); } }); }
       if (this.ctx.state !== 'running') this.ctx.resume();
       if (!this.primed) {   // 無音を1回鳴らして、iOSの音出力を有効にする
         const b = this.ctx.createBuffer(1, 1, 22050), src = this.ctx.createBufferSource();
@@ -548,7 +551,7 @@ const Sound = {
   bgmStart() {
     if (this.bgmOn || !CONFIG.SOUND.BGM_VOLUME) return;
     this.bgmOn = true; this.bgmNext = 0; this.bgmStep = 0;
-    this.bgmFade(this.bgmLevel(), 0.6);
+    this.bgmFade(this.bgmLevel(), 0.05);
     this.bgmTimer = setInterval(() => this.bgmTick(), 100);
   },
   bgmStop() {

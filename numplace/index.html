@@ -196,7 +196,7 @@ const CONFIG = {
   MAX_TRIES_ADVANCED: 25,     // 「ひらめきだけでは解けない」問題を探す回数
   SOUND: {
     TAP_SPLASH: true,   // 起動時に「タップしてはじめる」を出す（iPhoneは最初のタップまで音が出せないため。falseで無効）
-    SFX_VOLUME: 2.0, BGM_VOLUME: 1.3, BGM_BPM: 78 },
+    SFX_VOLUME: 2.0, BGM_VOLUME: 0.5, BGM_BPM: 68 },
   VIBRATE: true,
 };
 
@@ -317,16 +317,25 @@ const Sound = {
         const AC = window.AudioContext || window.webkitAudioContext;
         if (!AC) return;
         const c = this.ctx = new AC();
-        this.master = c.createGain(); this.master.gain.value = 1;
-        const comp = c.createDynamicsCompressor(); comp.threshold.value = -14; comp.knee.value = 10; comp.ratio.value = 8; comp.attack.value = 0.003; comp.release.value = 0.2;
-        this.master.connect(comp); comp.connect(c.destination);
+        this.master = c.createGain(); this.master.gain.value = 1.8;
+        const comp = c.createDynamicsCompressor(); comp.threshold.value = -12; comp.knee.value = 6; comp.ratio.value = 14; comp.attack.value = 0.003; comp.release.value = 0.2;
+        const outG = c.createGain(); outG.gain.value = 0.9; this.master.connect(comp); comp.connect(outG); outG.connect(c.destination); this.comp = outG;
         this.sfx = c.createGain(); this.sfx.gain.value = CONFIG.SOUND.SFX_VOLUME; this.sfx.connect(this.master);
         this.bgmGain = c.createGain(); this.bgmGain.gain.value = this.bgmOn ? this.bgmLevel() : 0; this.bgmGain.connect(this.master);
+        { // BGMだけに、まるい音色（ローパス）と部屋の響き（リバーブ）をかける
+          const bin = c.createGain(), lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 4200; lp.Q.value = 0.4;
+          bin.connect(lp); lp.connect(this.bgmGain);
+          const rlen = Math.floor(c.sampleRate * 2.2), rir = c.createBuffer(2, rlen, c.sampleRate);
+          for (let ch = 0; ch < 2; ch++) { const d = rir.getChannelData(ch); for (let k = 0; k < rlen; k++) d[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / rlen, 2.2); }
+          const rc = c.createConvolver(); rc.buffer = rir; const rw = c.createGain(); rw.gain.value = 0.5;
+          bin.connect(rc); rc.connect(rw); rw.connect(this.bgmGain); this.bgmIn = bin;
+        }
         const len = Math.floor(c.sampleRate * 1.2), ir = c.createBuffer(2, len, c.sampleRate);
         for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let k = 0; k < len; k++) d[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / len, 2.6); }
         const conv = c.createConvolver(); conv.buffer = ir; this.revSend = c.createGain();
         const wet = c.createGain(); wet.gain.value = 0.3; this.revSend.connect(conv); conv.connect(wet); wet.connect(this.sfx);
       }
+      if (!this._stateHook) { this._stateHook = true; this.ctx.addEventListener('statechange', () => { if (this.ctx.state === 'running' && this.bgmOn && this.bgmGain) { const g = this.bgmGain.gain; g.cancelScheduledValues(0); g.setValueAtTime(this.bgmLevel(), this.ctx.currentTime); } }); }
       if (this.ctx.state !== 'running') this.ctx.resume();
       if (!this.primed) { const b = this.ctx.createBuffer(1, 1, 22050), s = this.ctx.createBufferSource(); s.buffer = b; s.connect(this.ctx.destination); s.start(0); this.primed = true; }
     } catch (e) { /* ignore */ }
@@ -371,53 +380,82 @@ const Sound = {
     this.burstNoise(0.2, 0.12, 3000, 0.6, 0.5);
     for (let i = 0; i < 55; i++) this.burstNoise(0.3 + Math.random() * 1.2, 0.035 + Math.random() * 0.03, 2500 + Math.random() * 3500, 0.7, 0.2 + Math.random() * 0.14);
   },
-  // BGM: ローファイ風のゆったりした曲。title = パッド+メロディ / play = ベース・コード・ハットを足す
-  bgmOn: false, bgmTimer: null, bgmNext: 0, bgmStep: 0, bgmScene: 'title', mel: 3,
+  // BGM: チルなアコースティック風。弦をはじいた音（Karplus-Strong法）を使い、電子的な波形は使わない
+  // title = コード+メロディ+やわらかい低音 / play = そこに、ごく軽いブラシのリズムを足す
+  bgmOn: false, bgmTimer: null, bgmNext: 0, bgmStep: 0, bgmScene: 'title', mel: 3, _ks: null,
   bgmLevel() { return this.muted ? 0 : CONFIG.SOUND.BGM_VOLUME; },
   bgmFade(to, sec) { if (!this.ctx || !this.bgmGain) return; const g = this.bgmGain.gain, t = this.ctx.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(to, t + sec); },
-  bgmNote(freq, t, dur, type, vol) {
-    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
-    o.type = type; o.frequency.value = freq;
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g); g.connect(this.bgmGain); o.start(t); o.stop(t + dur + 0.05);
+  ksBuffer(freq, kind) {       // はじいた弦の音を計算して、使いまわす
+    const key = kind + Math.round(freq * 10);
+    this._ks = this._ks || {};
+    if (this._ks[key]) return this._ks[key];
+    const c = this.ctx, sr = c.sampleRate, bass = kind === 'bass', dur = bass ? 1.8 : 3.4, len = Math.floor(sr * dur);
+    const buf = c.createBuffer(1, len, sr), d = buf.getChannelData(0);
+    const Nf = sr / freq - 0.5, N = Math.ceil(Nf) + 2;
+    let prev = 0;
+    for (let i = 0; i < N; i++) { prev = prev * (bass ? 0.8 : 0.55) + (Math.random() * 2 - 1) * (bass ? 0.2 : 0.45); d[i] = prev; }   // やわらかい音の出だし
+    const decay = bass ? 0.9955 : 0.9978;
+    for (let i = N; i < len; i++) {
+      const p = i - Nf, k0 = Math.floor(p), f = p - k0, p2 = p - 1, k1 = Math.floor(p2), f2 = p2 - k1;
+      d[i] = decay * 0.5 * (d[k0] * (1 - f) + d[k0 + 1] * f + d[k1] * (1 - f2) + d[k1 + 1] * f2);
+    }
+    let pk = 0; for (let i = 0; i < len; i++) { const a = Math.abs(d[i]); if (a > pk) pk = a; }
+    const g = 0.9 / (pk || 1), fade = Math.floor(sr * 0.15);
+    for (let i = 0; i < len; i++) d[i] *= g * (i > len - fade ? (len - i) / fade : 1);
+    this._ks[key] = buf; return buf;
   },
-  epiano(freq, t, dur, vol) {       // やわらかいエレピ風（FM合成）
-    const c = this.ctx, car = c.createOscillator(), mod = c.createOscillator(), mg = c.createGain(), g = c.createGain();
-    car.frequency.value = freq; mod.frequency.value = freq * 2;
-    mg.gain.setValueAtTime(freq * 0.9, t); mg.gain.exponentialRampToValueAtTime(freq * 0.05, t + dur * 0.7); mod.connect(mg); mg.connect(car.frequency);
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    car.connect(g); g.connect(this.bgmGain); car.start(t); mod.start(t); car.stop(t + dur + 0.05); mod.stop(t + dur + 0.05);
+  pluck(freq, t, vol, kind) {
+    const s = this.ctx.createBufferSource(), g = this.ctx.createGain();
+    s.buffer = this.ksBuffer(freq, kind); g.gain.value = vol; s.connect(g); g.connect(this.bgmIn); s.start(t);
   },
-  bgmHat(t, vol) {
+  bgmNoise(t, dur, freq, q, vol, type) {
     const c = this.ctx, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
-    s.buffer = this.noise(); f.type = 'highpass'; f.frequency.value = 7000;
-    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.05); s.connect(f); f.connect(g); g.connect(this.bgmGain); s.start(t, Math.random() * 0.5, 0.06);
+    s.buffer = this.noise(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); s.connect(f); f.connect(g); g.connect(this.bgmIn); s.start(t, Math.random() * 0.5, dur + 0.02);
+  },
+  bgmKick(t) {
+    const c = this.ctx, o = c.createOscillator(), g = c.createGain();
+    o.type = 'sine'; o.frequency.setValueAtTime(100, t); o.frequency.exponentialRampToValueAtTime(46, t + 0.16);
+    g.gain.setValueAtTime(0.28, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22); o.connect(g); g.connect(this.bgmIn); o.start(t); o.stop(t + 0.25);
+  },
+  warmKs() {       // 使う音を、あらかじめ少しずつ作っておく（演奏中にもたつかないように）
+    if (this._warmed) return; this._warmed = true;
+    const hz = n => 220 * Math.pow(2, n / 12), list = [];
+    for (const n of [3, 7, 10, 14, 17, 0, 5, 8, 12, 15, 19, -2, 2, 22, 24]) list.push([hz(n), 'harp']);
+    for (const n of [3, 5, 7, 10, 12, 15, 17, 19]) list.push([hz(n + 12), 'harp']);
+    for (const n of [-9, -12, -7, -14, -2, -5, 0, -7 + 7]) list.push([hz(n), 'bass']);
+    let i = 0; const step = () => { if (i < list.length && this.ctx) { this.ksBuffer(list[i][0], list[i][1]); i++; setTimeout(step, 15); } }; step();
   },
   bgmStart(scene) {
     if (scene) this.bgmScene = scene;
     if (this.bgmOn || !CONFIG.SOUND.BGM_VOLUME) return;
-    this.bgmOn = true; this.bgmNext = 0; this.bgmStep = 0; this.bgmFade(this.bgmLevel(), 0.8); this.bgmTimer = setInterval(() => this.bgmTick(), 100);
+    this.bgmOn = true; this.bgmNext = 0; this.bgmStep = 0; this.bgmFade(this.bgmLevel(), 0.05); this.bgmTimer = setInterval(() => this.bgmTick(), 100);
   },
   bgmStop() { if (!this.bgmOn) return; this.bgmOn = false; clearInterval(this.bgmTimer); this.bgmTimer = null; this.bgmFade(0, 0.3); },
   bgmTick() {
-    if (!this.ctx || this.ctx.state !== 'running') { this.bgmNext = 0; return; }
+    if (!this.ctx || this.ctx.state !== 'running' || !this.bgmIn) { this.bgmNext = 0; return; }
+    this.warmKs();
     const now = this.ctx.currentTime;
-    if (!this.bgmNext || this.bgmNext < now) this.bgmNext = now + 0.1;
+    if (!this.bgmNext || this.bgmNext < now) this.bgmNext = now + 0.15;
     const e = 60 / CONFIG.SOUND.BGM_BPM / 2, play = this.bgmScene === 'play';
-    const CH = [[3, 7, 10, 14], [0, 3, 7, 10], [-4, 0, 3, 7], [-2, 2, 5, 8]];      // Cmaj7 - Am7 - Fmaj7 - G7（Aからの半音数）
-    const PENTA = [3, 5, 7, 10, 12, 15, 17, 19], hz = n => 220 * Math.pow(2, n / 12);
-    while (this.bgmNext < now + 0.4) {
-      const bar = Math.floor(this.bgmStep / 8) % 4, k = this.bgmStep % 8, ch = CH[bar], t = this.bgmNext + (k % 2 ? e * 0.12 : 0);   // 少しはねる
-      if (k === 0) for (const n of ch.slice(0, 3)) this.bgmNote(hz(n + 12), t, e * 8.5, 'sine', 0.05);                      // パッド
-      if (Math.random() < (play ? 0.3 : 0.4)) {                                                                              // ときどき入るメロディ
+    const CH = [[3, 7, 10, 14, 17], [0, 3, 7, 10, 14], [5, 8, 12, 15, 19], [-2, 2, 5, 8, 12]];     // Cmaj9 - Am9 - Dm9 - G9（A3からの半音数）
+    const BASS = [-9, -12, -7, -14], PENTA = [3, 5, 7, 10, 12, 15, 17, 19], hz = n => 220 * Math.pow(2, n / 12);
+    while (this.bgmNext < now + 0.5) {
+      const bar = Math.floor(this.bgmStep / 8) % 4, k = this.bgmStep % 8, ch = CH[bar], t = this.bgmNext + (k % 2 ? e * 0.2 : 0);   // ゆったりスイング
+      if (k === 0) ch.forEach((n, i) => this.pluck(hz(n), t + i * 0.05, 0.2 - i * 0.02, 'harp'));                    // コードをハープのように、ゆっくり
+      if (k === 4) ch.slice(1, 4).forEach((n, i) => this.pluck(hz(n), t + i * 0.04, 0.1, 'harp'));                    // 後半は軽くもう一度
+      if (k !== 0 && Math.random() < (play ? 0.3 : 0.36)) {                                                           // ときどき入るメロディ
         this.mel = Math.max(0, Math.min(7, this.mel + Math.floor(Math.random() * 5) - 2));
-        this.epiano(hz(PENTA[this.mel] + 12), t, e * 3, play ? 0.1 : 0.12);
+        this.pluck(hz(PENTA[this.mel] + 12), t, 0.26, 'harp');
       }
+      if (k === 0) this.pluck(hz(BASS[bar]), t, 0.5, 'bass');                                                         // ウッドベースのような低音
+      if (play && k === 5) this.pluck(hz(BASS[bar] + 7), t, 0.3, 'bass');
       if (play) {
-        if (k === 0 || k === 3) for (const n of ch) this.epiano(hz(n), t, k === 0 ? e * 2.6 : e * 1.5, 0.05);               // コード
-        if (k === 0 || k === 4) { this.bgmNote(hz(ch[0] - 12), t, e * 2.2, 'sine', 0.2); this.bgmNote(hz(ch[0]), t, e * 2.2, 'triangle', 0.06); }   // ベース
-        if (k % 2 === 1) this.bgmHat(t, 0.04);
+        if (k === 0) this.bgmKick(t);
+        if (k === 4) this.bgmNoise(t, 0.22, 2600, 0.5, 0.07, 'bandpass');                                              // ブラシのスネア
+        if (k % 2 === 1) this.bgmNoise(t, 0.05, 8000, 0.7, 0.022, 'highpass');                                        // ごく軽いハット
       }
+      if (Math.random() < 0.2) this.bgmNoise(this.bgmNext + Math.random() * e, 0.006, 3500, 0.8, 0.02, 'highpass');   // レコードのプチッという音
       this.bgmNext += e; this.bgmStep++;
     }
   },
