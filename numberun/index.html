@@ -57,11 +57,13 @@ canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; t
 .btn[hidden] { display: none; }
 
 .screen {
-  position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
   padding: calc(env(safe-area-inset-top) + 20px) 22px calc(env(safe-area-inset-bottom) + 24px);
   background: linear-gradient(180deg, rgba(76,195,255,.97), rgba(212,243,255,.97)); transition: opacity .25s;
   overflow-y: auto; touch-action: pan-y;
 }
+.screen > :first-child { margin-top: auto; }
+.screen > :last-child { margin-bottom: auto; }
 .screen.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
 .screen.dim { background: rgba(18, 48, 90, .92); color: #fff; }
 .logo2 { display: flex; flex-direction: column; align-items: center; margin-bottom: 6px; }
@@ -72,13 +74,13 @@ canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; t
 .word { font-size: 56px; line-height: 1.1; font-weight: 900; font-style: italic; color: #fff; transform: skewX(-6deg);
   -webkit-text-stroke: 7px #12305a; paint-order: stroke fill; text-shadow: 0 6px 0 #12305a, 0 12px 16px rgba(0,0,0,.25); }
 .ribbon { margin-top: 12px; padding: 4px 20px; border-radius: 99px; background: #ff7a1a; color: #fff; font-weight: 900; font-size: 15px; letter-spacing: .15em; box-shadow: 0 3px 0 #c24f00; }
-.runners { margin: 10px 0 4px; display: flex; gap: 10px; align-items: flex-end; }
+.runners { margin: 6px 0 2px; display: flex; gap: 10px; align-items: flex-end; }
 .runners span { display: inline-block; animation: hop .55s ease-in-out infinite; }
 @keyframes hop { 50% { transform: translateY(-12px); } }
 .group { width: min(340px, 90vw); margin-top: 10px; }
 .group .lbl { font-size: 13px; font-weight: 800; margin: 0 4px 6px; opacity: .8; }
-.seg { display: flex; gap: 8px; }
-.seg button { flex: 1; appearance: none; border: 3px solid transparent; border-radius: 16px; padding: 12px 4px; font-family: inherit; font-size: 16px; font-weight: 800;
+.seg { display: flex; gap: 8px; flex-wrap: wrap; }
+.seg button { flex: 1 1 40%; appearance: none; border: 3px solid transparent; border-radius: 16px; padding: 8px 4px; font-family: inherit; font-size: 16px; font-weight: 800;
   background: #fff; color: var(--navy); box-shadow: 0 3px 0 rgba(18,48,90,.25); touch-action: manipulation; }
 .seg button small { display: block; font-size: 11px; font-weight: 700; opacity: .7; margin-top: 2px; }
 .seg button.on { border-color: var(--accent); background: #fff6e0; }
@@ -93,6 +95,7 @@ h2 { margin: 0 0 8px; font-size: 28px; text-align: center; }
 .review .item:last-child { border-bottom: 0; }
 .review .ok { color: #8cf5a8; font-weight: 800; }
 .review .ng { color: #ffd27a; font-weight: 800; }
+@media (max-height: 760px) { .word { font-size: 46px; } .chip { font-size: 20px; padding: 4px 12px; } .runners svg { width: 44px; height: 44px; } .runners span:nth-child(2) svg { width: 56px; height: 56px; } .group { margin-top: 6px; } .btn { padding: 14px 0; } }
 </style>
 </head>
 <body>
@@ -123,8 +126,9 @@ h2 { margin: 0 0 8px; font-size: 28px; text-align: center; }
   </div>
   <div class="group"><div class="lbl">がくねん</div>
     <div class="seg" id="segLevel">
-      <button data-v="g3">3年生<small>たし・ひき・九九</small></button>
-      <button data-v="g4">4年生<small>わり算もでる</small></button>
+      <button data-v="g2">2年生<small>たし算・2のだん</small></button>
+      <button data-v="g3">3年生<small>たし・ひき・九九・わり</small></button>
+      <button data-v="g4">4年生<small>少し大きな数</small></button>
       <button data-v="ch">チャレンジ<small>大きな数</small></button>
     </div>
   </div>
@@ -161,7 +165,7 @@ h2 { margin: 0 0 8px; font-size: 28px; text-align: center; }
 const CONFIG = {
   // 学年ごとの設定
   LEVELS: {
-    g3: { label: '3年生', start: 10, cap: 200,
+    g2: { label: '2年生', start: 10, cap: 200,
       add: [1, 10], sub: [1, 8], mul: [2, 3, 4, 5], div: [2, 3],
       typeWeight: { add: 3, sub: 2, mul: 2, div: 1 },
       unlock: { sub: 2, div: 4 },   // このステージから、ひき算 / わり算が出はじめる
@@ -169,6 +173,13 @@ const CONFIG = {
       enemyRatio: 0.70,             // てきの人数の割合（この学年だけ別の値。小さいほど勝ちやすい）
       comfort: 30,                  // 人数がこれを超えると、「減る方を選ぶ」組が出やすくなる（増えすぎ防止）
       minDiff: 0.25, maxDiff: 0.90 },   // 2つのゲートの結果の差（大きい方に対する割合）
+    g3: { label: '3年生', start: 10, cap: 300,
+      add: [1, 20], sub: [1, 15], mul: [2, 3, 4, 5], div: [2, 3],
+      typeWeight: { add: 3, sub: 2, mul: 2, div: 1 },
+      unlock: { sub: 1, div: 1 }, mulStart: 99,   // 最初から、ひき算・わり算・かけ算がぜんぶ出る
+      enemyRatio: 0.85,
+      comfort: 40,
+      minDiff: 0.20, maxDiff: 0.70 },
     g4: { label: '4年生', start: 20, cap: 999,
       add: [5, 40], sub: [3, 30], mul: [2, 3, 4, 5, 6, 7, 8, 9], div: [2, 3, 4, 5, 6, 8, 9],
       typeWeight: { add: 3, sub: 2, mul: 3, div: 2 },
@@ -193,7 +204,7 @@ const CONFIG = {
   STAGE: { PAIRS_BASE: 3, PAIRS_PER_STAGE: 1, PAIRS_MAX: 7 },   // 1ステージのゲートの数
   ENEMY_RATIO: 0.85,   // てきの人数 = 「毎回いちばん多い方を選んだ人数」 × この値（小さいほど勝ちやすい）
   ENEMY_MIN: 3,
-  HINTS: { g3: 3, g4: 3, ch: 1 },   // ヒントの回数（1回のゲームあたり）
+  HINTS: { g2: 3, g3: 3, g4: 3, ch: 1 },   // ヒントの回数（1回のゲームあたり）
 
   // 速さ（画面の高さに対する、1秒あたりの移動量）
   SPEED: { think: 0.60, run: 0.30 },
@@ -296,6 +307,13 @@ const Sound = {
         this.ctx = new AC();
         this.master = this.ctx.createGain(); this.master.gain.value = 0.5; this.master.connect(this.ctx.destination);
         this.bgmGain = this.ctx.createGain(); this.bgmGain.gain.value = 0; this.bgmGain.connect(this.master);
+        // 効果音に、ほんのり響きをつける（リバーブ）
+        const len = Math.floor(this.ctx.sampleRate * 1.3), ir = this.ctx.createBuffer(2, len, this.ctx.sampleRate);
+        for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let k = 0; k < len; k++) d[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / len, 2.6); }
+        const conv = this.ctx.createConvolver(); conv.buffer = ir;
+        this.revSend = this.ctx.createGain(); this.revSend.gain.value = 1;
+        const wet = this.ctx.createGain(); wet.gain.value = 0.35;
+        this.revSend.connect(conv); conv.connect(wet); wet.connect(this.master);
       }
       if (this.ctx.state !== 'running') this.ctx.resume();
       if (!this.primed) {
@@ -313,7 +331,29 @@ const Sound = {
     o.connect(g); g.connect(this.master); o.start(t); o.stop(t + dur + 0.02);
   },
   select() { this.tone(700, 0.08, 'sine', 0.14, 900); },
-  good() { [0, 4, 7, 12].forEach((s, i) => this.tone(523 * Math.pow(2, s / 12), 0.18, 'triangle', 0.2, 0, i * 0.06)); },
+  ready() { return !(this.muted || !this.ctx || this.ctx.state !== 'running'); },
+  // ベルのような音（FM合成）
+  bell(freq, delay, vol, dur) {
+    if (!this.ready()) return;
+    const c = this.ctx, t = c.currentTime + delay;
+    const car = c.createOscillator(), mod = c.createOscillator(), mg = c.createGain(), g = c.createGain();
+    car.frequency.value = freq; mod.frequency.value = freq * 3.5;
+    mg.gain.setValueAtTime(freq * 1.5, t); mg.gain.exponentialRampToValueAtTime(1, t + dur * 0.6);
+    mod.connect(mg); mg.connect(car.frequency);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    car.connect(g); g.connect(this.master); g.connect(this.revSend);
+    car.start(t); mod.start(t); car.stop(t + dur + 0.05); mod.stop(t + dur + 0.05);
+  },
+  // 人数がふえたときの音。level が大きい（たくさん増えた）ほど、音が多くなる
+  up(level) {
+    const steps = [0, 4, 7, 12, 16, 19, 24, 28];
+    const n = Math.min(steps.length, 3 + level * 2);
+    for (let i = 0; i < n; i++) this.bell(784 * Math.pow(2, steps[i] / 12), i * 0.05, 0.22, 0.55);
+    this.bell(784 * 4, n * 0.05, 0.1, 0.7);
+    this.tone(1568, 0.06, 'sine', 0.05, 2200);
+  },
+  ok() { this.bell(988, 0, 0.14, 0.4); this.bell(1319, 0.07, 0.12, 0.5); },
+  good() { this.up(0); },
   bad() { this.tone(300, 0.28, 'triangle', 0.18, 170); },
   hint() { this.tone(880, 0.1, 'sine', 0.12); this.tone(1175, 0.14, 'sine', 0.12, 0, 0.08); },
   hit() { this.tone(180, 0.1, 'square', 0.06, 90); },
@@ -325,34 +365,60 @@ const Sound = {
     }
     return this._noise;
   },
-  // 歓声「わーっ！」
-  cheer() {
-    if (this.muted || !this.ctx || this.ctx.state !== 'running') return;
-    const c = this.ctx, t = c.currentTime;
-    const src = c.createBufferSource(); src.buffer = this.noise(); src.loop = true;
-    const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 0.9;
-    bp.frequency.setValueAtTime(1500, t); bp.frequency.linearRampToValueAtTime(2700, t + 0.5);
-    const g = c.createGain();
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.32, t + 0.08); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.1);
-    const lfo = c.createOscillator(), lg = c.createGain(); lfo.frequency.value = 14; lg.gain.value = 0.1; lfo.connect(lg); lg.connect(g.gain);
-    src.connect(bp); bp.connect(g); g.connect(this.master);
-    src.start(t); src.stop(t + 1.2); lfo.start(t); lfo.stop(t + 1.2);
-    [330, 415, 494, 622].forEach((f, i) => this.tone(f * (1 + i * 0.012), 0.7, 'triangle', 0.05, f * 1.18, 0.02 * i));
-  },
-  // ブーイング「うー…」
-  boo() {
-    if (this.muted || !this.ctx || this.ctx.state !== 'running') return;
-    const c = this.ctx, t = c.currentTime;
-    const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 520; lp.Q.value = 3;
-    const g = c.createGain();
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.3, t + 0.1); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.0);
-    const lfo = c.createOscillator(), lg = c.createGain(); lfo.frequency.value = 5; lg.gain.value = 5; lfo.connect(lg);
-    [[130, 92], [196, 138], [262, 185]].forEach(([f0, f1]) => {
-      const o = c.createOscillator(); o.type = 'sawtooth';
-      o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + 0.9); lg.connect(o.frequency);
-      o.connect(lp); o.start(t); o.stop(t + 1.05);
+  // 人の声っぽい音（のこぎり波を、母音の響き＝フォルマントで加工する）
+  voice(f0, formants, dur, vol, delay, glide) {
+    const c = this.ctx, t = c.currentTime + delay;
+    const o = c.createOscillator(); o.type = 'sawtooth';
+    o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f0 * glide, t + dur);
+    const lfo = c.createOscillator(), lg = c.createGain(); lfo.frequency.value = 5 + Math.random() * 1.5; lg.gain.value = f0 * 0.018;
+    lfo.connect(lg); lg.connect(o.frequency);
+    const out = c.createGain();
+    out.gain.setValueAtTime(0.0001, t); out.gain.exponentialRampToValueAtTime(vol, t + dur * 0.28); out.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    formants.forEach(([fr, q, gn]) => {
+      const b = c.createBiquadFilter(); b.type = 'bandpass'; b.frequency.value = fr * (0.96 + Math.random() * 0.08); b.Q.value = q;
+      const g = c.createGain(); g.gain.value = gn; o.connect(b); b.connect(g); g.connect(out);
     });
-    lp.connect(g); g.connect(this.master); lfo.start(t); lfo.stop(t + 1.05);
+    out.connect(this.master); out.connect(this.revSend);
+    o.start(t); lfo.start(t); o.stop(t + dur + 0.05); lfo.stop(t + dur + 0.05);
+  },
+  burstNoise(delay, dur, freq, q, vol) {
+    const c = this.ctx, t = c.currentTime + delay;
+    const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+    s.buffer = this.noise(); f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(this.master); s.start(t, Math.random() * 0.5, dur + 0.02);
+  },
+  // 歓声「わーっ！」＋ はくしゅ
+  cheer() {
+    if (!this.ready()) return;
+    const A = [[800, 9, 3], [1200, 10, 2], [2800, 12, 0.8]];
+    for (let i = 0; i < 12; i++) {
+      const f0 = 190 * Math.pow(2, (Math.random() * 14 - 2) / 12);
+      this.voice(f0, A, 0.7 + Math.random() * 0.35, 0.11, Math.random() * 0.16, 1.1 + Math.random() * 0.08);
+    }
+    for (let i = 0; i < 46; i++) this.burstNoise(0.1 + Math.random() * 1.0, 0.035 + Math.random() * 0.03, 2500 + Math.random() * 3500, 0.7, 0.08 + Math.random() * 0.08);
+  },
+  // ブーイング「うーーー…」
+  boo() {
+    if (!this.ready()) return;
+    const U = [[300, 9, 3.2], [870, 10, 1.4], [2250, 12, 0.5]];
+    for (let i = 0; i < 9; i++) {
+      const f0 = 95 * Math.pow(2, (Math.random() * 10) / 12);
+      this.voice(f0, U, 1.0 + Math.random() * 0.4, 0.15, Math.random() * 0.14, 0.78 + Math.random() * 0.06);
+    }
+    this.tone(110, 0.9, 'sine', 0.08, 70);
+  },
+  // たたかいの効果音
+  clash() {
+    if (!this.ready()) return;
+    this.tone(150, 0.4, 'sine', 0.55, 36);
+    this.burstNoise(0, 0.28, 900, 0.5, 0.45);
+    this.bell(330, 0, 0.12, 0.7); this.bell(523, 0.03, 0.08, 0.5);
+  },
+  pop() { if (this.ready()) this.tone(450 + Math.random() * 800, 0.07, 'sine', 0.11, 220); },
+  finishHit() {
+    if (!this.ready()) return;
+    this.tone(180, 0.35, 'sine', 0.5, 40); this.burstNoise(0, 0.35, 600, 0.4, 0.4);
   },
   win() { [0, 4, 7, 12, 16, 19, 24].forEach((s, i) => this.tone(392 * Math.pow(2, s / 12), 0.35, 'triangle', 0.22, 0, i * 0.09)); },
   lose() { [0, -3, -7, -12].forEach((s, i) => this.tone(330 * Math.pow(2, s / 12), 0.35, 'sawtooth', 0.09, 0, i * 0.16)); },
@@ -423,7 +489,7 @@ let W = 0, H = 0, dpr = 1, P = {};   // P = レイアウト
 let screen = 'title';
 
 const settings = {
-  level: ['g3', 'g4', 'ch'].includes(lsGet('numberun.level')) ? lsGet('numberun.level') : 'g3',
+  level: ['g2', 'g3', 'g4', 'ch'].includes(lsGet('numberun.level')) ? lsGet('numberun.level') : 'g3',
   mode: ['think', 'run'].includes(lsGet('numberun.mode')) ? lsGet('numberun.mode') : 'think',
 };
 const bestKey = lv => 'numberun.best.' + lv;
@@ -489,7 +555,11 @@ function cross(lane) {
   addFloater(good ? 'せいかい！' : 'おしい！', x, pr.y - P.gh * 0.75, 34, good ? '#1fae5b' : '#e0701a');
   burst(x, pr.y + P.gh / 2, good ? '#ffd24d' : '#ff8a5c', good ? 26 : 12, 260);
   G.mood = good ? 'happy' : 'sad'; G.moodT = 1.5;
-  if (good) { Sound.good(); Sound.cheer(); vibrate(15); } else { Sound.boo(); vibrate([20, 40, 20]); }
+  if (good) {
+    const ratio = g.res / Math.max(1, before);
+    if (g.res > before) Sound.up(ratio >= 3 ? 3 : ratio >= 2 ? 2 : ratio >= 1.4 ? 1 : 0); else Sound.ok();
+    Sound.cheer(); vibrate(15);
+  } else { Sound.boo(); vibrate([20, 40, 20]); }
   G.phase = 'reveal'; G.timer = CONFIG.REVEAL_MS[settings.mode] / 1000;
 }
 function afterReveal() {
@@ -502,7 +572,7 @@ function startBattle() {
   const E = Math.max(CONFIG.ENEMY_MIN, Math.floor(par * (CONFIG.LEVELS[settings.level].enemyRatio || CONFIG.ENEMY_RATIO)));
   G.pair = null;
   G.enemy = { n: E, shown: E, y: -90 };
-  G.battle = { t: 0, win: G.n > E, me0: G.n, en0: E, burstDone: false, closed: false };
+  G.battle = { t: 0, win: G.n > E, me0: G.n, en0: E, burstDone: false, closed: false, clashDone: false, popT: 0 };
   G.phase = 'battle'; $('btnHint').disabled = true;
   G.crowdTX = W / 2;
   updateHud();
@@ -522,7 +592,7 @@ function finishBattle() {
 
 function showResult(win, diff) {
   const b = G.battle;
-  $('resMascot').innerHTML = mascotSVG(win ? 'happy' : 'sad', '#2f86ff', 104);
+  $('resMascot').innerHTML = mascotSVG(win ? 'happy' : 'sad', '#2f86ff', 110, win);
   $('resTitle').textContent = win ? `ステージ ${G.stage} クリア！` : 'ざんねん…';
   $('resSum').innerHTML = `あなた ${b.me0} − てき ${b.en0} = ${win ? diff : '−' + diff}<br><span style="font-size:15px;font-weight:700;opacity:.85">${win ? `${diff}人 のこって かった！` : 'てきのほうが おおかったよ'}</span>`;
   const mk = G.stageLog.filter(e => !e.good);
@@ -632,14 +702,16 @@ function update(dt) {
       G.crowdY += (H * 0.64 - G.crowdY) * (1 - Math.exp(-dt * 4));
       G.enemy.y += (H * 0.30 - G.enemy.y) * (1 - Math.exp(-dt * 4));
       G.scroll += sp * 0.3 * dt;
+      if (!b.clashDone && b.t > 1.05) { b.clashDone = true; Sound.clash(); }
       const k = (b.t - 1.2) / 1.8;      // 1.2秒あとから、人数が減っていく
+      if (k >= 0 && k < 1 && (b.popT -= dt) <= 0) { b.popT = 0.075; Sound.pop(); }
       if (k >= 0) {
         const e = easeInOut(k), diff = Math.abs(b.me0 - b.en0);
         G.shown = b.win ? b.me0 + (diff - b.me0) * e : b.me0 * (1 - e);
         G.enemy.shown = b.win ? b.en0 * (1 - e) : b.en0 + (diff - b.en0) * e;
         if (!b.burstDone && k > 0.15) { b.burstDone = true; burst(W / 2, (G.crowdY + G.enemy.y) / 2, '#ffd24d', 60, 380); Sound.hit(); }
       }
-      if (k >= 1 && !b.closed) { b.closed = true; G.shown = b.win ? b.me0 - b.en0 : 0; G.n = b.win ? b.me0 - b.en0 : 0; finishBattle(); }
+      if (k >= 1 && !b.closed) { b.closed = true; Sound.finishHit(); G.shown = b.win ? b.me0 - b.en0 : 0; G.n = b.win ? b.me0 - b.en0 : 0; finishBattle(); }
       break;
     }
   }
@@ -647,38 +719,76 @@ function update(dt) {
 
 /* ---------- 描画 ---------- */
 function drawChar(x, y, r, body, edge, mood, enemy, leader, hop, i) {
-  const t = performance.now() / 1000;
-  const hy = -Math.abs(Math.sin(t * hop + i * 0.9)) * r * (mood === 'happy' ? 0.9 : 0.4);
+  const t = performance.now() / 1000, ph = t * hop + i * 0.9;
+  const sn = Math.abs(Math.sin(ph));                              // 0=着地 1=ジャンプの頂点
   const gy = y;
-  y += hy;
-  ctx.fillStyle = 'rgba(18,48,90,.18)'; ctx.beginPath(); ctx.ellipse(x, gy + r * 1.05, r * 0.8, r * 0.28, 0, 0, 7); ctx.fill();
-  const f = Math.sin(t * hop * 1.5 + i) * r * 0.18;                       // あし
-  ctx.fillStyle = edge; ctx.beginPath();
-  ctx.ellipse(x - r * 0.4, y + r * 0.95 + f, r * 0.32, r * 0.2, 0, 0, 7); ctx.ellipse(x + r * 0.4, y + r * 0.95 - f, r * 0.32, r * 0.2, 0, 0, 7); ctx.fill();
-  ctx.fillStyle = edge; ctx.beginPath(); ctx.arc(x, y + r * 0.06, r + 1.4, 0, 7); ctx.fill();
-  ctx.fillStyle = body; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.ellipse(x - r * 0.3, y - r * 0.55, r * 0.35, r * 0.18, -0.5, 0, 7); ctx.fill();
+  y -= sn * r * (mood === 'happy' ? 0.95 : 0.42);
+  const rx = r * (1.04 + (1 - sn) * 0.05), ry = r * (0.97 - (1 - sn) * 0.05);   // 着地でぷにっとつぶれる
   const ink = '#12305a';
-  if (r < 5.5) { ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(x - r * 0.33, y - r * 0.05, r * 0.16, 0, 7); ctx.arc(x + r * 0.33, y - r * 0.05, r * 0.16, 0, 7); ctx.fill(); return; }
-  ctx.fillStyle = '#fff'; ctx.beginPath();                                  // 目
-  ctx.ellipse(x - r * 0.34, y - r * 0.1, r * 0.25, r * 0.3, 0, 0, 7); ctx.ellipse(x + r * 0.34, y - r * 0.1, r * 0.25, r * 0.3, 0, 0, 7); ctx.fill();
-  ctx.fillStyle = ink; ctx.beginPath();
-  ctx.arc(x - r * 0.32, y - r * 0.06, r * 0.13, 0, 7); ctx.arc(x + r * 0.36, y - r * 0.06, r * 0.13, 0, 7); ctx.fill();
-  ctx.strokeStyle = ink; ctx.lineWidth = Math.max(1, r * 0.13); ctx.lineCap = 'round';
-  if (enemy) {                                                              // おこりまゆ・への字の口
-    ctx.beginPath(); ctx.moveTo(x - r * 0.62, y - r * 0.5); ctx.lineTo(x - r * 0.12, y - r * 0.34);
-    ctx.moveTo(x + r * 0.62, y - r * 0.5); ctx.lineTo(x + r * 0.12, y - r * 0.34); ctx.stroke();
-    ctx.beginPath(); ctx.arc(x, y + r * 0.72, r * 0.26, Math.PI * 1.15, Math.PI * 1.85); ctx.stroke();
-  } else if (mood === 'happy') {
-    ctx.fillStyle = '#7a1f2b'; ctx.beginPath(); ctx.arc(x, y + r * 0.3, r * 0.3, 0, Math.PI); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = 'rgba(255,130,150,.55)'; ctx.beginPath(); ctx.arc(x - r * 0.62, y + r * 0.28, r * 0.15, 0, 7); ctx.arc(x + r * 0.62, y + r * 0.28, r * 0.15, 0, 7); ctx.fill();
-  } else if (mood === 'sad') {
-    ctx.beginPath(); ctx.arc(x, y + r * 0.7, r * 0.24, Math.PI * 1.15, Math.PI * 1.85); ctx.stroke();
-    ctx.fillStyle = '#7fd0ff'; ctx.beginPath(); ctx.ellipse(x + r * 0.55, y + r * 0.25, r * 0.1, r * 0.17, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = 'rgba(18,48,90,.16)'; ctx.beginPath(); ctx.ellipse(x, gy + r * 1.02, r * (0.85 - sn * 0.2), r * 0.24, 0, 0, 7); ctx.fill();
+  const f = Math.sin(ph * 1.5) * r * 0.14;
+  ctx.fillStyle = edge; ctx.beginPath();                          // あし
+  ctx.ellipse(x - r * 0.42, y + r * 0.92 + f, r * 0.3, r * 0.19, 0, 0, 7); ctx.ellipse(x + r * 0.42, y + r * 0.92 - f, r * 0.3, r * 0.19, 0, 0, 7); ctx.fill();
+  const arm = mood === 'happy' ? -r * 0.6 : Math.sin(ph + 1) * r * 0.12;
+  ctx.beginPath(); ctx.ellipse(x - r * 1.0, y + r * 0.2 + arm, r * 0.2, r * 0.26, 0.4, 0, 7); ctx.ellipse(x + r * 1.0, y + r * 0.2 + arm, r * 0.2, r * 0.26, -0.4, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x, y + r * 0.04, rx + 1.4, ry + 1.4, 0, 0, 7); ctx.fill();   // ふち
+  ctx.fillStyle = body; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.beginPath(); ctx.ellipse(x, y + r * 0.38, r * 0.66, r * 0.5, 0, 0, 7); ctx.fill();     // おなか
+  ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.beginPath(); ctx.ellipse(x - r * 0.42, y - r * 0.6, r * 0.28, r * 0.15, -0.5, 0, 7); ctx.fill();  // つや
+  if (r < 5.5) { ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(x - r * 0.33, y, r * 0.17, 0, 7); ctx.arc(x + r * 0.33, y, r * 0.17, 0, 7); ctx.fill(); return; }
+  // 頭の飾り（先頭=王冠 / てき=つの / なかま=芽）
+  const topY = y - ry;
+  if (enemy) {
+    ctx.fillStyle = '#7a1620'; ctx.beginPath();
+    ctx.moveTo(x - r * 0.72, topY + r * 0.28); ctx.lineTo(x - r * 0.52, topY - r * 0.42); ctx.lineTo(x - r * 0.22, topY + r * 0.1);
+    ctx.moveTo(x + r * 0.72, topY + r * 0.28); ctx.lineTo(x + r * 0.52, topY - r * 0.42); ctx.lineTo(x + r * 0.22, topY + r * 0.1); ctx.fill();
+  } else if (leader) {
+    const w = r * 0.95, b0 = topY + r * 0.1, tp = topY - r * 0.5;
+    ctx.fillStyle = '#ffd24d'; ctx.strokeStyle = '#c98a00'; ctx.lineWidth = Math.max(1, r * 0.08); ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(x - w / 2, b0); ctx.lineTo(x - w / 2, tp); ctx.lineTo(x - w / 4, topY - r * 0.15); ctx.lineTo(x, tp - r * 0.08);
+    ctx.lineTo(x + w / 4, topY - r * 0.15); ctx.lineTo(x + w / 2, tp); ctx.lineTo(x + w / 2, b0); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#ff5a7a'; ctx.beginPath(); ctx.arc(x, b0 - r * 0.14, r * 0.09, 0, 7); ctx.fill();
   } else {
-    ctx.beginPath(); ctx.arc(x, y + r * 0.2, r * 0.28, Math.PI * 0.15, Math.PI * 0.85); ctx.stroke();
+    ctx.strokeStyle = '#2e9a3a'; ctx.lineWidth = Math.max(1, r * 0.1); ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x, topY + r * 0.05); ctx.lineTo(x, topY - r * 0.22); ctx.stroke();
+    ctx.fillStyle = '#6fe07a'; ctx.beginPath();
+    ctx.ellipse(x - r * 0.2, topY - r * 0.3, r * 0.22, r * 0.11, -0.5, 0, 7); ctx.ellipse(x + r * 0.2, topY - r * 0.3, r * 0.22, r * 0.11, 0.5, 0, 7); ctx.fill();
   }
-  if (leader) { ctx.strokeStyle = '#ffd24d'; ctx.lineWidth = r * 0.24; ctx.beginPath(); ctx.arc(x, y + r * 0.02, r * 0.92, Math.PI * 1.17, Math.PI * 1.83); ctx.stroke(); }
+  const ex = r * 0.38, ey = y - r * 0.02;
+  ctx.lineCap = 'round'; ctx.lineWidth = Math.max(1, r * 0.13);
+  if (mood === 'happy' && !enemy) {                               // にっこり目（^ ^）
+    ctx.strokeStyle = ink; ctx.beginPath();
+    ctx.arc(x - ex, ey + r * 0.08, r * 0.18, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x + ex, ey + r * 0.08, r * 0.18, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
+  } else {                                                        // つぶらな目（ハイライト付き）
+    ctx.fillStyle = ink; ctx.beginPath();
+    ctx.ellipse(x - ex, ey, r * 0.19, r * 0.27, 0, 0, 7); ctx.ellipse(x + ex, ey, r * 0.19, r * 0.27, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.beginPath();
+    ctx.arc(x - ex - r * 0.05, ey - r * 0.1, r * 0.09, 0, 7); ctx.arc(x + ex - r * 0.05, ey - r * 0.1, r * 0.09, 0, 7);
+    ctx.arc(x - ex + r * 0.06, ey + r * 0.09, r * 0.045, 0, 7); ctx.arc(x + ex + r * 0.06, ey + r * 0.09, r * 0.045, 0, 7); ctx.fill();
+  }
+  ctx.fillStyle = enemy ? 'rgba(255,200,120,.5)' : 'rgba(255,110,150,.6)';                       // ほっぺ
+  ctx.beginPath(); ctx.ellipse(x - r * 0.7, y + r * 0.3, r * 0.17, r * 0.1, 0, 0, 7); ctx.ellipse(x + r * 0.7, y + r * 0.3, r * 0.17, r * 0.1, 0, 0, 7); ctx.fill();
+  const my = y + r * 0.34;
+  ctx.strokeStyle = ink;
+  if (enemy) {
+    ctx.beginPath(); ctx.moveTo(x - ex - r * 0.28, ey - r * 0.46); ctx.lineTo(x - ex + r * 0.22, ey - r * 0.26);
+    ctx.moveTo(x + ex + r * 0.28, ey - r * 0.46); ctx.lineTo(x + ex - r * 0.22, ey - r * 0.26); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, my + r * 0.2, r * 0.17, Math.PI * 1.15, Math.PI * 1.85); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(x - r * 0.14, my + r * 0.02); ctx.lineTo(x - r * 0.06, my + r * 0.16); ctx.lineTo(x + r * 0.02, my + r * 0.02);
+    ctx.moveTo(x + r * 0.02, my + r * 0.02); ctx.lineTo(x + r * 0.1, my + r * 0.16); ctx.lineTo(x + r * 0.18, my + r * 0.02); ctx.fill();
+  } else if (mood === 'happy') {
+    ctx.fillStyle = '#7a1f2b'; ctx.beginPath(); ctx.arc(x, my - r * 0.04, r * 0.23, 0, Math.PI); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#ff8aa0'; ctx.beginPath(); ctx.ellipse(x, my + r * 0.13, r * 0.12, r * 0.07, 0, 0, 7); ctx.fill();
+  } else if (mood === 'sad') {
+    ctx.beginPath(); ctx.arc(x, my + r * 0.22, r * 0.15, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x - ex - r * 0.2, ey - r * 0.4); ctx.lineTo(x - ex + r * 0.2, ey - r * 0.5);
+    ctx.moveTo(x + ex + r * 0.2, ey - r * 0.4); ctx.lineTo(x + ex - r * 0.2, ey - r * 0.5); ctx.stroke();
+    ctx.fillStyle = '#8fd8ff'; ctx.beginPath(); ctx.ellipse(x + ex + r * 0.12, ey + r * 0.42, r * 0.09, r * 0.16, 0, 0, 7); ctx.fill();
+  } else {
+    ctx.beginPath(); ctx.arc(x - r * 0.1, my, r * 0.1, 0, Math.PI); ctx.stroke();    // ω の口
+    ctx.beginPath(); ctx.arc(x + r * 0.1, my, r * 0.1, 0, Math.PI); ctx.stroke();
+  }
 }
 
 function drawCrowd(cx, cy, n, shownN, body, edge, label, mood, enemy) {
@@ -830,27 +940,52 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 }
 
-function mascotSVG(mood, body, size) {
+function mascotSVG(mood, body, size, crown) {
   const edge = body === '#ff5a5a' ? '#b82b2b' : '#1a4fb0';
-  const mouth = mood === 'happy' ? '<path d="M40 64 Q55 90 70 64 Z" fill="#7a1f2b"/>'
-    : mood === 'sad' ? '<path d="M42 80 Q55 66 68 80" fill="none" stroke="#12305a" stroke-width="4" stroke-linecap="round"/><ellipse cx="78" cy="58" rx="4" ry="7" fill="#7fd0ff"/>'
-    : '<path d="M42 66 Q55 78 68 66" fill="none" stroke="#12305a" stroke-width="4" stroke-linecap="round"/>';
-  const arms = mood === 'happy' ? `<path d="M20 52 Q8 36 14 22 M90 52 Q102 36 96 22" fill="none" stroke="${edge}" stroke-width="7" stroke-linecap="round"/>` : '';
+  const eyes = mood === 'happy'
+    ? `<path d="M31 54 Q39 42 47 54 M63 54 Q71 42 79 54" fill="none" stroke="#12305a" stroke-width="5" stroke-linecap="round"/>`
+    : `<ellipse cx="39" cy="53" rx="8.5" ry="12" fill="#12305a"/><ellipse cx="71" cy="53" rx="8.5" ry="12" fill="#12305a"/>
+       <circle cx="36" cy="47" r="4" fill="#fff"/><circle cx="68" cy="47" r="4" fill="#fff"/><circle cx="42" cy="58" r="2" fill="#fff"/><circle cx="74" cy="58" r="2" fill="#fff"/>`;
+  const mouth = mood === 'happy' ? '<path d="M44 68 Q55 90 66 68 Z" fill="#7a1f2b"/><ellipse cx="55" cy="77" rx="5" ry="3" fill="#ff8aa0"/>'
+    : mood === 'sad' ? '<path d="M46 80 Q55 70 64 80" fill="none" stroke="#12305a" stroke-width="4" stroke-linecap="round"/><path d="M26 40 L44 36 M84 40 L66 36" stroke="#12305a" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="80" cy="70" rx="4" ry="7" fill="#8fd8ff"/>'
+    : '<path d="M46 72 Q50 78 55 72 Q60 78 64 72" fill="none" stroke="#12305a" stroke-width="3.5" stroke-linecap="round"/>';
+  const arms = mood === 'happy' ? `<ellipse cx="13" cy="52" rx="8" ry="11" fill="${edge}" transform="rotate(25 13 52)"/><ellipse cx="97" cy="52" rx="8" ry="11" fill="${edge}" transform="rotate(-25 97 52)"/>`
+    : `<ellipse cx="13" cy="68" rx="8" ry="11" fill="${edge}" transform="rotate(20 13 68)"/><ellipse cx="97" cy="68" rx="8" ry="11" fill="${edge}" transform="rotate(-20 97 68)"/>`;
+  const top = crown
+    ? '<path d="M32 26 L32 4 L44 16 L55 0 L66 16 L78 4 L78 26 Z" fill="#ffd24d" stroke="#c98a00" stroke-width="3" stroke-linejoin="round"/><circle cx="55" cy="21" r="4" fill="#ff5a7a"/>'
+    : '<path d="M55 24 L55 10" stroke="#2e9a3a" stroke-width="4" stroke-linecap="round"/><ellipse cx="46" cy="8" rx="11" ry="6" fill="#6fe07a" transform="rotate(-25 46 8)"/><ellipse cx="64" cy="8" rx="11" ry="6" fill="#6fe07a" transform="rotate(25 64 8)"/>';
   return `<svg viewBox="0 0 110 112" width="${size}" height="${size}">${arms}
-    <ellipse cx="38" cy="100" rx="13" ry="8" fill="${edge}"/><ellipse cx="72" cy="100" rx="13" ry="8" fill="${edge}"/>
-    <circle cx="55" cy="56" r="41" fill="${edge}"/><circle cx="55" cy="53" r="38" fill="${body}"/>
-    <ellipse cx="42" cy="30" rx="13" ry="7" fill="#fff" opacity=".35" transform="rotate(-25 42 30)"/>
-    <ellipse cx="41" cy="48" rx="9.5" ry="11" fill="#fff"/><ellipse cx="69" cy="48" rx="9.5" ry="11" fill="#fff"/>
-    <circle cx="42" cy="50" r="5" fill="#12305a"/><circle cx="70" cy="50" r="5" fill="#12305a"/>
-    <path d="M22 36 Q55 8 88 36" fill="none" stroke="#ffd24d" stroke-width="8" stroke-linecap="round"/>${mouth}</svg>`;
+    <ellipse cx="38" cy="102" rx="13" ry="8" fill="${edge}"/><ellipse cx="72" cy="102" rx="13" ry="8" fill="${edge}"/>
+    <ellipse cx="55" cy="62" rx="44" ry="40" fill="${edge}"/><ellipse cx="55" cy="59" rx="42" ry="38" fill="${body}"/>
+    <ellipse cx="55" cy="80" rx="28" ry="19" fill="#fff" opacity=".2"/><ellipse cx="38" cy="34" rx="13" ry="6.5" fill="#fff" opacity=".5" transform="rotate(-25 38 34)"/>
+    ${top}${eyes}<ellipse cx="22" cy="68" rx="8" ry="5" fill="#ff6e96" opacity=".6"/><ellipse cx="88" cy="68" rx="8" ry="5" fill="#ff6e96" opacity=".6"/>${mouth}</svg>`;
 }
-$('runners').innerHTML = [0, 1, 2].map(i => `<span style="animation-delay:${i * 0.18}s">${mascotSVG('happy', '#2f86ff', i === 1 ? 64 : 52)}</span>`).join('');
+$('runners').innerHTML = [0, 1, 2].map(i => `<span style="animation-delay:${i * 0.18}s">${mascotSVG(i === 1 ? 'happy' : 'normal', '#2f86ff', i === 1 ? 70 : 54, i === 1)}</span>`).join('');
 
 Sound.setMuted(Sound.muted);
 layout();
 openTitle();
 requestAnimationFrame(frame);
 
+if (location.search.includes('soundtest')) {
+  const box = document.createElement('div');
+  box.style.cssText = 'position:fixed;left:0;right:0;top:0;bottom:0;z-index:99;background:#12305a;color:#fff;padding:calc(env(safe-area-inset-top) + 16px) 16px 24px;overflow-y:auto;touch-action:pan-y;display:flex;flex-direction:column;gap:10px';
+  box.innerHTML = '<div style="font-weight:900;font-size:20px">サウンド確認（numberun）</div><div style="font-size:13px;opacity:.8">ボタンを押すと音が鳴ります。消音スイッチと音量を確認してください。</div>';
+  const items = [
+    ['ふえる（ちょっと）', () => Sound.up(0)], ['ふえる（そこそこ）', () => Sound.up(1)], ['ふえる（けっこう）', () => Sound.up(2)], ['ふえる（すごく）', () => Sound.up(3)],
+    ['せいかい（へったけど正解）', () => Sound.ok()], ['歓声', () => Sound.cheer()], ['ブーイング', () => Sound.boo()],
+    ['たたかい（ぶつかる）', () => Sound.clash()], ['たたかい（ポップ連打）', () => { for (let i = 0; i < 14; i++) setTimeout(() => Sound.pop(), i * 75); }], ['たたかい（決着）', () => Sound.finishHit()],
+    ['クリアのファンファーレ', () => { Sound.win(); Sound.cheer(); }], ['ゲームオーバー', () => { Sound.lose(); Sound.boo(); }],
+    ['BGM ON/OFF', () => { Sound.bgmOn ? Sound.bgmStop() : Sound.bgmStart(); }],
+  ];
+  for (const [label, fn] of items) {
+    const b = document.createElement('button'); b.textContent = label;
+    b.style.cssText = 'font:800 17px system-ui;padding:14px;border-radius:14px;border:0;background:#ffae2a;color:#12305a;touch-action:manipulation';
+    b.addEventListener('click', () => { Sound.unlock(); fn(); });
+    box.appendChild(b);
+  }
+  document.body.appendChild(box);
+}
 if (location.search.includes('debug')) window.__k = { CONFIG, G, settings, makePair, startFor, applyGate, gateText, cross, startGame, showScreen };
 </script>
 </body>
