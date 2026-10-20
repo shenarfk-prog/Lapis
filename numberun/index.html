@@ -370,14 +370,17 @@ const Sound = {
     return this._noise;
   },
   // 人の声っぽい音（のこぎり波を、母音の響き＝フォルマントで加工する）
-  voice(f0, formants, dur, vol, delay, glide) {
+  voice(f0, formants, dur, vol, delay, glide, att = 0.28, hold = 0) {
     const c = this.ctx, t = c.currentTime + delay;
     const o = c.createOscillator(); o.type = 'sawtooth';
     o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f0 * glide, t + dur);
     const lfo = c.createOscillator(), lg = c.createGain(); lfo.frequency.value = 5 + Math.random() * 1.5; lg.gain.value = f0 * 0.018;
     lfo.connect(lg); lg.connect(o.frequency);
     const out = c.createGain();
-    out.gain.setValueAtTime(0.0001, t); out.gain.exponentialRampToValueAtTime(vol, t + dur * 0.28); out.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    const a = Math.min(att, 0.9) * dur;
+    out.gain.setValueAtTime(0.0001, t); out.gain.exponentialRampToValueAtTime(vol, t + a);
+    if (hold) out.gain.setValueAtTime(vol, t + dur * hold);                 // 声を伸ばしたまま保つ
+    out.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     formants.forEach(([fr, q, gn]) => {
       const b = c.createBiquadFilter(); b.type = 'bandpass'; b.frequency.value = fr * (0.96 + Math.random() * 0.08); b.Q.value = q;
       const g = c.createGain(); g.gain.value = gn; o.connect(b); b.connect(g); g.connect(out);
@@ -399,27 +402,29 @@ const Sound = {
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + dur * 0.3); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     src.connect(f); f.connect(g); g.connect(this.master); src.start(t); src.stop(t + dur + 0.05);
   },
-  // 歓声「わーっ！」＋ はくしゅ
+  // 歓声「わーっ！」: 拍手 + 短くて高い声（少なめ） + ヒューッという笛 + クラッカー
   cheer() {
     if (!this.ready()) return;
-    const A = [[800, 8, 5], [1250, 9, 4], [2800, 10, 1.6]];
-    for (let i = 0; i < 14; i++) {
-      const f0 = 240 * Math.pow(2, (Math.random() * 14) / 12);        // 240〜540Hz（スマホのスピーカーで出る高さ）
-      this.voice(f0, A, 0.7 + Math.random() * 0.35, 0.3, Math.random() * 0.16, 1.1 + Math.random() * 0.08);
+    const A = [[900, 7, 5], [1500, 8, 3.5], [3000, 10, 1.5]];
+    for (let i = 0; i < 5; i++) {
+      const f0 = 420 * Math.pow(2, (Math.random() * 9) / 12);           // 高めで明るい声（5人だけ）
+      this.voice(f0, A, 0.38 + Math.random() * 0.12, 0.3, 0.02 + Math.random() * 0.1, 1.25, 0.22);
     }
-    this.swell(0, 1.1, 2200, 0.5, 0.35);
-    for (let i = 0; i < 50; i++) this.burstNoise(0.1 + Math.random() * 1.0, 0.035 + Math.random() * 0.03, 2500 + Math.random() * 3500, 0.7, 0.18 + Math.random() * 0.14);
+    this.burstNoise(0, 0.12, 3000, 0.6, 0.55);                          // 「パンッ」（クラッカー）
+    this.tone(1200, 0.5, 'sine', 0.18, 2600, 0.05);                      // 「ヒューッ」（笛）
+    [1568, 2093, 2637].forEach((f, i) => this.bell(f, 0.1 + i * 0.07, 0.12, 0.5));
+    for (let i = 0; i < 46; i++) this.burstNoise(0.12 + Math.random() * 1.0, 0.035 + Math.random() * 0.03, 2500 + Math.random() * 3500, 0.7, 0.2 + Math.random() * 0.14);   // はくしゅ
   },
-  // ブーイング「ぶーーー…」
-  boo() {
+  // ブーイング「ぶーーーーー…」。len を大きくするほど長くなる
+  boo(len = 1) {
     if (!this.ready()) return;
     const U = [[420, 7, 4.5], [900, 8, 3.5], [2300, 10, 1.2]];
     for (let i = 0; i < 10; i++) {
-      const f0 = 170 * Math.pow(2, (Math.random() * 9) / 12);         // 170〜290Hz。高めの倍音が多いので、スマホでも聞こえる
-      this.voice(f0, U, 1.0 + Math.random() * 0.4, 0.4, Math.random() * 0.14, 0.76 + Math.random() * 0.06);
+      const f0 = 175 * Math.pow(2, (Math.random() * 8) / 12);           // 175〜280Hz
+      this.voice(f0, U, (1.9 + Math.random() * 0.5) * len, 0.27, Math.random() * 0.14, 0.82 + Math.random() * 0.05, 0.1, 0.6);
     }
-    this.swell(0, 1.3, 900, 0.7, 0.3);
-    this.voice(310, [[700, 6, 4], [1200, 7, 3]], 0.9, 0.3, 0.02, 0.72);      // 「ブーッ」というブザー感を足す
+    this.swell(0, 2.2 * len, 900, 0.7, 0.22);
+    this.voice(300, [[700, 6, 4], [1200, 7, 3]], 1.7 * len, 0.2, 0.02, 0.78, 0.1, 0.6);   // 「ブーッ」というブザー感
   },
   // たたかいの効果音
   clash() {
@@ -610,7 +615,7 @@ function finishBattle() {
     G.mood = 'happy'; G.moodT = 99; Sound.win(); Sound.cheer(); vibrate([30, 40, 30, 40, 80]);
     showResult(true, diff);
   } else {
-    G.mood = 'sad'; G.moodT = 99; Sound.lose(); Sound.boo(); vibrate([60, 40, 120]);
+    G.mood = 'sad'; G.moodT = 99; Sound.lose(); Sound.boo(1.5); vibrate([60, 40, 120]);
     showResult(false, diff);
   }
 }
@@ -998,9 +1003,9 @@ if (location.search.includes('soundtest')) {
   box.innerHTML = '<div style="font-weight:900;font-size:20px">サウンド確認（numberun）</div><div style="font-size:13px;opacity:.8">ボタンを押すと音が鳴ります。消音スイッチと音量を確認してください。</div>';
   const items = [
     ['ふえる（ちょっと）', () => Sound.up(0)], ['ふえる（そこそこ）', () => Sound.up(1)], ['ふえる（けっこう）', () => Sound.up(2)], ['ふえる（すごく）', () => Sound.up(3)],
-    ['せいかい（へったけど正解）', () => Sound.ok()], ['歓声', () => Sound.cheer()], ['ブーイング', () => Sound.boo()],
+    ['せいかい（へったけど正解）', () => Sound.ok()], ['歓声', () => Sound.cheer()], ['ブーイング（まちがい）', () => Sound.boo()], ['ブーイング（ゲームオーバー）', () => { Sound.lose(); Sound.boo(1.5); }],
     ['たたかい（ぶつかる）', () => Sound.clash()], ['たたかい（ポップ連打）', () => { for (let i = 0; i < 14; i++) setTimeout(() => Sound.pop(), i * 75); }], ['たたかい（決着）', () => Sound.finishHit()],
-    ['クリアのファンファーレ', () => { Sound.win(); Sound.cheer(); }], ['ゲームオーバー', () => { Sound.lose(); Sound.boo(); }],
+    ['クリアのファンファーレ', () => { Sound.win(); Sound.cheer(); }], 
     ['BGM A（前のミックス）', () => { Sound.bgmStop(); Sound.bgmMix = 'A'; setTimeout(() => Sound.bgmStart(), 400); }],
     ['BGM B（中高音を厚く）', () => { Sound.bgmStop(); Sound.bgmMix = 'B'; setTimeout(() => Sound.bgmStart(), 400); }],
     ['BGM 止める', () => Sound.bgmStop()],
