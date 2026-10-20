@@ -112,6 +112,13 @@ h2 { margin: 0 0 18px; font-size: 26px; letter-spacing: .2em; }
 #tapSplash .msg { padding: 16px 28px; border-radius: 99px; background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.5); animation: splashPulse 1.2s ease-in-out infinite; }
 @keyframes splashPulse { 50% { transform: scale(1.07); } }
 #tapSplash.hidden { opacity: 0; pointer-events: none; transition: opacity .25s; }
+
+.title-snd { position: absolute; top: calc(env(safe-area-inset-top) + 12px); right: 14px; margin: 0 !important; height: 46px; padding: 0 14px 0 12px; border-radius: 23px; border: 0;
+  background: rgba(255,255,255,.2); color: var(--title-snd-color, #fff); display: inline-flex; align-items: center; gap: 6px; font-family: inherit; font-weight: 800; font-size: 14px; touch-action: manipulation; z-index: 3; }
+.title-snd svg { width: 22px; height: 22px; fill: currentColor; }
+.title-snd .lbl::after { content: 'おとON'; }
+.title-snd.off .lbl::after { content: 'おとOFF'; }
+.title-snd.off .wave { display: none; } .title-snd:not(.off) .cross { display: none; }
 </style>
 </head>
 <body>
@@ -135,6 +142,7 @@ h2 { margin: 0 0 18px; font-size: 26px; letter-spacing: .2em; }
 </div>
 
 <div class="screen" id="scTitle">
+  <button id="btnSoundTitle" class="title-snd" aria-label="サウンド"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7l-1.4-1.4a3 3 0 0 0 0-4.2l1.4-1.4zM18.4 5.6a9 9 0 0 1 0 12.8L17 17a7 7 0 0 0 0-10l1.4-1.4z"/><path class="cross" d="M15 9.4 16.4 8 18.5 10.1 20.6 8 22 9.4 19.9 11.5 22 13.6 20.6 15 18.5 12.9 16.4 15 15 13.6 17.1 11.5z"/></svg><span class="lbl"></span></button>
   <div class="logo" id="logo"></div>
   <div class="sub">BLOCK PUZZLE</div>
   <div class="big-label">BEST</div>
@@ -564,7 +572,7 @@ const Sound = {
     }
   },
   setMuted(m) {
-    this.muted = m; lsSet(MUTE_KEY, m ? '1' : '0'); $('btnSound').classList.toggle('off', m);
+    this.muted = m; lsSet(MUTE_KEY, m ? '1' : '0'); $('btnSound').classList.toggle('off', m); { const tb = document.getElementById('btnSoundTitle'); if (tb) tb.classList.toggle('off', m); }
     if (this.bgmOn) this.bgmFade(this.bgmLevel(), 0.2);
   },
 };
@@ -1079,6 +1087,8 @@ window.addEventListener('orientationchange', () => setTimeout(layout, 200));
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 }
+
+$('btnSoundTitle').addEventListener('click', () => { Sound.unlock(); Sound.setMuted(!Sound.muted); if (!Sound.muted && !Sound.bgmOn) syncBgm(); });
 
 Sound.setMuted(Sound.muted);
 layout();
