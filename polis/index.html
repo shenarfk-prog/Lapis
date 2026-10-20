@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>polis アカデミー～公共・政経～</title>
+<title>polis academy ～公共・政経～</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -31,13 +31,9 @@ button { font-family: inherit; touch-action: manipulation; }
 .logo svg { width: 84px; height: 84px; }
 .logo .name { font-size: 46px; font-weight: 900; letter-spacing: .04em; line-height: 1.1; margin-top: 4px; }
 .logo .name em { font-style: normal; color: var(--acc); }
-.logo .aca { font-size: 24px; font-weight: 900; letter-spacing: .3em; margin-top: 2px; text-indent: .3em; }
+.logo .aca { font-size: 26px; font-weight: 900; letter-spacing: .18em; margin-top: 2px; text-indent: .18em; }
 .logo .sub { margin-top: 4px; font-size: 14px; font-weight: 800; letter-spacing: .3em; color: var(--dim); }
-.title-snd, .icon-btn { border: 0; background: rgba(31,42,55,.08); color: var(--ink); border-radius: 22px; height: 44px; min-width: 44px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-weight: 800; font-size: 14px; }
-.title-snd { position: absolute; right: 0; top: 4px; }
-.title-snd svg, .icon-btn svg { width: 22px; height: 22px; fill: currentColor; }
-.title-snd .lbl::after { content: '音ON'; } .title-snd.off .lbl::after { content: '音OFF'; }
-.off .wave { display: none; } :not(.off) > svg .cross { display: none; }
+.icon-btn { border: 0; background: rgba(31,42,55,.08); color: var(--ink); border-radius: 22px; height: 44px; min-width: 44px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; }
 .statline { text-align: center; font-weight: 800; font-size: 15px; margin: 10px 0 4px; }
 .statline b { color: var(--acc); font-size: 20px; }
 .banner { background: #fff4d6; border: 1px solid #ecd9a0; color: #6b5200; border-radius: 12px; padding: 8px 12px; font-size: 13px; font-weight: 700; text-align: center; margin: 8px 0; }
@@ -109,15 +105,17 @@ summary { font-weight: 900; padding: 10px 0; font-size: 15px; }
 .rv input { width: 100%; border: 2px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 14px; margin-top: 6px; }
 .rv.s-ok { background: #f3faf7; margin: 0 -12px; padding: 10px 12px; } .rv.s-fix { background: #fdf0ee; margin: 0 -12px; padding: 10px 12px; }
 .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 28px); transform: translateX(-50%); background: rgba(31,42,55,.92); color: #fff; padding: 10px 18px; border-radius: 99px; font-weight: 800; font-size: 14px; z-index: 60; }
-#tapSplash { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; background: rgba(246,241,231,.9); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); color: var(--ink); font-weight: 900; font-size: 22px; touch-action: manipulation; }
-#tapSplash .msg { padding: 16px 28px; border-radius: 99px; background: #fff; border: 2px solid var(--line); animation: pulse 1.2s ease-in-out infinite; }
-@keyframes pulse { 50% { transform: scale(1.06); } }
-#tapSplash.hidden-s { opacity: 0; pointer-events: none; transition: opacity .25s; }
 .daily { display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #1c7c6b, #2e9b86); color: #fff; border: 0; margin-top: 8px; }
 .daily .tx { flex: 1; } .daily b { font-size: 18px; } .daily small { display: block; opacity: .92; font-size: 12.5px; margin-top: 3px; line-height: 1.5; }
 .daily .go { border: 0; background: #fff; color: #1c7c6b; font-weight: 900; border-radius: 14px; padding: 13px 18px; font-size: 16px; box-shadow: 0 3px 0 rgba(0,0,0,.18); }
 .mode.wide { grid-column: 1 / -1; } .mode.violet { background: #6a55b8; box-shadow: 0 5px 0 #46368a; } .mode.violet:active { box-shadow: 0 2px 0 #46368a; }
 .links { grid-template-columns: 1fr 1fr !important; }
+.kline { font-size: 12px; color: var(--dim); line-height: 1.6; font-weight: 700; } .kt { font-size: 11px; background: var(--acc-soft); color: var(--acc); border-radius: 99px; padding: 1px 8px; font-weight: 800; }
+.chart { display: flex; gap: 3px; align-items: flex-end; height: 130px; margin: 6px 0; } .chart .col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; font-size: 10px; color: var(--dim); text-align: center; line-height: 1.2; }
+.chart .cn { height: 14px; font-weight: 800; } .chart .cb { flex: 1; width: 100%; display: flex; flex-direction: column; justify-content: flex-end; } .chart .cb i { display: block; width: 100%; } .chart .cb .r { background: var(--acc); } .chart .cb .w { background: var(--ng); } .chart .cd { height: 26px; padding-top: 2px; }
+table.cl { width: 100%; border-collapse: collapse; font-size: 12.5px; } .cl th, .cl td { border: 1px solid var(--line); padding: 5px 4px; text-align: center; } .cl th { background: var(--acc-soft); } .cl td:first-child { text-align: left; font-weight: 800; }
+.es-item { display: flex !important; align-items: center; gap: 8px; width: 100%; margin-bottom: 8px; text-align: left; padding: 14px 12px; font-size: 16px; } .es-item b { flex: 1; } .es-item small { color: var(--dim); font-weight: 700; } .es-item .tag { font-size: 11px; color: var(--acc); background: var(--acc-soft); border-radius: 99px; padding: 2px 8px; font-weight: 800; }
+.card textarea.esf { width: 100%; min-height: 96px; border: 2px solid var(--line); border-radius: 12px; padding: 8px 10px; font-size: 15px; line-height: 1.6; background: #fffef9; }
 #glQ { width: 100%; border: 2px solid var(--line); border-radius: 14px; padding: 12px 14px; font-size: 16px; background: #fff; }
 .star { border: 2px solid var(--line); background: #fff; border-radius: 99px; padding: 5px 12px; font-weight: 800; font-size: 13px; color: var(--dim); }
 .star.on { background: #fff4d6; border-color: var(--gold); color: #8a6616; }
@@ -128,16 +126,14 @@ summary { font-weight: 900; padding: 10px 0; font-size: 15px; }
 </style>
 </head>
 <body>
-<div id="tapSplash"><div class="msg">♪ タップして開始</div></div>
 <div id="app">
 
 <!-- タイトル -->
 <section class="view" id="vTitle">
   <div class="logo">
-    <button id="btnSoundTitle" class="title-snd" aria-label="サウンド"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7l-1.4-1.4a3 3 0 0 0 0-4.2l1.4-1.4zM18.4 5.6a9 9 0 0 1 0 12.8L17 17a7 7 0 0 0 0-10l1.4-1.4z"/><path class="cross" d="M15 9.4 16.4 8 18.5 10.1 20.6 8 22 9.4 19.9 11.5 22 13.6 20.6 15 18.5 12.9 16.4 15 15 13.6 17.1 11.5z"/></svg><span class="lbl"></span></button>
     <svg viewBox="0 0 100 100"><path d="M10 38 L50 12 L90 38 Z" fill="#c9972b"/><rect x="14" y="42" width="72" height="7" rx="2" fill="#1f2a37"/><g fill="#1c7c6b"><rect x="20" y="52" width="10" height="30" rx="2"/><rect x="38" y="52" width="10" height="30" rx="2"/><rect x="56" y="52" width="10" height="30" rx="2"/><rect x="74" y="52" width="8" height="30" rx="2"/></g><rect x="10" y="84" width="80" height="8" rx="2" fill="#1f2a37"/></svg>
     <div class="name">pol<em>is</em></div>
-    <div class="aca">アカデミー</div>
+    <div class="aca">academy</div>
     <div class="sub">～ 公共・政経 ～</div>
   </div>
   <div class="statline" id="statLine"></div>
@@ -160,10 +156,11 @@ summary { font-weight: 900; padding: 10px 0; font-size: 15px; }
   <div class="links">
     <button class="link" id="goGloss">📖 用語集</button>
     <button class="link" id="goCmp">⚖ 対比カード</button>
+    <button class="link" id="goEssay">✎ 論述メモ</button>
     <button class="link" id="goStats">📊 学習記録</button>
+    <button class="link" id="goClass">👥 結果集計</button>
     <button class="link" id="goReview">✎ データ確認</button>
   </div>
-  <div class="card toggle" id="tgBgm" style="margin-top:12px"><span>BGMを流す（ローファイ）</span><span class="sw"></span></div>
   <a class="back" href="../">← Lapis に戻る</a>
 </section>
 
@@ -173,7 +170,6 @@ summary { font-weight: 900; padding: 10px 0; font-size: 15px; }
     <button class="icon-btn" id="btnQuit">← 中断</button>
     <div class="prog"><div class="bar"><i id="qBar" style="width:0%"></i></div></div>
     <div class="count" id="qCount">1 / 10</div>
-    <button class="icon-btn" id="btnSound" aria-label="サウンド"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7l-1.4-1.4a3 3 0 0 0 0-4.2l1.4-1.4zM18.4 5.6a9 9 0 0 1 0 12.8L17 17a7 7 0 0 0 0-10l1.4-1.4z"/><path class="cross" d="M15 9.4 16.4 8 18.5 10.1 20.6 8 22 9.4 19.9 11.5 22 13.6 20.6 15 18.5 12.9 16.4 15 15 13.6 17.1 11.5z"/></svg></button>
   </div>
   <div class="card" id="qBody"></div>
   <div id="qFeedback"></div>
@@ -196,10 +192,44 @@ summary { font-weight: 900; padding: 10px 0; font-size: 15px; }
   <h2>学習記録</h2>
   <div class="big" id="stBig"></div>
   <div class="msg" id="stMsg"></div>
+  <div class="card" id="stKinds"></div>
+  <div class="card" id="stChart"></div>
   <div class="card" id="stCats"></div>
   <div class="card wlist" id="stWeak"></div>
+  <div class="card">
+    <h3>先生への提出・バックアップ</h3>
+    <input type="text" id="stName" placeholder="名前（出席番号など）" maxlength="20" style="width:100%;border:2px solid var(--line);border-radius:12px;padding:10px 12px;font-size:16px">
+    <button class="btn" id="btnCode">結果コードをコピー（先生に送る）</button>
+    <button class="btn sec" id="btnBkCopy">バックアップをコピー</button>
+    <button class="btn sec" id="btnBkOpen">バックアップから復元</button>
+    <div id="bkBox" class="hidden"><textarea id="bkText" placeholder="コピーしたバックアップを貼り付け" style="width:100%;min-height:80px;border:2px solid var(--line);border-radius:12px;padding:8px;margin-top:10px"></textarea><button class="btn" id="btnBkDo">この内容で復元</button></div>
+    <div class="kline" style="margin-top:10px">※ ホーム画面に追加したアプリと、Safari（ブラウザ）では記録が別々に保存されます。同じほうで使い続けてください。端末を変えるときは「バックアップ」を使います。</div>
+  </div>
   <button class="btn sec" id="btnResetProg">記録をリセット</button>
   <button class="btn sec" id="btnStatsBack">タイトルへ</button>
+</section>
+
+<!-- 論述メモ -->
+<section class="view hidden" id="vEssay">
+  <h2>✎ 論述メモ</h2>
+  <div id="esList"></div>
+  <div id="esEdit" class="hidden">
+    <div class="card" id="esQ"></div>
+    <div id="esFields"></div>
+    <button class="btn" id="btnEsCopy">コピーして提出・共有</button>
+    <button class="btn sec" id="btnEsList">テーマ一覧へ</button>
+  </div>
+  <button class="btn sec" id="btnEsBack">タイトルへ</button>
+</section>
+
+<!-- 結果集計（先生用） -->
+<section class="view hidden" id="vClass">
+  <h2>結果集計</h2>
+  <div class="msg" style="font-size:14px">生徒から届いた「結果コード」を貼り付けて集計します（複数可）。</div>
+  <textarea id="clText" placeholder="POLIS1:… を貼り付け（複数の場合は改行で区切る）" style="width:100%;min-height:110px;border:2px solid var(--line);border-radius:12px;padding:8px"></textarea>
+  <button class="btn" id="btnClassDo">集計する</button>
+  <div id="clOut" style="margin-top:8px"></div>
+  <button class="btn sec" id="btnClassBack">タイトルへ</button>
 </section>
 
 <!-- データかくにん（先生用） -->
@@ -239,10 +269,6 @@ summary { font-weight: 900; padding: 10px 0; font-size: 15px; }
  * 調整用定数
  * ===================================================================== */
 const CONFIG = {
-  SOUND: {
-    TAP_SPLASH: true,   // BGMをONにしているとき、起動時に「タップしてはじめる」を出す（iPhoneは最初のタップまで音が出せないため）
-    SFX_VOLUME: 2.0, BGM_VOLUME: 0.26, BGM_BPM: 74,
-  },
   N_OPTIONS: [5, 10, 20, 40],            // 問題数の選択肢
   BOX_WEIGHTS: [10, 6, 3, 1.5, 0.6],      // 習熟度(0〜4)ごとの出やすさ。間違えた用語ほど、よく出る
   NEW_WEIGHT: 5,                          // まだ解いていない用語の出やすさ
@@ -258,175 +284,6 @@ const lsJson = (k, d) => { try { return JSON.parse(lsGet(k)) || d; } catch (e) {
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
-/* ---------- サウンド ---------- */
-const Sound = {
-  ctx: null, master: null, sfx: null, bgmGain: null, revSend: null, primed: false,
-  muted: lsGet('polis.mute') === '1',
-  unlock() {
-    try {
-      if (!this.ctx) {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return;
-        const c = this.ctx = new AC();
-        this.master = c.createGain(); this.master.gain.value = 1.8;
-        const comp = c.createDynamicsCompressor(); comp.threshold.value = -12; comp.knee.value = 6; comp.ratio.value = 14; comp.attack.value = 0.003; comp.release.value = 0.2;
-        const outG = c.createGain(); outG.gain.value = 0.9; this.master.connect(comp); comp.connect(outG); outG.connect(c.destination); this.comp = outG;
-        this.sfx = c.createGain(); this.sfx.gain.value = CONFIG.SOUND.SFX_VOLUME; this.sfx.connect(this.master);
-        this.bgmGain = c.createGain(); this.bgmGain.gain.value = this.bgmOn ? this.bgmLevel() : 0; this.bgmGain.connect(this.master);
-        { // BGMだけに、まるい音色（ローパス）と部屋の響き（リバーブ）をかける
-          const bin = c.createGain(), lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3400; lp.Q.value = 0.4;
-          bin.connect(lp); lp.connect(this.bgmGain);
-          const rlen = Math.floor(c.sampleRate * 2.2), rir = c.createBuffer(2, rlen, c.sampleRate);
-          for (let ch = 0; ch < 2; ch++) { const d = rir.getChannelData(ch); for (let k = 0; k < rlen; k++) d[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / rlen, 2.2); }
-          const rc = c.createConvolver(); rc.buffer = rir; const rw = c.createGain(); rw.gain.value = 0.5;
-          bin.connect(rc); rc.connect(rw); rw.connect(this.bgmGain); this.bgmIn = bin;
-        }
-        const len = Math.floor(c.sampleRate * 1.2), ir = c.createBuffer(2, len, c.sampleRate);
-        for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let k = 0; k < len; k++) d[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / len, 2.6); }
-        const conv = c.createConvolver(); conv.buffer = ir; this.revSend = c.createGain();
-        const wet = c.createGain(); wet.gain.value = 0.3; this.revSend.connect(conv); conv.connect(wet); wet.connect(this.sfx);
-      }
-      if (!this._stateHook) { this._stateHook = true; this.ctx.addEventListener('statechange', () => { if (this.ctx.state === 'running' && this.bgmOn && this.bgmGain) { const g = this.bgmGain.gain; g.cancelScheduledValues(0); g.setValueAtTime(this.bgmLevel(), this.ctx.currentTime); } }); }
-      if (this.ctx.state !== 'running') this.ctx.resume();
-      if (!this.primed) { const b = this.ctx.createBuffer(1, 1, 22050), s = this.ctx.createBufferSource(); s.buffer = b; s.connect(this.ctx.destination); s.start(0); this.primed = true; }
-    } catch (e) { /* ignore */ }
-  },
-  ready() { return !(this.muted || !this.ctx || this.ctx.state !== 'running'); },
-  tone(freq, dur, type = 'sine', vol = 0.2, slideTo = 0, delay = 0) {
-    if (!this.ready()) return;
-    const t = this.ctx.currentTime + delay, o = this.ctx.createOscillator(), g = this.ctx.createGain();
-    o.type = type; o.frequency.setValueAtTime(freq, t);
-    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g); g.connect(this.sfx); o.start(t); o.stop(t + dur + 0.02);
-  },
-  bell(freq, delay, vol, dur) {
-    if (!this.ready()) return;
-    const c = this.ctx, t = c.currentTime + delay, car = c.createOscillator(), mod = c.createOscillator(), mg = c.createGain(), g = c.createGain();
-    car.frequency.value = freq; mod.frequency.value = freq * 3.5;
-    mg.gain.setValueAtTime(freq * 1.5, t); mg.gain.exponentialRampToValueAtTime(1, t + dur * 0.6); mod.connect(mg); mg.connect(car.frequency);
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    car.connect(g); g.connect(this.sfx); g.connect(this.revSend); car.start(t); mod.start(t); car.stop(t + dur + 0.05); mod.stop(t + dur + 0.05);
-  },
-  noise() {
-    if (!this._noise) { const len = this.ctx.sampleRate, b = this.ctx.createBuffer(1, len, this.ctx.sampleRate), d = b.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1; this._noise = b; }
-    return this._noise;
-  },
-  burstNoise(delay, dur, freq, q, vol) {
-    const c = this.ctx, t = c.currentTime + delay, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
-    s.buffer = this.noise(); f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q;
-    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    s.connect(f); f.connect(g); g.connect(this.sfx); s.start(t, Math.random() * 0.5, dur + 0.02);
-  },
-  select() { this.tone(900, 0.04, 'sine', 0.12); },
-  place() { this.bell(1047, 0, 0.14, 0.35); },
-  note() { this.tone(1400, 0.03, 'triangle', 0.1); },
-  erase() { this.tone(500, 0.07, 'triangle', 0.14, 300); },
-  wrong() { this.tone(220, 0.22, 'sawtooth', 0.12, 150); },
-  unit() { [0, 4, 7, 12].forEach((s, i) => this.bell(784 * Math.pow(2, s / 12), i * 0.06, 0.13, 0.5)); },
-  hintSnd() { this.bell(1319, 0, 0.14, 0.4); this.bell(1760, 0.08, 0.12, 0.5); },
-  win() {
-    if (!this.ready()) return;
-    [0, 4, 7, 12, 16, 19, 24].forEach((s, i) => this.bell(523 * Math.pow(2, s / 12), i * 0.09, 0.2, 0.7));
-    this.burstNoise(0.2, 0.12, 3000, 0.6, 0.5);
-    for (let i = 0; i < 55; i++) this.burstNoise(0.3 + Math.random() * 1.2, 0.035 + Math.random() * 0.03, 2500 + Math.random() * 3500, 0.7, 0.2 + Math.random() * 0.14);
-  },
-  // BGM: lofi（ローファイ）。やわらかいエレピのコード + 重めの低音 + ゆるくはねたドラム + レコードのノイズ
-  // title = コード・低音・ノイズ / play = そこに、ドラムとメロディを足す
-  bgmOn: false, bgmTimer: null, bgmNext: 0, bgmStep: 0, bgmScene: 'title', mel: 3, _vinyl: null, _lfo: null,
-  bgmLevel() { return this.muted ? 0 : CONFIG.SOUND.BGM_VOLUME; },
-  bgmFade(to, sec) { if (!this.ctx || !this.bgmGain) return; const g = this.bgmGain.gain, t = this.ctx.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(to, t + sec); },
-  lfos() {       // エレピのゆらぎ用（トレモロ=音量のゆれ / テープのよれ=音程のゆれ）。全部の音で共有する
-    if (this._lfo) return this._lfo;
-    const c = this.ctx, tr = c.createOscillator(), trg = c.createGain(), wb = c.createOscillator(), wbg = c.createGain();
-    tr.frequency.value = 4.6; trg.gain.value = 0.16; tr.connect(trg); wb.frequency.value = 0.35; wbg.gain.value = 9; wb.connect(wbg);   // wbg は ±9セント
-    tr.start(); wb.start(); this._lfo = { trem: trg, wobble: wbg }; return this._lfo;
-  },
-  rhodes(freq, t, dur, vol) {       // ローズ風のエレピ（FM合成のやわらかい音）
-    const c = this.ctx, L = this.lfos();
-    const car = c.createOscillator(), m1 = c.createOscillator(), m2 = c.createOscillator(), g1 = c.createGain(), g2 = c.createGain(), amp = c.createGain(), tre = c.createGain();
-    car.frequency.value = freq; m1.frequency.value = freq; m2.frequency.value = freq * 7;
-    g1.gain.setValueAtTime(freq * 0.9, t); g1.gain.exponentialRampToValueAtTime(freq * 0.08, t + 0.7);          // 全体のやわらかい倍音
-    g2.gain.setValueAtTime(freq * 1.6, t); g2.gain.exponentialRampToValueAtTime(0.01, t + 0.09);                 // 「ポロン」というタインの出だし
-    m1.connect(g1); g1.connect(car.frequency); m2.connect(g2); g2.connect(car.frequency); L.wobble.connect(car.detune);
-    amp.gain.setValueAtTime(0.0001, t); amp.gain.exponentialRampToValueAtTime(vol, t + 0.008);
-    amp.gain.exponentialRampToValueAtTime(vol * 0.5, t + 0.5); amp.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    tre.gain.value = 0.84; L.trem.connect(tre.gain);
-    car.connect(amp); amp.connect(tre); tre.connect(this.bgmIn);
-    const end = t + dur + 0.1; car.start(t); m1.start(t); m2.start(t); car.stop(end); m1.stop(end); m2.stop(end);
-    car.onended = () => { try { L.wobble.disconnect(car.detune); L.trem.disconnect(tre.gain); } catch (e) { /* ignore */ } };
-  },
-  subBass(freq, t, dur, vol) {       // まるい低音（スマホでも聞こえるよう、少し倍音をのせる）
-    const c = this.ctx, o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain();
-    o.type = 'sine'; o.frequency.value = freq; o2.type = 'triangle'; o2.frequency.value = freq * 2;
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(vol * 0.5, t + dur * 0.6); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    const g2 = c.createGain(); g2.gain.value = 0.8; o.connect(g); o2.connect(g2); g2.connect(g); g.connect(this.bgmIn);
-    o.start(t); o2.start(t); o.stop(t + dur + 0.05); o2.stop(t + dur + 0.05);
-  },
-  bgmNoise(t, dur, freq, q, vol, type) {
-    const c = this.ctx, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
-    s.buffer = this.noise(); f.type = type; f.frequency.value = freq; f.Q.value = q;
-    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); s.connect(f); f.connect(g); g.connect(this.bgmIn); s.start(t, Math.random() * 0.5, dur + 0.02);
-  },
-  kick(t, vol) {
-    const c = this.ctx, o = c.createOscillator(), g = c.createGain();
-    o.type = 'sine'; o.frequency.setValueAtTime(125, t); o.frequency.exponentialRampToValueAtTime(48, t + 0.14);
-    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28); o.connect(g); g.connect(this.bgmIn); o.start(t); o.stop(t + 0.3);
-  },
-  snare(t, vol) {       // 軽いスナップ（ノイズ + 低めの胴鳴り）
-    this.bgmNoise(t, 0.2, 1900, 0.7, vol, 'bandpass');
-    const c = this.ctx, o = c.createOscillator(), g = c.createGain();
-    o.type = 'triangle'; o.frequency.setValueAtTime(200, t); o.frequency.exponentialRampToValueAtTime(130, t + 0.1);
-    g.gain.setValueAtTime(vol * 0.7, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.14); o.connect(g); g.connect(this.bgmIn); o.start(t); o.stop(t + 0.16);
-  },
-  bgmStart(scene) {
-    if (scene) this.bgmScene = scene;
-    if (this.bgmOn || !CONFIG.SOUND.BGM_VOLUME) return;
-    this.bgmOn = true; this.bgmNext = 0; this.bgmStep = 0; this.bgmFade(this.bgmLevel(), 0.05); this.bgmTimer = setInterval(() => this.bgmTick(), 100);
-  },
-  bgmStop() {
-    if (!this.bgmOn) return;
-    this.bgmOn = false; clearInterval(this.bgmTimer); this.bgmTimer = null; this.bgmFade(0, 0.3);
-    if (this._vinyl) { const v = this._vinyl; this._vinyl = null; try { v.stop(this.ctx.currentTime + 0.35); } catch (e) { /* ignore */ } }
-  },
-  bgmTick() {
-    if (!this.ctx || this.ctx.state !== 'running' || !this.bgmIn) { this.bgmNext = 0; return; }
-    const c = this.ctx, now = c.currentTime;
-    if (!this._vinyl) {         // レコードの「サー」というノイズ（ずっと小さく流しておく）
-      const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
-      s.buffer = this.noise(); s.loop = true; f.type = 'bandpass'; f.frequency.value = 1800; f.Q.value = 0.25; g.gain.value = 0.012;
-      s.connect(f); f.connect(g); g.connect(this.bgmGain); s.start(); this._vinyl = s;
-    }
-    if (!this.bgmNext || this.bgmNext < now) this.bgmNext = now + 0.15;
-    const e = 60 / CONFIG.SOUND.BGM_BPM / 2, play = this.bgmScene === 'play';
-    const CH = [[-4, 0, 3, 7], [-4, 2, 5, 7], [-5, 2, 5, 10], [-2, 3, 7, 14]];       // Dm9 - G13 - Cmaj9 - Am9（A3からの半音数）
-    const BASS = [-7, -14, -9, -12], PENTA = [3, 5, 7, 10, 12, 15, 17, 19], hz = n => 220 * Math.pow(2, n / 12);
-    while (this.bgmNext < now + 0.5) {
-      const bar = Math.floor(this.bgmStep / 8) % 4, k = this.bgmStep % 8, ch = CH[bar];
-      const t = this.bgmNext + (k % 2 ? e * 0.22 : 0);          // ゆるくはねる（スイング）
-      if (k === 0) ch.forEach((n, i) => this.rhodes(hz(n + 12), t + i * 0.022, e * 3.6, 0.22));        // コード（スマホのスピーカーで聞こえる高さ）
-      if (k === 3) ch.forEach((n, i) => this.rhodes(hz(n + 12), t + i * 0.022, e * 2.2, 0.14));          // 裏拍でもう一度（少し弱く）
-      if (k === 0) this.subBass(hz(BASS[bar]), t, e * 2.6, 0.2);
-      if (k === 3) this.subBass(hz(BASS[bar]), t, e * 1.4, 0.13);
-      if (k === 6 && bar % 2 === 1) this.subBass(hz(BASS[bar] + 7), t, e * 1.6, 0.11);
-      if (play) {
-        if (k === 0 || k === 3) this.kick(t, k === 0 ? 0.22 : 0.15);                                // ボスッとしたキック
-        if (k === 2 || k === 6) this.snare(t, 0.2);                                                 // 2拍目と4拍目に、軽いスナップ
-        this.bgmNoise(t, k % 2 ? 0.07 : 0.045, 7500, 0.7, k % 2 ? 0.035 : 0.05, 'highpass');       // ハット
-        if ([2, 5, 7].includes(k) && Math.random() < 0.28) {                                        // ときどき入る、エレピの単音メロディ
-          this.mel = Math.max(0, Math.min(7, this.mel + Math.floor(Math.random() * 5) - 2));
-          this.rhodes(hz(PENTA[this.mel] + 12), t, e * 3, 0.14);
-        }
-      }
-      if (Math.random() < 0.3) this.bgmNoise(this.bgmNext + Math.random() * e, 0.006, 3500, 0.8, 0.03, 'highpass');   // レコードのプチッという音
-      this.bgmNext += e; this.bgmStep++;
-    }
-  },
-  setMuted(m) { this.muted = m; lsSet('polis.mute', m ? '1' : '0'); $('btnSound').classList.toggle('off', m); { const tb = document.getElementById('btnSoundTitle'); if (tb) tb.classList.toggle('off', m); } if (this.bgmOn) this.bgmFade(this.bgmLevel(), 0.2); },
-};
-
-
-
 /* ---------- データ ---------- */
 const D = window.POLIS_DATA;
 D.terms.forEach(t => { t.id = 't:' + t.t; });
@@ -435,6 +292,8 @@ D.stmts.forEach(s => { s.id = 's:' + s.s.slice(0, 24); });
 const TERM = new Map(D.terms.map(t => [t.id, t])), STMT = new Map(D.stmts.map(s => [s.id, s]));
 const catName = c => D.cats[c] || c;
 
+let hist = lsJson('polis.hist.v1', {}), essays = lsJson('polis.essay.v1', {});
+const saveHist = () => lsSet('polis.hist.v1', JSON.stringify(hist));
 let prog = lsJson('polis.prog.v1', {}), sprog = lsJson('polis.sprog.v1', {}), memos = lsJson('polis.memo.v1', {}), review = lsJson('polis.review.v1', {});
 let stars = lsJson('polis.star.v1', {}), dayLog = lsJson('polis.days.v1', { last: '', streak: 0, today: '', n: 0 });
 const saveStars = () => lsSet('polis.star.v1', JSON.stringify(stars));
@@ -445,7 +304,7 @@ function touchStudy() {      // 学習した日を記録（連続学習日数）
   lsSet('polis.days.v1', JSON.stringify(dayLog));
 }
 function streakNow() { const y = new Date(); y.setDate(y.getDate() - 1); return (dayLog.last === ymd() || dayLog.last === ymd(y)) ? dayLog.streak : 0; }
-const settings = Object.assign({ cats: [], pool: 'all', n: 10, bgm: false }, lsJson('polis.settings.v1', {}));
+const settings = Object.assign({ cats: [], pool: 'all', n: 10, name: '' }, lsJson('polis.settings.v1', {}));
 const saveAll = () => { lsSet('polis.prog.v1', JSON.stringify(prog)); lsSet('polis.sprog.v1', JSON.stringify(sprog)); };
 const saveSettings = () => lsSet('polis.settings.v1', JSON.stringify(settings));
 function toast(msg) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = msg; document.body.appendChild(d); setTimeout(() => d.remove(), 2200); }
@@ -463,10 +322,9 @@ function copyText(text) {
 let view = 'title';
 function showView(name) {
   view = name;
-  for (const v of ['Title', 'Quiz', 'Result', 'Stats', 'Review', 'Gloss', 'Cmp']) $('v' + v).classList.toggle('hidden', v.toLowerCase() !== name);
+  for (const v of ['Title', 'Quiz', 'Result', 'Stats', 'Review', 'Gloss', 'Cmp', 'Essay', 'Class']) $('v' + v).classList.toggle('hidden', v.toLowerCase() !== name);
   $('app').scrollTop = 0;
 }
-function syncBgm() { Sound.bgmScene = 'title'; if (settings.bgm) Sound.bgmStart('title'); else Sound.bgmStop(); }
 
 /* ---------- タイトル ---------- */
 function reviewCounts() {
@@ -489,7 +347,6 @@ function renderTitle() {
   $('catChips').innerHTML = Object.keys(D.cats).map(c => `<button class="chip${settings.cats.includes(c) ? ' on' : ''}" data-c="${c}">${esc(catName(c))}</button>`).join('');
   document.querySelectorAll('#segPool .chip').forEach(b => b.classList.toggle('on', b.dataset.v === settings.pool));
   $('segN').innerHTML = [...CONFIG.N_OPTIONS, 9999].map(n => `<button class="chip${settings.n === n ? ' on' : ''}" data-n="${n}">${n === 9999 ? '全部' : n + '問'}</button>`).join('');
-  $('tgBgm').classList.toggle('on', settings.bgm);
   const ds = dailySet(), total = ds.dueUse.length + ds.fresh.length;
   $('dailyTitle').textContent = total ? `今日の復習　${total}問` : '今日の復習は完了！';
   $('dailySub').innerHTML = `期限の用語 ${ds.due.length}　＋　新しい用語 ${ds.fresh.length}<br>🔥 連続学習 ${streakNow()}日　今日の解答 ${dayLog.today === ymd() ? dayLog.n : 0}問`;
@@ -498,11 +355,8 @@ function renderTitle() {
 $('catChips').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; const c = b.dataset.c; const i = settings.cats.indexOf(c); if (i >= 0) settings.cats.splice(i, 1); else settings.cats.push(c); saveSettings(); renderTitle(); });
 $('segPool').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; settings.pool = b.dataset.v; saveSettings(); renderTitle(); });
 $('segN').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; settings.n = +b.dataset.n; saveSettings(); renderTitle(); });
-$('tgBgm').addEventListener('click', () => { Sound.unlock(); settings.bgm = !settings.bgm; saveSettings(); renderTitle(); syncBgm(); });
-document.querySelectorAll('.mode').forEach(b => b.addEventListener('click', () => { Sound.unlock(); startQuiz(b.dataset.m); }));
-$('btnDaily').addEventListener('click', () => { Sound.unlock(); const ds = dailySet(); startQuiz('daily', shuffle([...ds.dueUse, ...ds.fresh])); });
-$('btnSoundTitle').addEventListener('click', () => { Sound.unlock(); Sound.setMuted(!Sound.muted); });
-$('btnSound').addEventListener('click', () => { Sound.unlock(); Sound.setMuted(!Sound.muted); });
+document.querySelectorAll('.mode').forEach(b => b.addEventListener('click', () => { startQuiz(b.dataset.m); }));
+$('btnDaily').addEventListener('click', () => { const ds = dailySet(); startQuiz('daily', shuffle([...ds.dueUse, ...ds.fresh])); });
 
 /* ---------- 出題 ---------- */
 function poolList(kind) {
@@ -580,7 +434,7 @@ function record(ok) {
   const p = P[it.id] || (P[it.id] = { b: 0, s: 0, r: 0, w: 0 });
   p.s++; if (ok) { p.r++; p.b = Math.min(4, p.b + 1); } else { p.w++; p.b = 0; }
   p.d = Date.now() + CONFIG.INTERVAL_DAYS[p.b] * 86400000;      // 次に復習する日
-  touchStudy(); saveAll(); if (ok) quiz.right++; else quiz.wrongs.push(it);
+  touchStudy(); { const k = ymd(), h = hist[k] || (hist[k] = { n: 0, r: 0 }); h.n++; if (ok) h.r++; saveHist(); } saveAll(); if (ok) quiz.right++; else quiz.wrongs.push(it);
 }
 function feedback(ok, it, extraHead) {
   const last = quiz.i === quiz.items.length - 1, memo = memos[it.id] || '';
@@ -606,23 +460,23 @@ $('qBody').addEventListener('click', e => {
   if (ch && !quiz.answered) {
     quiz.answered = true; const i = +ch.dataset.i, ok = i === quiz.correctIdx;
     document.querySelectorAll('#qBody .choice').forEach((b, k) => { b.classList.add(k === quiz.correctIdx ? 'ok' : (k === i ? 'ng' : 'dim')); });
-    record(ok); ok ? Sound.place() : Sound.wrong(); feedback(ok, it); return;
+    record(ok);  feedback(ok, it); return;
   }
   const tf = e.target.closest('.tf button');
   if (tf && !quiz.answered) {
     quiz.answered = true; const ok = (tf.dataset.a === '1') === it.a;
     document.querySelectorAll('#qBody .tf button').forEach(b => { b.disabled = b !== tf; });
-    record(ok); ok ? Sound.place() : Sound.wrong(); feedback(ok, it); return;
+    record(ok);  feedback(ok, it); return;
   }
   if (e.target.id === 'btnFlip') {
     quiz.flipped = true;
     $('cardBack').innerHTML = `<div class="fb"><div class="def">${esc(it.d)}</div>${it.n ? `<div class="note">💡 考察：${esc(it.n)}</div>` : ''}</div>`;
     $('btnFlip').outerHTML = `<div class="row2"><button class="btn dont" data-k="0">まだ</button><button class="btn know" data-k="1">覚えた</button></div>`;
-    Sound.select && Sound.select(); return;
+    return;
   }
   const kb = e.target.closest('[data-k]');
   if (kb && quiz.flipped && !quiz.answered) {
-    quiz.answered = true; const ok = kb.dataset.k === '1'; record(ok); ok ? Sound.place() : Sound.wrong();
+    quiz.answered = true; const ok = kb.dataset.k === '1'; record(ok); 
     $('qFeedback').innerHTML = `<div class="fb ${ok ? 'ok' : 'ng'}"><div class="head">${ok ? '○ 覚えた！' : '× もう一度'}</div>
       <textarea id="memo" placeholder="自分の言葉でメモ">${esc(memos[it.id] || '')}</textarea></div>
       <button class="btn" id="btnNext">${quiz.i === quiz.items.length - 1 ? '結果を見る' : '次へ'}</button>`;
@@ -644,34 +498,120 @@ function finish() {
   $('resMsg').textContent = pct === 100 ? '満点！' : pct >= 80 ? 'よくできました！' : pct >= 50 ? 'あと少し。間違えた用語を、もう一度。' : '大丈夫。間違えた用語から、もう一度。';
   $('resWrong').innerHTML = wrongHtml(quiz.wrongs);
   $('btnRetryWrong').classList.toggle('hidden', !quiz.wrongs.length);
-  pct >= 80 ? Sound.win() : Sound.unit();
 }
 $('btnRetryWrong').addEventListener('click', () => startQuiz(quiz.mode, shuffle(quiz.wrongs)));
 $('btnAgain').addEventListener('click', () => { if (quiz.mode === 'daily') { const ds = dailySet(); startQuiz('daily', shuffle([...ds.dueUse, ...ds.fresh])); } else startQuiz(quiz.mode, null, quiz.only); });
 $('btnResTitle').addEventListener('click', () => { showView('title'); renderTitle(); });
 $('btnCopyRes').addEventListener('click', () => {
   const d = new Date(), ds = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
-  let t = `【polis アカデミー】${ds}　${MODE_LABEL[quiz.mode]}　${quiz.right} / ${quiz.items.length}\n`;
+  let t = `【polis academy】${ds}　${MODE_LABEL[quiz.mode]}　${quiz.right} / ${quiz.items.length}\n`;
   if (quiz.wrongs.length) { t += '\n間違えた問題:\n'; for (const x of quiz.wrongs) t += `・${x.t || x.s}\n   ${x.d || x.e}${memos[x.id] ? '\n   ✎ ' + memos[x.id] : ''}\n`; }
   copyText(t);
 });
 
 /* ---------- きろく ---------- */
+const KIND_LABEL = { t: '用語', s: '正誤判定', c: '対比' };
+function allProg() {       // 用語・正誤・対比の、すべての学習状況を1つの表にまとめる
+  const rows = [];
+  D.terms.forEach(t => rows.push({ id: t.id, k: 't', c: t.c, p: prog[t.id], label: t.t, def: t.d }));
+  D.stmts.forEach(s => rows.push({ id: s.id, k: 's', c: s.c, p: sprog[s.id], label: s.s, def: s.e }));
+  D.cmps.forEach(x => x.rows.forEach((r, ri) => x.cols.forEach((col, ci) => { const id = `p:${x.title}:${ri}:${ci}`; rows.push({ id, k: 'c', c: x.c, p: sprog[id], label: `${x.title}（${r[0]}）`, def: `${col}：${r[ci + 1]}` }); })));
+  return rows;
+}
+function statsData() {
+  const rows = allProg(), z = () => ({ total: 0, seen: 0, mastered: 0, ans: 0, ok: 0 });
+  const kind = { t: z(), s: z(), c: z() }, cat = {}, all = z();
+  Object.keys(D.cats).forEach(c => { cat[c] = z(); });
+  for (const x of rows) {
+    const p = x.p, ms = !!(p && p.b >= CONFIG.MASTERED_BOX);
+    for (const o of [kind[x.k], cat[x.c] || (cat[x.c] = z()), all]) { o.total++; if (p && p.s > 0) { o.seen++; o.ans += p.s; o.ok += p.r; } if (ms) o.mastered++; }
+  }
+  const weak = rows.filter(x => x.p && x.p.s > 0 && x.p.b <= 1 && x.p.w > 0).sort((a, b) => b.p.w - a.p.w).slice(0, 25);
+  const days = [];
+  for (let i = 13; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); const k = ymd(d), h = hist[k] || { n: 0, r: 0 }; days.push({ k, n: h.n, r: h.r, wd: d.getDay() }); }
+  return { all, kind, cat, weak, days };
+}
+const pctOf = (a, b) => b ? Math.round(a / b * 100) : 0;
 function renderStats() {
-  const mastered = D.terms.filter(t => prog[t.id] && prog[t.id].b >= CONFIG.MASTERED_BOX).length;
-  $('stBig').innerHTML = `${mastered}<small> / ${D.terms.length} 語 覚えた</small>`;
-  const seen = D.terms.filter(t => prog[t.id] && prog[t.id].s > 0).length;
-  $('stMsg').textContent = `解答済みの用語 ${seen} 語`;
-  $('stCats').innerHTML = '<h3>分野別</h3>' + Object.keys(D.cats).map(c => {
-    const ts = D.terms.filter(t => t.c === c), m = ts.filter(t => prog[t.id] && prog[t.id].b >= CONFIG.MASTERED_BOX).length;
-    return `<div class="catbar"><div class="l"><span>${esc(catName(c))}</span><span>${m} / ${ts.length}</span></div><div class="bar"><i style="width:${ts.length ? m / ts.length * 100 : 0}%"></i></div></div>`;
-  }).join('');
-  const weak = D.terms.filter(t => prog[t.id] && prog[t.id].s > 0 && prog[t.id].b <= 1).sort((a, b) => prog[b.id].w - prog[a.id].w).slice(0, 25);
-  $('stWeak').innerHTML = weak.length ? '<h3 style="margin:0 0 6px;font-size:14px;color:var(--dim)">苦手な用語（誤答回数の多い順）</h3>' + weak.map(x => `<div class="item"><div class="t">${esc(x.t)}　<span style="font-size:12px;color:var(--ng)">×${prog[x.id].w}</span></div><div class="d">${esc(x.d)}</div>${memos[x.id] ? `<div class="m">✎ ${esc(memos[x.id])}</div>` : ''}</div>`).join('') : '<div class="msg">苦手な用語はまだありません</div>';
+  const S = statsData(), a = S.all;
+  $('stBig').innerHTML = `${a.mastered}<small> / ${a.total} 項目 覚えた</small>`;
+  $('stMsg').textContent = `累計 ${a.ans}問に解答　正答率 ${pctOf(a.ok, a.ans)}%　🔥 連続 ${streakNow()}日`;
+  const bar = (l, r, v, t) => `<div class="catbar"><div class="l"><span>${l}</span><span>${r}</span></div><div class="bar"><i style="width:${t ? v / t * 100 : 0}%"></i></div></div>`;
+  $('stKinds').innerHTML = '<h3>種類別（覚えた数 / 全体）</h3>' + ['t', 's', 'c'].map(k => { const o = S.kind[k]; return bar(KIND_LABEL[k], `${o.mastered} / ${o.total}　解答 ${o.ans}問・正答率 ${pctOf(o.ok, o.ans)}%`, o.mastered, o.total); }).join('');
+  const mx = Math.max(5, ...S.days.map(d => d.n)), WD = '日月火水木金土';
+  $('stChart').innerHTML = '<h3>この14日間の解答数</h3><div class="chart">' + S.days.map(d => `<div class="col"><div class="cn">${d.n || ''}</div><div class="cb"><i class="w" style="height:${(d.n - d.r) / mx * 100}%"></i><i class="r" style="height:${d.r / mx * 100}%"></i></div><div class="cd">${+d.k.slice(8)}<br>${WD[d.wd]}</div></div>`).join('') + '</div><div class="kline">緑＝正解　赤＝不正解（この機能を入れた日から記録されます）</div>';
+  $('stCats').innerHTML = '<h3>分野別（覚えた数 / 全体）</h3>' + Object.keys(S.cat).map(c => { const o = S.cat[c]; return bar(esc(catName(c)), `${o.mastered} / ${o.total}　正答率 ${o.ans ? pctOf(o.ok, o.ans) + '%' : '―'}`, o.mastered, o.total); }).join('');
+  $('stWeak').innerHTML = S.weak.length ? '<h3 style="margin:0 0 6px;font-size:14px;color:var(--dim)">苦手（誤答の多い順・用語／正誤／対比）</h3>' + S.weak.map(x => `<div class="item"><div class="t">${esc(x.label)}　<span style="font-size:12px;color:var(--ng)">×${x.p.w}</span> <span class="kt">${KIND_LABEL[x.k]}</span></div><div class="d">${esc(x.def)}</div>${memos[x.id] ? `<div class="m">✎ ${esc(memos[x.id])}</div>` : ''}</div>`).join('') : '<div class="msg">苦手な項目はまだありません</div>';
+  $('stName').value = settings.name || '';
 }
 $('goStats').addEventListener('click', () => { renderStats(); showView('stats'); });
 $('btnStatsBack').addEventListener('click', () => { showView('title'); renderTitle(); });
-$('btnResetProg').addEventListener('click', () => { if (confirm('学習記録（習熟度・苦手）をすべて消去します。メモは残ります。よろしいですか？')) { prog = {}; sprog = {}; saveAll(); renderStats(); toast('リセットしました'); } });
+$('btnResetProg').addEventListener('click', () => { if (confirm('学習記録（習熟度・苦手・日ごとの記録）をすべて消去します。メモと論述メモは残ります。よろしいですか？')) { prog = {}; sprog = {}; hist = {}; dayLog = { last: '', streak: 0, today: '', n: 0 }; saveAll(); saveHist(); lsSet('polis.days.v1', JSON.stringify(dayLog)); renderStats(); toast('リセットしました'); } });
+$('stName').addEventListener('input', e => { settings.name = e.target.value.trim().slice(0, 20); saveSettings(); });
+
+/* ---------- バックアップ・結果コード ---------- */
+const b64e = o => btoa(unescape(encodeURIComponent(JSON.stringify(o)))), b64d = t => JSON.parse(decodeURIComponent(escape(atob(t.replace(/\s+/g, '')))));
+function buildSummary() {
+  const S = statsData(), cat = {};
+  Object.keys(S.cat).forEach(c => { cat[c] = [S.cat[c].ok, S.cat[c].ans]; });
+  return { v: 1, n: settings.name || '(無名)', t: Date.now(), a: S.all.ans, o: S.all.ok, d: S.days.filter(x => x.n).length, s: streakNow(), m: S.all.mastered, tot: S.all.total, cat, w: S.weak.slice(0, 5).map(x => x.label) };
+}
+$('btnCode').addEventListener('click', () => { if (!settings.name) { toast('先に名前（出席番号など）を入力してください'); $('stName').focus(); return; } copyText('POLIS1:' + b64e(buildSummary())); });
+$('btnBkCopy').addEventListener('click', () => copyText('POLISBACKUP:' + b64e({ prog, sprog, memos, stars, hist, dayLog, essays, review, name: settings.name || '' })));
+$('btnBkOpen').addEventListener('click', () => $('bkBox').classList.toggle('hidden'));
+$('btnBkDo').addEventListener('click', () => {
+  const t = $('bkText').value.trim();
+  if (!t.startsWith('POLISBACKUP:')) { toast('バックアップのコードを貼り付けてください'); return; }
+  try {
+    const o = b64d(t.slice(12));
+    if (!confirm('今の学習記録を、このバックアップで置き換えます。よろしいですか？')) return;
+    prog = o.prog || {}; sprog = o.sprog || {}; memos = o.memos || {}; stars = o.stars || {}; hist = o.hist || {}; essays = o.essays || {}; review = o.review || review;
+    dayLog = o.dayLog || dayLog; if (o.name) settings.name = o.name;
+    saveAll(); saveHist(); saveStars(); saveSettings(); lsSet('polis.memo.v1', JSON.stringify(memos)); lsSet('polis.essay.v1', JSON.stringify(essays)); lsSet('polis.review.v1', JSON.stringify(review)); lsSet('polis.days.v1', JSON.stringify(dayLog));
+    $('bkText').value = ''; $('bkBox').classList.add('hidden'); renderStats(); toast('復元しました');
+  } catch (e) { toast('コードを読み取れませんでした'); }
+});
+
+/* ---------- 結果集計（先生用） ---------- */
+function renderClass() {
+  const lines = $('clText').value.split(/\s+/).filter(x => x.startsWith('POLIS1:')), list = [];
+  for (const l of lines) { try { const o = b64d(l.slice(7)); if (o && o.v === 1) list.push(o); } catch (e) { /* skip */ } }
+  const bad = lines.length - list.length, dt = t => { const d = new Date(t); return `${d.getMonth() + 1}/${d.getDate()}`; };
+  if (!list.length) { $('clOut').innerHTML = `<div class="msg">${lines.length ? '読み取れるコードがありません' : '生徒の結果コードを貼り付けて「集計する」を押してください'}</div>`; return; }
+  const cnt = {}; list.forEach(o => (o.w || []).forEach(w => { cnt[w] = (cnt[w] || 0) + 1; }));
+  const wk = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 15);
+  const cats = Object.keys(D.cats).map(c => { let ok = 0, a = 0; list.forEach(o => { const v = (o.cat || {})[c]; if (v) { ok += v[0]; a += v[1]; } }); return `<tr><td>${esc(catName(c))}</td><td>${a ? pctOf(ok, a) + '%' : '―'}</td><td>${a}</td></tr>`; }).join('');
+  $('clOut').innerHTML = `${bad ? `<div class="banner">読み取れなかったコード ${bad}件</div>` : ''}
+    <div class="card"><h3>生徒別（${list.length}名）</h3><table class="cl"><tr><th>名前</th><th>解答</th><th>正答率</th><th>覚えた</th><th>学習日</th><th>連続</th><th>日付</th></tr>${list.sort((a, b) => String(a.n).localeCompare(String(b.n), 'ja')).map(o => `<tr><td>${esc(o.n)}</td><td>${o.a}</td><td>${pctOf(o.o, o.a)}%</td><td>${o.m}${o.tot ? '/' + o.tot : ''}</td><td>${o.d}</td><td>${o.s}</td><td>${dt(o.t)}</td></tr>`).join('')}</table></div>
+    <div class="card"><h3>分野別の正答率（全員）</h3><table class="cl"><tr><th>分野</th><th>正答率</th><th>解答数</th></tr>${cats}</table></div>
+    <div class="card wlist"><h3>つまずきの多い項目（各自の苦手上位5から集計）</h3>${wk.map(([w, n]) => `<div class="item"><div class="t">${esc(w)}　<span style="font-size:12px;color:var(--ng)">${n}名</span></div></div>`).join('') || '<div class="msg">なし</div>'}</div>`;
+}
+$('goClass').addEventListener('click', () => { showView('class'); });
+$('btnClassDo').addEventListener('click', renderClass);
+$('btnClassBack').addEventListener('click', () => { showView('title'); renderTitle(); });
+
+/* ---------- 論述メモ ---------- */
+const ESSAY_FIELDS = [['claim', '① 主張（結論）', '私は〜と考える。'], ['reason', '② 理由・根拠', 'なぜなら〜。（用語や制度を使って）'], ['ex', '③ 具体例・資料', '例えば〜。'], ['counter', '④ 反対意見とそれへの再反論', '確かに〜という意見もある。しかし〜。']];
+const essayId = e => 'e:' + e.title, saveEssays = () => lsSet('polis.essay.v1', JSON.stringify(essays));
+let essayCur = null;
+function renderEssayList() {
+  $('esList').classList.remove('hidden'); $('esEdit').classList.add('hidden');
+  $('esList').innerHTML = D.essays.map((e, i) => { const v = essays[essayId(e)] || {}, n = ESSAY_FIELDS.filter(f => (v[f[0]] || '').trim()).length;
+    return `<button class="link es-item" data-i="${i}"><span class="tag">${esc(catName(e.c))}</span><b>${esc(e.title)}</b><small>${n ? `記入 ${n} / 4` : '未記入'}</small></button>`; }).join('');
+}
+function openEssay(i) {
+  const e = D.essays[i], v = essays[essayId(e)] || {}; essayCur = e;
+  $('esList').classList.add('hidden'); $('esEdit').classList.remove('hidden');
+  $('esQ').innerHTML = `<span class="qcat">${esc(catName(e.c))}</span><div class="qtext" style="font-size:17px"><b>${esc(e.title)}</b><br>${esc(e.q)}</div><div class="kline" style="margin-top:8px">考える視点</div><ul style="margin:4px 0 6px;padding-left:20px;font-size:14px;line-height:1.7">${e.pts.map(p => `<li>${esc(p)}</li>`).join('')}</ul><div class="kline">使いたい用語：${e.terms.map(esc).join('・')}</div>`;
+  $('esFields').innerHTML = ESSAY_FIELDS.map(f => `<div class="card"><h3>${f[1]}</h3><textarea class="esf" data-f="${f[0]}" placeholder="${f[2]}">${esc(v[f[0]] || '')}</textarea></div>`).join('');
+  $('app').scrollTop = 0;
+}
+$('esList').addEventListener('click', e => { const b = e.target.closest('.es-item'); if (b) openEssay(+b.dataset.i); });
+$('esFields').addEventListener('input', e => { const f = e.target.dataset.f; if (!f || !essayCur) return; const k = essayId(essayCur); (essays[k] || (essays[k] = {}))[f] = e.target.value; essays[k].t = Date.now(); saveEssays(); });
+$('btnEsCopy').addEventListener('click', () => { const v = essays[essayId(essayCur)] || {}; copyText(`【論述メモ】${essayCur.title}\n${essayCur.q}\n\n` + ESSAY_FIELDS.map(f => `${f[1]}\n${v[f[0]] || ''}`).join('\n\n') + '\n'); });
+$('btnEsList').addEventListener('click', renderEssayList);
+$('goEssay').addEventListener('click', () => { renderEssayList(); showView('essay'); });
+$('btnEsBack').addEventListener('click', () => { showView('title'); renderTitle(); });
 
 /* ---------- データかくにん（先生用） ---------- */
 let rvFilter = 'all';
@@ -713,7 +653,7 @@ $('goReview').addEventListener('click', () => { renderReview(); showView('review
 $('btnRvBack').addEventListener('click', () => { showView('title'); renderTitle(); });
 $('btnCopyRv').addEventListener('click', () => {
   const all = [...D.terms, ...D.stmts, ...D.cmps], rc = reviewCounts();
-  let t = `【polis アカデミー データ確認】データ ${D.version}\n確認済み ${rc.ok} / ${rc.total}　要修正 ${rc.fix}\n`;
+  let t = `【polis academy データ確認】データ ${D.version}\n確認済み ${rc.ok} / ${rc.total}　要修正 ${rc.fix}\n`;
   const items = all.filter(x => rvStatus(x.id) === 'fix' || (review[x.id] && review[x.id].c));
   if (!items.length) t += '\n（要修正・コメントはありません）\n';
   for (const x of items) t += `\n・[${catName(x.c)}] ${x.t || x.s || ('対比: ' + x.title)}\n   ${rvStatus(x.id) === 'fix' ? '【要修正】' : ''}${(review[x.id] && review[x.id].c) || ''}\n`;
@@ -750,27 +690,16 @@ function renderCmp() {
 }
 $('goCmp').addEventListener('click', () => { renderCmp(); showView('cmp'); });
 $('btnCmpBack').addEventListener('click', () => { showView('title'); renderTitle(); });
-$('btnCmpQuizAll').addEventListener('click', () => { Sound.unlock(); startQuiz('cmp'); });
-$('cmpList').addEventListener('click', e => { const b = e.target.closest('[data-cmp]'); if (b) { Sound.unlock(); startQuiz('cmp', null, b.dataset.cmp); } });
+$('btnCmpQuizAll').addEventListener('click', () => { startQuiz('cmp'); });
+$('cmpList').addEventListener('click', e => { const b = e.target.closest('[data-cmp]'); if (b) { startQuiz('cmp', null, b.dataset.cmp); } });
 
 /* ---------- 起動 ---------- */
-['pointerdown', 'pointerup', 'touchstart', 'touchend', 'click'].forEach(t => document.addEventListener(t, () => { Sound.unlock(); if (settings.bgm && !Sound.bgmOn) syncBgm(); }, { passive: true, capture: true }));
 ['gesturestart', 'gesturechange', 'gestureend', 'contextmenu', 'dragstart'].forEach(t => document.addEventListener(t, e => e.preventDefault()));
-document.addEventListener('visibilitychange', () => { if (document.hidden) Sound.bgmStop(); else { Sound.unlock(); if (settings.bgm) syncBgm(); } });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 }
-Sound.setMuted(Sound.muted);
 renderTitle();
-(function () {
-  const sp = $('tapSplash');
-  if (!settings.bgm || Sound.muted || CONFIG.SOUND.TAP_SPLASH === false) { sp.remove(); return; }
-  let done = false;
-  const go = e => { if (done) return; done = true; Sound.unlock(); syncBgm(); sp.classList.add('hidden-s'); setTimeout(() => sp.remove(), 300); if (e) e.preventDefault(); };
-  sp.addEventListener('touchend', go); sp.addEventListener('click', go);
-})();
-syncBgm();
-if (location.search.includes('debug')) window.__p = { D, settings, startQuiz, dailySet, stars: () => stars, dayLog: () => dayLog, get quiz() { return quiz; }, prog: () => prog, review: () => review, poolList, distractors };
+if (location.search.includes('debug')) window.__p = { D, hist: () => hist, essays: () => essays, buildSummary, statsData, settings, startQuiz, dailySet, stars: () => stars, dayLog: () => dayLog, get quiz() { return quiz; }, prog: () => prog, review: () => review, poolList, distractors };
 </script>
 </body>
 </html>
