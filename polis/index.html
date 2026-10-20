@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>polis～政経ドリル～</title>
+<title>polis アカデミー～公共・政経～</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -31,11 +31,12 @@ button { font-family: inherit; touch-action: manipulation; }
 .logo svg { width: 84px; height: 84px; }
 .logo .name { font-size: 46px; font-weight: 900; letter-spacing: .04em; line-height: 1.1; margin-top: 4px; }
 .logo .name em { font-style: normal; color: var(--acc); }
+.logo .aca { font-size: 24px; font-weight: 900; letter-spacing: .3em; margin-top: 2px; text-indent: .3em; }
 .logo .sub { margin-top: 4px; font-size: 14px; font-weight: 800; letter-spacing: .3em; color: var(--dim); }
 .title-snd, .icon-btn { border: 0; background: rgba(31,42,55,.08); color: var(--ink); border-radius: 22px; height: 44px; min-width: 44px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-weight: 800; font-size: 14px; }
 .title-snd { position: absolute; right: 0; top: 4px; }
 .title-snd svg, .icon-btn svg { width: 22px; height: 22px; fill: currentColor; }
-.title-snd .lbl::after { content: 'おとON'; } .title-snd.off .lbl::after { content: 'おとOFF'; }
+.title-snd .lbl::after { content: '音ON'; } .title-snd.off .lbl::after { content: '音OFF'; }
 .off .wave { display: none; } :not(.off) > svg .cross { display: none; }
 .statline { text-align: center; font-weight: 800; font-size: 15px; margin: 10px 0 4px; }
 .statline b { color: var(--acc); font-size: 20px; }
@@ -115,7 +116,7 @@ summary { font-weight: 900; padding: 10px 0; font-size: 15px; }
 </style>
 </head>
 <body>
-<div id="tapSplash"><div class="msg">♪ タップして はじめる</div></div>
+<div id="tapSplash"><div class="msg">♪ タップして開始</div></div>
 <div id="app">
 
 <!-- タイトル -->
@@ -124,7 +125,8 @@ summary { font-weight: 900; padding: 10px 0; font-size: 15px; }
     <button id="btnSoundTitle" class="title-snd" aria-label="サウンド"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7l-1.4-1.4a3 3 0 0 0 0-4.2l1.4-1.4zM18.4 5.6a9 9 0 0 1 0 12.8L17 17a7 7 0 0 0 0-10l1.4-1.4z"/><path class="cross" d="M15 9.4 16.4 8 18.5 10.1 20.6 8 22 9.4 19.9 11.5 22 13.6 20.6 15 18.5 12.9 16.4 15 15 13.6 17.1 11.5z"/></svg><span class="lbl"></span></button>
     <svg viewBox="0 0 100 100"><path d="M10 38 L50 12 L90 38 Z" fill="#c9972b"/><rect x="14" y="42" width="72" height="7" rx="2" fill="#1f2a37"/><g fill="#1c7c6b"><rect x="20" y="52" width="10" height="30" rx="2"/><rect x="38" y="52" width="10" height="30" rx="2"/><rect x="56" y="52" width="10" height="30" rx="2"/><rect x="74" y="52" width="8" height="30" rx="2"/></g><rect x="10" y="84" width="80" height="8" rx="2" fill="#1f2a37"/></svg>
     <div class="name">pol<em>is</em></div>
-    <div class="sub">～ 政経ドリル ～</div>
+    <div class="aca">アカデミー</div>
+    <div class="sub">～ 公共・政経 ～</div>
   </div>
   <div class="statline" id="statLine"></div>
   <div class="banner" id="reviewBanner"></div>
@@ -132,28 +134,28 @@ summary { font-weight: 900; padding: 10px 0; font-size: 15px; }
   <div class="modes">
     <button class="mode" data-m="def2term">説明 → 用語<small>4択</small></button>
     <button class="mode alt" data-m="term2def">用語 → 説明<small>4択</small></button>
-    <button class="mode gold" data-m="card">暗記カード<small>思い出して確かめる</small></button>
+    <button class="mode gold" data-m="card">暗記カード<small>思い出して確認する</small></button>
     <button class="mode rose" data-m="stmt">正誤判定<small>○ か ×</small></button>
   </div>
-  <div style="margin:14px 4px 0;font-size:13px;font-weight:800;color:var(--dim)">▼ 出題のしぼりこみ</div>
-  <div class="card"><h3>分野（えらばないと ぜんぶ）</h3><div class="chips" id="catChips"></div></div>
+  <div style="margin:14px 4px 0;font-size:13px;font-weight:800;color:var(--dim)">▼ 出題の絞り込み</div>
+  <div class="card"><h3>分野（未選択なら全分野）</h3><div class="chips" id="catChips"></div></div>
   <div class="card"><h3>出題</h3><div class="seg" id="segPool">
-    <button class="chip" data-v="all">ぜんぶ</button><button class="chip" data-v="weak">苦手</button><button class="chip" data-v="new">未学習</button></div></div>
+    <button class="chip" data-v="all">全て</button><button class="chip" data-v="weak">苦手</button><button class="chip" data-v="new">未学習</button></div></div>
   <div class="card"><h3>問題数</h3><div class="seg" id="segN"></div></div>
 
   <div class="links">
-    <button class="link" id="goStats">📊 きろく</button>
-    <button class="link" id="goReview">✎ データかくにん</button>
+    <button class="link" id="goStats">📊 学習記録</button>
+    <button class="link" id="goReview">✎ データ確認</button>
     <button class="link" id="goOpt">♪ BGM</button>
   </div>
   <div class="card toggle" id="tgBgm" style="margin-top:12px"><span>BGMを流す（ローファイ）</span><span class="sw"></span></div>
-  <a class="back" href="../">← Lapis にもどる</a>
+  <a class="back" href="../">← Lapis に戻る</a>
 </section>
 
 <!-- クイズ -->
 <section class="view hidden" id="vQuiz">
   <div class="qtop">
-    <button class="icon-btn" id="btnQuit">← やめる</button>
+    <button class="icon-btn" id="btnQuit">← 中断</button>
     <div class="prog"><div class="bar"><i id="qBar" style="width:0%"></i></div></div>
     <div class="count" id="qCount">1 / 10</div>
     <button class="icon-btn" id="btnSound" aria-label="サウンド"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7l-1.4-1.4a3 3 0 0 0 0-4.2l1.4-1.4zM18.4 5.6a9 9 0 0 1 0 12.8L17 17a7 7 0 0 0 0-10l1.4-1.4z"/><path class="cross" d="M15 9.4 16.4 8 18.5 10.1 20.6 8 22 9.4 19.9 11.5 22 13.6 20.6 15 18.5 12.9 16.4 15 15 13.6 17.1 11.5z"/></svg></button>
@@ -164,32 +166,32 @@ summary { font-weight: 900; padding: 10px 0; font-size: 15px; }
 
 <!-- 結果 -->
 <section class="view hidden" id="vResult">
-  <h2>けっか</h2>
+  <h2>結果</h2>
   <div class="big" id="resScore"></div>
   <div class="msg" id="resMsg"></div>
   <div class="card wlist" id="resWrong"></div>
-  <button class="btn" id="btnRetryWrong">まちがえたものを もういちど</button>
-  <button class="btn sec" id="btnAgain">あたらしい問題で もういちど</button>
+  <button class="btn" id="btnRetryWrong">間違えた問題をもう一度</button>
+  <button class="btn sec" id="btnAgain">新しい問題でもう一度</button>
   <button class="btn sec" id="btnCopyRes">結果をコピー（ノート用）</button>
   <button class="btn sec" id="btnResTitle">タイトルへ</button>
 </section>
 
 <!-- きろく -->
 <section class="view hidden" id="vStats">
-  <h2>きろく</h2>
+  <h2>学習記録</h2>
   <div class="big" id="stBig"></div>
   <div class="msg" id="stMsg"></div>
   <div class="card" id="stCats"></div>
   <div class="card wlist" id="stWeak"></div>
-  <button class="btn sec" id="btnResetProg">きろくをリセット</button>
+  <button class="btn sec" id="btnResetProg">記録をリセット</button>
   <button class="btn sec" id="btnStatsBack">タイトルへ</button>
 </section>
 
 <!-- データかくにん（先生用） -->
 <section class="view hidden" id="vReview">
-  <h2>データかくにん</h2>
+  <h2>データ確認</h2>
   <div class="banner" id="rvSummary"></div>
-  <div class="seg" id="rvFilter" style="margin-bottom:8px"><button class="chip on" data-v="all">ぜんぶ</button><button class="chip" data-v="todo">未確認</button><button class="chip" data-v="fix">要修正</button></div>
+  <div class="seg" id="rvFilter" style="margin-bottom:8px"><button class="chip on" data-v="all">全て</button><button class="chip" data-v="todo">未確認</button><button class="chip" data-v="fix">要修正</button></div>
   <div id="rvList"></div>
   <button class="btn" id="btnCopyRv">要修正・コメントをコピー</button>
   <button class="btn sec" id="btnRvBack">タイトルへ</button>
@@ -430,10 +432,10 @@ function renderTitle() {
   $('statLine').innerHTML = `覚えた用語 <b>${mastered}</b> / ${D.terms.length}`;
   const rc = reviewCounts();
   $('reviewBanner').classList.toggle('hidden', rc.ok === rc.total);
-  $('reviewBanner').textContent = `内容は先生が確認中です（確認ずみ ${rc.ok} / ${rc.total}　要修正 ${rc.fix}）　データ ${D.version}`;
+  $('reviewBanner').textContent = `内容は教員が確認中です（確認済み ${rc.ok} / ${rc.total}　要修正 ${rc.fix}）　データ ${D.version}`;
   $('catChips').innerHTML = Object.keys(D.cats).map(c => `<button class="chip${settings.cats.includes(c) ? ' on' : ''}" data-c="${c}">${esc(catName(c))}</button>`).join('');
   document.querySelectorAll('#segPool .chip').forEach(b => b.classList.toggle('on', b.dataset.v === settings.pool));
-  $('segN').innerHTML = [...CONFIG.N_OPTIONS, 9999].map(n => `<button class="chip${settings.n === n ? ' on' : ''}" data-n="${n}">${n === 9999 ? 'ぜんぶ' : n + '問'}</button>`).join('');
+  $('segN').innerHTML = [...CONFIG.N_OPTIONS, 9999].map(n => `<button class="chip${settings.n === n ? ' on' : ''}" data-n="${n}">${n === 9999 ? '全部' : n + '問'}</button>`).join('');
   $('tgBgm').classList.toggle('on', settings.bgm);
 }
 $('catChips').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; const c = b.dataset.c; const i = settings.cats.indexOf(c); if (i >= 0) settings.cats.splice(i, 1); else settings.cats.push(c); saveSettings(); renderTitle(); });
@@ -474,7 +476,7 @@ function startQuiz(mode, items) {
   const kind = mode === 'stmt' ? 'stmt' : 'term';
   if (!items) {
     const list = poolList(kind);
-    if (!list.length) { toast('その条件の問題がありません。分野や出題をかえてね'); return; }
+    if (!list.length) { toast('その条件の問題がありません。分野や出題を変更してください'); return; }
     items = sample(list, settings.n, kind === 'stmt' ? sprog : prog);
   }
   quiz = { mode, kind, items, i: 0, right: 0, wrongs: [], answered: false, correctIdx: -1, pick: [], flipped: false };
@@ -495,7 +497,7 @@ function renderQ() {
     const ch = shuffle([it, ...distractors(it, 3)]); quiz.pick = ch; quiz.correctIdx = ch.indexOf(it);
     h = `${cat}<div class="qterm">${esc(it.t)}</div><div class="choices">${ch.map((c, i) => `<button class="choice def" data-i="${i}">${esc(c.d)}</button>`).join('')}</div>`;
   } else if (quiz.mode === 'card') {
-    h = `${cat}<div class="qterm">${esc(it.t)}</div><div id="cardBack"></div><button class="btn" id="btnFlip">こたえを見る</button>`;
+    h = `${cat}<div class="qterm">${esc(it.t)}</div><div id="cardBack"></div><button class="btn" id="btnFlip">答えを見る</button>`;
   } else {
     h = `${cat}<div class="qtext">${esc(it.s)}</div><div class="tf"><button class="t" data-a="1">○</button><button class="f" data-a="0">×</button></div>`;
   }
@@ -514,9 +516,9 @@ function feedback(ok, it, extraHead) {
   const body = isStmt
     ? `<div class="ans">${it.a ? '○（正しい）' : '×（誤り）'}</div><div class="def">${esc(it.e)}</div>`
     : `<div class="ans">${esc(it.t)}</div><div class="def">${esc(it.d)}</div>${it.n ? `<div class="note">💡 考察：${esc(it.n)}</div>` : ''}`;
-  $('qFeedback').innerHTML = `<div class="fb ${ok ? 'ok' : 'ng'}"><div class="head">${extraHead || (ok ? '○ 正解！' : '× ざんねん')}</div>${body}
-    <textarea id="memo" placeholder="自分の言葉で、ひとこと（なぜ？ ほかとの違いは？）">${esc(memo)}</textarea></div>
-    <button class="btn" id="btnNext">${last ? 'けっかを見る' : 'つぎへ'}</button>`;
+  $('qFeedback').innerHTML = `<div class="fb ${ok ? 'ok' : 'ng'}"><div class="head">${extraHead || (ok ? '○ 正解！' : '× 不正解')}</div>${body}
+    <textarea id="memo" placeholder="自分の言葉でメモ（なぜ？ 他との違いは？）">${esc(memo)}</textarea></div>
+    <button class="btn" id="btnNext">${last ? '結果を見る' : '次へ'}</button>`;
   $('memo').addEventListener('input', e => { memos[it.id] = e.target.value; lsSet('polis.memo.v1', JSON.stringify(memos)); });
   $('btnNext').addEventListener('click', next);
   $('btnNext').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -547,24 +549,24 @@ $('qBody').addEventListener('click', e => {
   if (kb && quiz.flipped && !quiz.answered) {
     quiz.answered = true; const ok = kb.dataset.k === '1'; record(ok); ok ? Sound.place() : Sound.wrong();
     $('qFeedback').innerHTML = `<div class="fb ${ok ? 'ok' : 'ng'}"><div class="head">${ok ? '○ 覚えた！' : '× もう一度'}</div>
-      <textarea id="memo" placeholder="自分の言葉で、ひとこと">${esc(memos[it.id] || '')}</textarea></div>
-      <button class="btn" id="btnNext">${quiz.i === quiz.items.length - 1 ? 'けっかを見る' : 'つぎへ'}</button>`;
+      <textarea id="memo" placeholder="自分の言葉でメモ">${esc(memos[it.id] || '')}</textarea></div>
+      <button class="btn" id="btnNext">${quiz.i === quiz.items.length - 1 ? '結果を見る' : '次へ'}</button>`;
     $('memo').addEventListener('input', ev => { memos[it.id] = ev.target.value; lsSet('polis.memo.v1', JSON.stringify(memos)); });
     $('btnNext').addEventListener('click', next);
   }
 });
-$('btnQuit').addEventListener('click', () => { if (confirm('ここでやめますか？（ここまでの記録は残ります）')) { showView('title'); renderTitle(); } });
+$('btnQuit').addEventListener('click', () => { if (confirm('ここで中断しますか？（これまでの記録は保存されます）')) { showView('title'); renderTitle(); } });
 
 /* ---------- 結果 ---------- */
 function wrongHtml(list) {
-  if (!list.length) return '<div class="msg">ぜんぶ せいかい！ すごい！</div>';
-  return '<h3 style="margin:0 0 6px;font-size:14px;color:var(--dim)">まちがえた問題</h3>' + list.map(x => `<div class="item"><div class="t">${esc(x.t || x.s)}</div><div class="d">${esc(x.d || x.e)}</div>${memos[x.id] ? `<div class="m">✎ ${esc(memos[x.id])}</div>` : ''}</div>`).join('');
+  if (!list.length) return '<div class="msg">全問正解！ 素晴らしい！</div>';
+  return '<h3 style="margin:0 0 6px;font-size:14px;color:var(--dim)">間違えた問題</h3>' + list.map(x => `<div class="item"><div class="t">${esc(x.t || x.s)}</div><div class="d">${esc(x.d || x.e)}</div>${memos[x.id] ? `<div class="m">✎ ${esc(memos[x.id])}</div>` : ''}</div>`).join('');
 }
 function finish() {
   const n = quiz.items.length, r = quiz.right, pct = Math.round(r / n * 100);
   showView('result'); $('qBar').style.width = '100%';
   $('resScore').innerHTML = `${r}<small> / ${n}</small>`;
-  $('resMsg').textContent = pct === 100 ? '満点！' : pct >= 80 ? 'よくできました！' : pct >= 50 ? 'あと少し。まちがえた用語を、もう一度。' : '大丈夫。まちがえた用語から、もう一度。';
+  $('resMsg').textContent = pct === 100 ? '満点！' : pct >= 80 ? 'よくできました！' : pct >= 50 ? 'あと少し。間違えた用語を、もう一度。' : '大丈夫。間違えた用語から、もう一度。';
   $('resWrong').innerHTML = wrongHtml(quiz.wrongs);
   $('btnRetryWrong').classList.toggle('hidden', !quiz.wrongs.length);
   pct >= 80 ? Sound.win() : Sound.unit();
@@ -574,8 +576,8 @@ $('btnAgain').addEventListener('click', () => startQuiz(quiz.mode));
 $('btnResTitle').addEventListener('click', () => { showView('title'); renderTitle(); });
 $('btnCopyRes').addEventListener('click', () => {
   const d = new Date(), ds = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
-  let t = `【polis 政経ドリル】${ds}　${MODE_LABEL[quiz.mode]}　${quiz.right} / ${quiz.items.length}\n`;
-  if (quiz.wrongs.length) { t += '\nまちがえた問題:\n'; for (const x of quiz.wrongs) t += `・${x.t || x.s}\n   ${x.d || x.e}${memos[x.id] ? '\n   ✎ ' + memos[x.id] : ''}\n`; }
+  let t = `【polis アカデミー】${ds}　${MODE_LABEL[quiz.mode]}　${quiz.right} / ${quiz.items.length}\n`;
+  if (quiz.wrongs.length) { t += '\n間違えた問題:\n'; for (const x of quiz.wrongs) t += `・${x.t || x.s}\n   ${x.d || x.e}${memos[x.id] ? '\n   ✎ ' + memos[x.id] : ''}\n`; }
   copyText(t);
 });
 
@@ -584,37 +586,37 @@ function renderStats() {
   const mastered = D.terms.filter(t => prog[t.id] && prog[t.id].b >= CONFIG.MASTERED_BOX).length;
   $('stBig').innerHTML = `${mastered}<small> / ${D.terms.length} 語 覚えた</small>`;
   const seen = D.terms.filter(t => prog[t.id] && prog[t.id].s > 0).length;
-  $('stMsg').textContent = `解いたことのある用語 ${seen} 語`;
-  $('stCats').innerHTML = '<h3>分野ごと</h3>' + Object.keys(D.cats).map(c => {
+  $('stMsg').textContent = `解答済みの用語 ${seen} 語`;
+  $('stCats').innerHTML = '<h3>分野別</h3>' + Object.keys(D.cats).map(c => {
     const ts = D.terms.filter(t => t.c === c), m = ts.filter(t => prog[t.id] && prog[t.id].b >= CONFIG.MASTERED_BOX).length;
     return `<div class="catbar"><div class="l"><span>${esc(catName(c))}</span><span>${m} / ${ts.length}</span></div><div class="bar"><i style="width:${ts.length ? m / ts.length * 100 : 0}%"></i></div></div>`;
   }).join('');
   const weak = D.terms.filter(t => prog[t.id] && prog[t.id].s > 0 && prog[t.id].b <= 1).sort((a, b) => prog[b.id].w - prog[a.id].w).slice(0, 25);
-  $('stWeak').innerHTML = weak.length ? '<h3 style="margin:0 0 6px;font-size:14px;color:var(--dim)">苦手な用語（まちがえた回数が多い順）</h3>' + weak.map(x => `<div class="item"><div class="t">${esc(x.t)}　<span style="font-size:12px;color:var(--ng)">×${prog[x.id].w}</span></div><div class="d">${esc(x.d)}</div>${memos[x.id] ? `<div class="m">✎ ${esc(memos[x.id])}</div>` : ''}</div>`).join('') : '<div class="msg">苦手な用語は、まだありません</div>';
+  $('stWeak').innerHTML = weak.length ? '<h3 style="margin:0 0 6px;font-size:14px;color:var(--dim)">苦手な用語（誤答回数の多い順）</h3>' + weak.map(x => `<div class="item"><div class="t">${esc(x.t)}　<span style="font-size:12px;color:var(--ng)">×${prog[x.id].w}</span></div><div class="d">${esc(x.d)}</div>${memos[x.id] ? `<div class="m">✎ ${esc(memos[x.id])}</div>` : ''}</div>`).join('') : '<div class="msg">苦手な用語はまだありません</div>';
 }
 $('goStats').addEventListener('click', () => { renderStats(); showView('stats'); });
 $('btnStatsBack').addEventListener('click', () => { showView('title'); renderTitle(); });
-$('btnResetProg').addEventListener('click', () => { if (confirm('学習のきろく（覚えた用語・苦手）を、すべて消します。メモは残ります。よろしいですか？')) { prog = {}; sprog = {}; saveAll(); renderStats(); toast('リセットしました'); } });
+$('btnResetProg').addEventListener('click', () => { if (confirm('学習記録（習熟度・苦手）をすべて消去します。メモは残ります。よろしいですか？')) { prog = {}; sprog = {}; saveAll(); renderStats(); toast('リセットしました'); } });
 
 /* ---------- データかくにん（先生用） ---------- */
 let rvFilter = 'all';
 function rvStatus(id) { return (review[id] && review[id].s) || ''; }
 function renderReview() {
   const rc = reviewCounts();
-  $('rvSummary').textContent = `確認ずみ ${rc.ok} / ${rc.total}　要修正 ${rc.fix}　未確認 ${rc.total - rc.ok - rc.fix}　（データ ${D.version}）`;
+  $('rvSummary').textContent = `確認済み ${rc.ok} / ${rc.total}　要修正 ${rc.fix}　未確認 ${rc.total - rc.ok - rc.fix}　（データ ${D.version}）`;
   document.querySelectorAll('#rvFilter .chip').forEach(b => b.classList.toggle('on', b.dataset.v === rvFilter));
   const show = x => rvFilter === 'all' || (rvFilter === 'todo' && !rvStatus(x.id)) || (rvFilter === 'fix' && rvStatus(x.id) === 'fix');
   const row = (x, isS) => { const st = rvStatus(x.id), c = (review[x.id] && review[x.id].c) || ''; return `<div class="rv ${st ? 's-' + st : ''}" data-id="${esc(x.id)}">
     <div class="t">${esc(isS ? x.s : x.t)}${isS ? `　<span style="font-weight:700;color:var(--dim)">【${x.a ? '○' : '×'}】</span>` : ''}</div><div class="d">${esc(isS ? x.e : x.d)}</div>${x.n ? `<div class="n">💡 ${esc(x.n)}</div>` : ''}
-    <div class="acts"><button class="ok${st === 'ok' ? ' on' : ''}" data-s="ok">○ 確認ずみ</button><button class="fix${st === 'fix' ? ' on' : ''}" data-s="fix">✎ 要修正</button></div>
-    <input type="text" placeholder="コメント（どこをどう直すか）" value="${esc(c)}"></div>`; };
+    <div class="acts"><button class="ok${st === 'ok' ? ' on' : ''}" data-s="ok">○ 確認済み</button><button class="fix${st === 'fix' ? ' on' : ''}" data-s="fix">✎ 要修正</button></div>
+    <input type="text" placeholder="コメント（修正箇所と修正案）" value="${esc(c)}"></div>`; };
   let h = '';
   for (const c of Object.keys(D.cats)) {
     const ts = D.terms.filter(t => t.c === c && show(t)), ss = D.stmts.filter(s => s.c === c && show(s));
     if (!ts.length && !ss.length) continue;
     const allOk = D.terms.filter(t => t.c === c).every(t => rvStatus(t.id) === 'ok') && D.stmts.filter(s => s.c === c).every(s => rvStatus(s.id) === 'ok');
     h += `<details><summary>${esc(catName(c))}（用語${ts.length}・正誤${ss.length}）${allOk ? ' ✔' : ''}</summary>${ts.map(t => row(t, false)).join('')}${ss.map(s => row(s, true)).join('')}
-      <button class="btn sec" data-allok="${c}" style="margin:8px 0">この分野を、ぜんぶ「確認ずみ」にする</button></details>`;
+      <button class="btn sec" data-allok="${c}" style="margin:8px 0">この分野を全て「確認済み」にする</button></details>`;
   }
   $('rvList').innerHTML = h || '<div class="msg">該当するものはありません</div>';
 }
@@ -636,7 +638,7 @@ $('goReview').addEventListener('click', () => { renderReview(); showView('review
 $('btnRvBack').addEventListener('click', () => { showView('title'); renderTitle(); });
 $('btnCopyRv').addEventListener('click', () => {
   const all = [...D.terms, ...D.stmts], rc = reviewCounts();
-  let t = `【polis データ確認】データ ${D.version}\n確認ずみ ${rc.ok} / ${rc.total}　要修正 ${rc.fix}\n`;
+  let t = `【polis アカデミー データ確認】データ ${D.version}\n確認済み ${rc.ok} / ${rc.total}　要修正 ${rc.fix}\n`;
   const items = all.filter(x => rvStatus(x.id) === 'fix' || (review[x.id] && review[x.id].c));
   if (!items.length) t += '\n（要修正・コメントはありません）\n';
   for (const x of items) t += `\n・[${catName(x.c)}] ${x.t || x.s}\n   ${rvStatus(x.id) === 'fix' ? '【要修正】' : ''}${(review[x.id] && review[x.id].c) || ''}\n`;

@@ -10,7 +10,7 @@ URL: `https://<ユーザー名>.github.io/Lapis/`
 | numberun～ナンバ走り～ | [numberun/](numberun/) | 計算ゲート型ランニング（小学生中学年向け） |
 | numplace～ナンプレ～ | [numplace/](numplace/) | ナンバープレース（数字パズル。問題は自動で作る） |
 | gemdig～ジェムディグ～ | [gemdig/](gemdig/) | 地雷さがしパズル（石をほって、ばくだんをよける） |
-| polis～政経ドリル～ | [polis/](polis/) | 政治・経済（公共）の用語ドリル（高校生向け・学習用） |
+| polis アカデミー～公共・政経～ | [polis/](polis/) | 政治・経済（公共）の用語ドリル（高校生向け・学習用） |
 
 ## 新しいゲームを足すとき
 
