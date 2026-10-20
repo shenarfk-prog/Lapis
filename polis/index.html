@@ -113,6 +113,18 @@ summary { font-weight: 900; padding: 10px 0; font-size: 15px; }
 #tapSplash .msg { padding: 16px 28px; border-radius: 99px; background: #fff; border: 2px solid var(--line); animation: pulse 1.2s ease-in-out infinite; }
 @keyframes pulse { 50% { transform: scale(1.06); } }
 #tapSplash.hidden-s { opacity: 0; pointer-events: none; transition: opacity .25s; }
+.daily { display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #1c7c6b, #2e9b86); color: #fff; border: 0; margin-top: 8px; }
+.daily .tx { flex: 1; } .daily b { font-size: 18px; } .daily small { display: block; opacity: .92; font-size: 12.5px; margin-top: 3px; line-height: 1.5; }
+.daily .go { border: 0; background: #fff; color: #1c7c6b; font-weight: 900; border-radius: 14px; padding: 13px 18px; font-size: 16px; box-shadow: 0 3px 0 rgba(0,0,0,.18); }
+.mode.wide { grid-column: 1 / -1; } .mode.violet { background: #6a55b8; box-shadow: 0 5px 0 #46368a; } .mode.violet:active { box-shadow: 0 2px 0 #46368a; }
+.links { grid-template-columns: 1fr 1fr !important; }
+#glQ { width: 100%; border: 2px solid var(--line); border-radius: 14px; padding: 12px 14px; font-size: 16px; background: #fff; }
+.star { border: 2px solid var(--line); background: #fff; border-radius: 99px; padding: 5px 12px; font-weight: 800; font-size: 13px; color: var(--dim); }
+.star.on { background: #fff4d6; border-color: var(--gold); color: #8a6616; }
+.gl .hd { display: flex; align-items: center; gap: 8px; } .gl .hd .t { flex: 1; } .gl .tag { font-size: 11px; color: var(--acc); background: var(--acc-soft); border-radius: 99px; padding: 2px 8px; font-weight: 800; }
+.cmp table { width: 100%; border-collapse: collapse; font-size: 13.5px; line-height: 1.65; margin: 8px 0; } .cmp th, .cmp td { border: 1px solid var(--line); padding: 7px 8px; vertical-align: top; text-align: left; }
+.cmp th { background: var(--acc-soft); } .cmp td:first-child { background: #faf6ea; font-weight: 800; width: 24%; font-size: 12.5px; }
+.cmp .note { background: #fff4d6; border-radius: 10px; padding: 8px 10px; font-size: 13.5px; line-height: 1.65; margin: 8px 0; }
 </style>
 </head>
 <body>
@@ -131,22 +143,25 @@ summary { font-weight: 900; padding: 10px 0; font-size: 15px; }
   <div class="statline" id="statLine"></div>
   <div class="banner" id="reviewBanner"></div>
 
+  <div class="card daily"><div class="tx"><b id="dailyTitle">今日の復習</b><small id="dailySub"></small></div><button class="go" id="btnDaily">開始</button></div>
   <div class="modes">
     <button class="mode" data-m="def2term">説明 → 用語<small>4択</small></button>
     <button class="mode alt" data-m="term2def">用語 → 説明<small>4択</small></button>
     <button class="mode gold" data-m="card">暗記カード<small>思い出して確認する</small></button>
     <button class="mode rose" data-m="stmt">正誤判定<small>○ か ×</small></button>
+    <button class="mode violet wide" data-m="cmp">⚖ 対比クイズ<small>紛らわしい用語を見分ける</small></button>
   </div>
   <div style="margin:14px 4px 0;font-size:13px;font-weight:800;color:var(--dim)">▼ 出題の絞り込み</div>
   <div class="card"><h3>分野（未選択なら全分野）</h3><div class="chips" id="catChips"></div></div>
   <div class="card"><h3>出題</h3><div class="seg" id="segPool">
-    <button class="chip" data-v="all">全て</button><button class="chip" data-v="weak">苦手</button><button class="chip" data-v="new">未学習</button></div></div>
+    <button class="chip" data-v="all">全て</button><button class="chip" data-v="weak">苦手</button><button class="chip" data-v="new">未学習</button><button class="chip" data-v="star">★</button></div></div>
   <div class="card"><h3>問題数</h3><div class="seg" id="segN"></div></div>
 
   <div class="links">
+    <button class="link" id="goGloss">📖 用語集</button>
+    <button class="link" id="goCmp">⚖ 対比カード</button>
     <button class="link" id="goStats">📊 学習記録</button>
     <button class="link" id="goReview">✎ データ確認</button>
-    <button class="link" id="goOpt">♪ BGM</button>
   </div>
   <div class="card toggle" id="tgBgm" style="margin-top:12px"><span>BGMを流す（ローファイ）</span><span class="sw"></span></div>
   <a class="back" href="../">← Lapis に戻る</a>
@@ -196,6 +211,25 @@ summary { font-weight: 900; padding: 10px 0; font-size: 15px; }
   <button class="btn" id="btnCopyRv">要修正・コメントをコピー</button>
   <button class="btn sec" id="btnRvBack">タイトルへ</button>
 </section>
+
+<!-- 用語集 -->
+<section class="view hidden" id="vGloss">
+  <h2>📖 用語集</h2>
+  <input type="text" id="glQ" placeholder="キーワードで検索（用語・説明・考察）">
+  <div class="chips" id="glCats" style="margin:10px 0"></div>
+  <div class="statline" id="glCount" style="margin:6px 0"></div>
+  <div class="card wlist" id="glList"></div>
+  <button class="btn sec" id="btnGlBack">タイトルへ</button>
+</section>
+
+<!-- 対比カード -->
+<section class="view hidden" id="vCmp">
+  <h2>⚖ 対比カード</h2>
+  <div class="msg" style="font-size:14px">紛らわしい用語を、表で比べよう。</div>
+  <button class="btn" id="btnCmpQuizAll">対比クイズ（全部から出題）</button>
+  <div id="cmpList" style="margin-top:12px"></div>
+  <button class="btn sec" id="btnCmpBack">タイトルへ</button>
+</section>
 </div>
 
 <script src="terms.js"></script>
@@ -213,6 +247,9 @@ const CONFIG = {
   BOX_WEIGHTS: [10, 6, 3, 1.5, 0.6],      // 習熟度(0〜4)ごとの出やすさ。間違えた用語ほど、よく出る
   NEW_WEIGHT: 5,                          // まだ解いていない用語の出やすさ
   MASTERED_BOX: 3,                        // この習熟度以上を「覚えた」とみなす
+  INTERVAL_DAYS: [0, 1, 3, 7, 14],        // 習熟度ごとの、次の復習までの日数（「今日の復習」に使う）
+  DAILY_MAX: 20,                          // 「今日の復習」に出す、復習期限の用語の最大数
+  DAILY_NEW: 5,                           // 「今日の復習」に加える、新しい用語の数
 };
 const $ = id => document.getElementById(id);
 const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
@@ -394,10 +431,20 @@ const Sound = {
 const D = window.POLIS_DATA;
 D.terms.forEach(t => { t.id = 't:' + t.t; });
 D.stmts.forEach(s => { s.id = 's:' + s.s.slice(0, 24); });
+(D.cmps || (D.cmps = [])).forEach(c => { c.id = 'p:' + c.title; });
 const TERM = new Map(D.terms.map(t => [t.id, t])), STMT = new Map(D.stmts.map(s => [s.id, s]));
 const catName = c => D.cats[c] || c;
 
 let prog = lsJson('polis.prog.v1', {}), sprog = lsJson('polis.sprog.v1', {}), memos = lsJson('polis.memo.v1', {}), review = lsJson('polis.review.v1', {});
+let stars = lsJson('polis.star.v1', {}), dayLog = lsJson('polis.days.v1', { last: '', streak: 0, today: '', n: 0 });
+const saveStars = () => lsSet('polis.star.v1', JSON.stringify(stars));
+const ymd = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+function touchStudy() {      // 学習した日を記録（連続学習日数）
+  const t = ymd(); if (dayLog.today !== t) { dayLog.today = t; dayLog.n = 0; } dayLog.n++;
+  if (dayLog.last !== t) { const y = new Date(); y.setDate(y.getDate() - 1); dayLog.streak = dayLog.last === ymd(y) ? dayLog.streak + 1 : 1; dayLog.last = t; }
+  lsSet('polis.days.v1', JSON.stringify(dayLog));
+}
+function streakNow() { const y = new Date(); y.setDate(y.getDate() - 1); return (dayLog.last === ymd() || dayLog.last === ymd(y)) ? dayLog.streak : 0; }
 const settings = Object.assign({ cats: [], pool: 'all', n: 10, bgm: false }, lsJson('polis.settings.v1', {}));
 const saveAll = () => { lsSet('polis.prog.v1', JSON.stringify(prog)); lsSet('polis.sprog.v1', JSON.stringify(sprog)); };
 const saveSettings = () => lsSet('polis.settings.v1', JSON.stringify(settings));
@@ -416,16 +463,22 @@ function copyText(text) {
 let view = 'title';
 function showView(name) {
   view = name;
-  for (const v of ['Title', 'Quiz', 'Result', 'Stats', 'Review']) $('v' + v).classList.toggle('hidden', v.toLowerCase() !== name);
+  for (const v of ['Title', 'Quiz', 'Result', 'Stats', 'Review', 'Gloss', 'Cmp']) $('v' + v).classList.toggle('hidden', v.toLowerCase() !== name);
   $('app').scrollTop = 0;
 }
 function syncBgm() { Sound.bgmScene = 'title'; if (settings.bgm) Sound.bgmStart('title'); else Sound.bgmStop(); }
 
 /* ---------- タイトル ---------- */
 function reviewCounts() {
-  const all = [...D.terms, ...D.stmts]; let ok = 0, fix = 0;
+  const all = [...D.terms, ...D.stmts, ...D.cmps]; let ok = 0, fix = 0;
   for (const x of all) { const r = review[x.id]; if (r && r.s === 'ok') ok++; else if (r && r.s === 'fix') fix++; }
   return { total: all.length, ok, fix };
+}
+function dailySet() {
+  const end = new Date(); end.setHours(24, 0, 0, 0);
+  const due = D.terms.filter(x => { const p = prog[x.id]; return p && p.s > 0 && (p.d == null || p.d < end.getTime()); }).sort((a, b) => (prog[a.id].d || 0) - (prog[b.id].d || 0));
+  const fresh = D.terms.filter(x => !prog[x.id] || !prog[x.id].s);
+  return { due, dueUse: due.slice(0, CONFIG.DAILY_MAX), fresh: shuffle(fresh).slice(0, CONFIG.DAILY_NEW) };
 }
 function renderTitle() {
   const mastered = D.terms.filter(t => prog[t.id] && prog[t.id].b >= CONFIG.MASTERED_BOX).length;
@@ -437,13 +490,17 @@ function renderTitle() {
   document.querySelectorAll('#segPool .chip').forEach(b => b.classList.toggle('on', b.dataset.v === settings.pool));
   $('segN').innerHTML = [...CONFIG.N_OPTIONS, 9999].map(n => `<button class="chip${settings.n === n ? ' on' : ''}" data-n="${n}">${n === 9999 ? '全部' : n + '問'}</button>`).join('');
   $('tgBgm').classList.toggle('on', settings.bgm);
+  const ds = dailySet(), total = ds.dueUse.length + ds.fresh.length;
+  $('dailyTitle').textContent = total ? `今日の復習　${total}問` : '今日の復習は完了！';
+  $('dailySub').innerHTML = `期限の用語 ${ds.due.length}　＋　新しい用語 ${ds.fresh.length}<br>🔥 連続学習 ${streakNow()}日　今日の解答 ${dayLog.today === ymd() ? dayLog.n : 0}問`;
+  $('btnDaily').classList.toggle('hidden', !total);
 }
 $('catChips').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; const c = b.dataset.c; const i = settings.cats.indexOf(c); if (i >= 0) settings.cats.splice(i, 1); else settings.cats.push(c); saveSettings(); renderTitle(); });
 $('segPool').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; settings.pool = b.dataset.v; saveSettings(); renderTitle(); });
 $('segN').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; settings.n = +b.dataset.n; saveSettings(); renderTitle(); });
 $('tgBgm').addEventListener('click', () => { Sound.unlock(); settings.bgm = !settings.bgm; saveSettings(); renderTitle(); syncBgm(); });
-$('goOpt').addEventListener('click', () => { Sound.unlock(); settings.bgm = !settings.bgm; saveSettings(); renderTitle(); syncBgm(); toast(settings.bgm ? 'BGM ON' : 'BGM OFF'); });
 document.querySelectorAll('.mode').forEach(b => b.addEventListener('click', () => { Sound.unlock(); startQuiz(b.dataset.m); }));
+$('btnDaily').addEventListener('click', () => { Sound.unlock(); const ds = dailySet(); startQuiz('daily', shuffle([...ds.dueUse, ...ds.fresh])); });
 $('btnSoundTitle').addEventListener('click', () => { Sound.unlock(); Sound.setMuted(!Sound.muted); });
 $('btnSound').addEventListener('click', () => { Sound.unlock(); Sound.setMuted(!Sound.muted); });
 
@@ -453,6 +510,7 @@ function poolList(kind) {
   let list = items.filter(x => !settings.cats.length || settings.cats.includes(x.c));
   if (settings.pool === 'weak') list = list.filter(x => P[x.id] && P[x.id].s > 0 && P[x.id].b <= 1);
   else if (settings.pool === 'new') list = list.filter(x => !P[x.id] || !P[x.id].s);
+  else if (settings.pool === 'star') list = list.filter(x => stars[x.id]);
   return list;
 }
 function sample(list, n, P) {
@@ -472,31 +530,44 @@ function distractors(t, n) {
   return pool;
 }
 let quiz = null;
-function startQuiz(mode, items) {
-  const kind = mode === 'stmt' ? 'stmt' : 'term';
-  if (!items) {
-    const list = poolList(kind);
-    if (!list.length) { toast('その条件の問題がありません。分野や出題を変更してください'); return; }
-    items = sample(list, settings.n, kind === 'stmt' ? sprog : prog);
+function cmpCells(only) {       // 対比カードの「1マス分の説明」を、問題の素材にする
+  const out = [];
+  for (const c of D.cmps) {
+    if (only ? c.title !== only : (settings.cats.length && !settings.cats.includes(c.c))) continue;
+    c.rows.forEach((r, ri) => c.cols.forEach((col, ci) => out.push({ id: `p:${c.title}:${ri}:${ci}`, c: c.c, cmp: c, label: r[0], text: r[ci + 1], col: ci, t: `${c.title}（${r[0]}）`, d: `${col}：${r[ci + 1]}`, n: c.n })));
   }
-  quiz = { mode, kind, items, i: 0, right: 0, wrongs: [], answered: false, correctIdx: -1, pick: [], flipped: false };
+  return out;
+}
+function startQuiz(mode, items, only) {
+  const kind = mode === 'stmt' ? 'stmt' : mode === 'cmp' ? 'cmp' : 'term';
+  if (!items) {
+    const list = kind === 'cmp' ? cmpCells(only) : poolList(kind);
+    if (!list.length) { toast('その条件の問題がありません。分野や出題を変更してください'); return; }
+    items = kind === 'cmp' ? shuffle(list).slice(0, Math.min(settings.n, 20)) : sample(list, settings.n, kind === 'stmt' ? sprog : prog);
+  }
+  const modes = mode === 'daily' ? items.map(() => (Math.random() < 0.6 ? 'def2term' : 'term2def')) : null;
+  quiz = { mode, kind, items, modes, only, i: 0, right: 0, wrongs: [], answered: false, correctIdx: -1, pick: [], flipped: false };
   showView('quiz'); renderQ();
 }
-const MODE_LABEL = { def2term: '説明→用語', term2def: '用語→説明', card: '暗記カード', stmt: '正誤判定' };
+const MODE_LABEL = { def2term: '説明→用語', term2def: '用語→説明', card: '暗記カード', stmt: '正誤判定', daily: '今日の復習', cmp: '対比クイズ' };
 function renderQ() {
   const it = quiz.items[quiz.i], n = quiz.items.length;
   quiz.answered = false; quiz.flipped = false;
   $('qCount').textContent = `${quiz.i + 1} / ${n}`; $('qBar').style.width = (quiz.i / n * 100) + '%';
   $('qFeedback').innerHTML = '';
   const cat = `<span class="qcat">${esc(catName(it.c))}</span>`;
+  const qm = quiz.mode === 'daily' ? quiz.modes[quiz.i] : quiz.mode;
   let h = '';
-  if (quiz.mode === 'def2term') {
+  if (qm === 'cmp') {
+    quiz.correctIdx = it.col;
+    h = `${cat}<div style="font-size:13px;color:var(--dim);font-weight:800;margin:4px 0">⚖ ${esc(it.cmp.title)}　【${esc(it.label)}】</div><div class="qtext">${esc(it.text)}</div><div class="choices">${it.cmp.cols.map((c, i) => `<button class="choice" data-i="${i}">${esc(c)}</button>`).join('')}</div>`;
+  } else if (qm === 'def2term') {
     const ch = shuffle([it, ...distractors(it, 3)]); quiz.pick = ch; quiz.correctIdx = ch.indexOf(it);
     h = `${cat}<div class="qtext">${esc(it.d)}</div><div class="choices">${ch.map((c, i) => `<button class="choice" data-i="${i}">${esc(c.t)}</button>`).join('')}</div>`;
-  } else if (quiz.mode === 'term2def') {
+  } else if (qm === 'term2def') {
     const ch = shuffle([it, ...distractors(it, 3)]); quiz.pick = ch; quiz.correctIdx = ch.indexOf(it);
     h = `${cat}<div class="qterm">${esc(it.t)}</div><div class="choices">${ch.map((c, i) => `<button class="choice def" data-i="${i}">${esc(c.d)}</button>`).join('')}</div>`;
-  } else if (quiz.mode === 'card') {
+  } else if (qm === 'card') {
     h = `${cat}<div class="qterm">${esc(it.t)}</div><div id="cardBack"></div><button class="btn" id="btnFlip">答えを見る</button>`;
   } else {
     h = `${cat}<div class="qtext">${esc(it.s)}</div><div class="tf"><button class="t" data-a="1">○</button><button class="f" data-a="0">×</button></div>`;
@@ -505,21 +576,25 @@ function renderQ() {
   window.scrollTo(0, 0); $('app').scrollTop = 0;
 }
 function record(ok) {
-  const it = quiz.items[quiz.i], P = quiz.kind === 'stmt' ? sprog : prog;
+  const it = quiz.items[quiz.i], P = quiz.kind === 'term' ? prog : sprog;
   const p = P[it.id] || (P[it.id] = { b: 0, s: 0, r: 0, w: 0 });
   p.s++; if (ok) { p.r++; p.b = Math.min(4, p.b + 1); } else { p.w++; p.b = 0; }
-  saveAll(); if (ok) quiz.right++; else quiz.wrongs.push(it);
+  p.d = Date.now() + CONFIG.INTERVAL_DAYS[p.b] * 86400000;      // 次に復習する日
+  touchStudy(); saveAll(); if (ok) quiz.right++; else quiz.wrongs.push(it);
 }
 function feedback(ok, it, extraHead) {
   const last = quiz.i === quiz.items.length - 1, memo = memos[it.id] || '';
-  const isStmt = quiz.kind === 'stmt';
-  const body = isStmt
+  const isStmt = quiz.kind === 'stmt', isCmp = quiz.kind === 'cmp';
+  const body = isCmp
+    ? `<div class="ans">${esc(it.cmp.cols[it.col])}</div><div class="def">【${esc(it.label)}】${esc(it.text)}</div>${it.n ? `<div class="note">💡 考察：${esc(it.n)}</div>` : ''}`
+    : isStmt
     ? `<div class="ans">${it.a ? '○（正しい）' : '×（誤り）'}</div><div class="def">${esc(it.e)}</div>`
     : `<div class="ans">${esc(it.t)}</div><div class="def">${esc(it.d)}</div>${it.n ? `<div class="note">💡 考察：${esc(it.n)}</div>` : ''}`;
-  $('qFeedback').innerHTML = `<div class="fb ${ok ? 'ok' : 'ng'}"><div class="head">${extraHead || (ok ? '○ 正解！' : '× 不正解')}</div>${body}
+  $('qFeedback').innerHTML = `<div class="fb ${ok ? 'ok' : 'ng'}"><div class="head">${extraHead || (ok ? '○ 正解！' : '× 不正解')}${quiz.kind === 'term' ? `<button class="star${stars[it.id] ? ' on' : ''}" id="btnStar" style="float:right">${stars[it.id] ? '★ 登録済み' : '☆ 後で見直す'}</button>` : ''}</div>${body}
     <textarea id="memo" placeholder="自分の言葉でメモ（なぜ？ 他との違いは？）">${esc(memo)}</textarea></div>
     <button class="btn" id="btnNext">${last ? '結果を見る' : '次へ'}</button>`;
   $('memo').addEventListener('input', e => { memos[it.id] = e.target.value; lsSet('polis.memo.v1', JSON.stringify(memos)); });
+  if ($('btnStar')) $('btnStar').addEventListener('click', e => { stars[it.id] = !stars[it.id]; if (!stars[it.id]) delete stars[it.id]; saveStars(); e.target.className = 'star' + (stars[it.id] ? ' on' : ''); e.target.textContent = stars[it.id] ? '★ 登録済み' : '☆ 後で見直す'; });
   $('btnNext').addEventListener('click', next);
   $('btnNext').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
@@ -572,7 +647,7 @@ function finish() {
   pct >= 80 ? Sound.win() : Sound.unit();
 }
 $('btnRetryWrong').addEventListener('click', () => startQuiz(quiz.mode, shuffle(quiz.wrongs)));
-$('btnAgain').addEventListener('click', () => startQuiz(quiz.mode));
+$('btnAgain').addEventListener('click', () => { if (quiz.mode === 'daily') { const ds = dailySet(); startQuiz('daily', shuffle([...ds.dueUse, ...ds.fresh])); } else startQuiz(quiz.mode, null, quiz.only); });
 $('btnResTitle').addEventListener('click', () => { showView('title'); renderTitle(); });
 $('btnCopyRes').addEventListener('click', () => {
   const d = new Date(), ds = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
@@ -606,16 +681,16 @@ function renderReview() {
   $('rvSummary').textContent = `確認済み ${rc.ok} / ${rc.total}　要修正 ${rc.fix}　未確認 ${rc.total - rc.ok - rc.fix}　（データ ${D.version}）`;
   document.querySelectorAll('#rvFilter .chip').forEach(b => b.classList.toggle('on', b.dataset.v === rvFilter));
   const show = x => rvFilter === 'all' || (rvFilter === 'todo' && !rvStatus(x.id)) || (rvFilter === 'fix' && rvStatus(x.id) === 'fix');
-  const row = (x, isS) => { const st = rvStatus(x.id), c = (review[x.id] && review[x.id].c) || ''; return `<div class="rv ${st ? 's-' + st : ''}" data-id="${esc(x.id)}">
-    <div class="t">${esc(isS ? x.s : x.t)}${isS ? `　<span style="font-weight:700;color:var(--dim)">【${x.a ? '○' : '×'}】</span>` : ''}</div><div class="d">${esc(isS ? x.e : x.d)}</div>${x.n ? `<div class="n">💡 ${esc(x.n)}</div>` : ''}
+  const row = (x, isS) => { const isC = !!x.title, st = rvStatus(x.id), c = (review[x.id] && review[x.id].c) || ''; return `<div class="rv ${st ? 's-' + st : ''}" data-id="${esc(x.id)}">
+    <div class="t">${isC ? '⚖ ' + esc(x.title) : esc(isS ? x.s : x.t)}${isS ? `　<span style="font-weight:700;color:var(--dim)">【${x.a ? '○' : '×'}】</span>` : ''}</div><div class="d">${isC ? x.rows.map(r => esc(r[0]) + '：' + r.slice(1).map(esc).join(' ／ ')).join('<br>') : esc(isS ? x.e : x.d)}</div>${x.n ? `<div class="n">💡 ${esc(x.n)}</div>` : ''}
     <div class="acts"><button class="ok${st === 'ok' ? ' on' : ''}" data-s="ok">○ 確認済み</button><button class="fix${st === 'fix' ? ' on' : ''}" data-s="fix">✎ 要修正</button></div>
     <input type="text" placeholder="コメント（修正箇所と修正案）" value="${esc(c)}"></div>`; };
   let h = '';
   for (const c of Object.keys(D.cats)) {
-    const ts = D.terms.filter(t => t.c === c && show(t)), ss = D.stmts.filter(s => s.c === c && show(s));
-    if (!ts.length && !ss.length) continue;
-    const allOk = D.terms.filter(t => t.c === c).every(t => rvStatus(t.id) === 'ok') && D.stmts.filter(s => s.c === c).every(s => rvStatus(s.id) === 'ok');
-    h += `<details><summary>${esc(catName(c))}（用語${ts.length}・正誤${ss.length}）${allOk ? ' ✔' : ''}</summary>${ts.map(t => row(t, false)).join('')}${ss.map(s => row(s, true)).join('')}
+    const ts = D.terms.filter(t => t.c === c && show(t)), ss = D.stmts.filter(s => s.c === c && show(s)), cs = D.cmps.filter(x => x.c === c && show(x));
+    if (!ts.length && !ss.length && !cs.length) continue;
+    const allOk = [...D.terms, ...D.stmts, ...D.cmps].filter(x => x.c === c).every(x => rvStatus(x.id) === 'ok');
+    h += `<details><summary>${esc(catName(c))}（用語${ts.length}・正誤${ss.length}・対比${cs.length}）${allOk ? ' ✔' : ''}</summary>${ts.map(t => row(t, false)).join('')}${ss.map(s => row(s, true)).join('')}${cs.map(x => row(x, false)).join('')}
       <button class="btn sec" data-allok="${c}" style="margin:8px 0">この分野を全て「確認済み」にする</button></details>`;
   }
   $('rvList').innerHTML = h || '<div class="msg">該当するものはありません</div>';
@@ -628,7 +703,7 @@ $('rvList').addEventListener('click', e => {
     setReview(id, { s: rvStatus(id) === s ? '' : s });
     const open = [...document.querySelectorAll('#rvList details')].map(d => d.open); renderReview(); document.querySelectorAll('#rvList details').forEach((d, i) => { d.open = !!open[i]; });
   } else if (all) {
-    const c = all.dataset.allok; [...D.terms, ...D.stmts].filter(x => x.c === c).forEach(x => setReview(x.id, { s: 'ok' }));
+    const c = all.dataset.allok; [...D.terms, ...D.stmts, ...D.cmps].filter(x => x.c === c).forEach(x => setReview(x.id, { s: 'ok' }));
     const open = [...document.querySelectorAll('#rvList details')].map(d => d.open); renderReview(); document.querySelectorAll('#rvList details').forEach((d, i) => { d.open = !!open[i]; });
   }
 });
@@ -637,13 +712,46 @@ $('rvFilter').addEventListener('click', e => { const b = e.target.closest('.chip
 $('goReview').addEventListener('click', () => { renderReview(); showView('review'); });
 $('btnRvBack').addEventListener('click', () => { showView('title'); renderTitle(); });
 $('btnCopyRv').addEventListener('click', () => {
-  const all = [...D.terms, ...D.stmts], rc = reviewCounts();
+  const all = [...D.terms, ...D.stmts, ...D.cmps], rc = reviewCounts();
   let t = `【polis アカデミー データ確認】データ ${D.version}\n確認済み ${rc.ok} / ${rc.total}　要修正 ${rc.fix}\n`;
   const items = all.filter(x => rvStatus(x.id) === 'fix' || (review[x.id] && review[x.id].c));
   if (!items.length) t += '\n（要修正・コメントはありません）\n';
-  for (const x of items) t += `\n・[${catName(x.c)}] ${x.t || x.s}\n   ${rvStatus(x.id) === 'fix' ? '【要修正】' : ''}${(review[x.id] && review[x.id].c) || ''}\n`;
+  for (const x of items) t += `\n・[${catName(x.c)}] ${x.t || x.s || ('対比: ' + x.title)}\n   ${rvStatus(x.id) === 'fix' ? '【要修正】' : ''}${(review[x.id] && review[x.id].c) || ''}\n`;
   copyText(t);
 });
+
+/* ---------- 用語集 ---------- */
+let gl = { q: '', cats: [], star: false };
+function renderGloss() {
+  $('glCats').innerHTML = `<button class="chip${gl.star ? ' on' : ''}" data-star="1">★ 登録のみ（${Object.keys(stars).length}）</button>` + Object.keys(D.cats).map(c => `<button class="chip${gl.cats.includes(c) ? ' on' : ''}" data-c="${c}">${esc(catName(c))}</button>`).join('');
+  const q = gl.q.trim().toLowerCase();
+  const list = D.terms.filter(t => (!gl.cats.length || gl.cats.includes(t.c)) && (!gl.star || stars[t.id]) && (!q || (t.t + ' ' + t.d + ' ' + (t.n || '') + ' ' + (memos[t.id] || '')).toLowerCase().includes(q)));
+  $('glCount').textContent = `${list.length} 語`;
+  $('glList').innerHTML = list.map(t => { const p = prog[t.id], lv = p && p.s ? `習熟度 ${'●'.repeat(p.b + 1)}${'○'.repeat(4 - p.b)}` : '未学習';
+    return `<div class="item gl" data-id="${esc(t.id)}"><div class="hd"><span class="t">${esc(t.t)}</span><span class="tag">${esc(catName(t.c))}</span><button class="star${stars[t.id] ? ' on' : ''}">${stars[t.id] ? '★' : '☆'}</button></div>
+      <div class="d">${esc(t.d)}</div>${t.n ? `<div class="n" style="font-size:13px;color:#8a6616;margin-top:4px">💡 ${esc(t.n)}</div>` : ''}${memos[t.id] ? `<div class="m">✎ ${esc(memos[t.id])}</div>` : ''}<div style="font-size:11.5px;color:var(--dim);margin-top:4px">${lv}</div></div>`; }).join('') || '<div class="msg">該当する用語はありません</div>';
+}
+$('goGloss').addEventListener('click', () => { renderGloss(); showView('gloss'); });
+$('glQ').addEventListener('input', e => { gl.q = e.target.value; renderGloss(); });
+$('glCats').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; if (b.dataset.star) gl.star = !gl.star; else { const c = b.dataset.c, i = gl.cats.indexOf(c); if (i >= 0) gl.cats.splice(i, 1); else gl.cats.push(c); } renderGloss(); });
+$('glList').addEventListener('click', e => { const b = e.target.closest('.star'); if (!b) return; const id = b.closest('.item').dataset.id; stars[id] = !stars[id]; if (!stars[id]) delete stars[id]; saveStars(); const y = $('app').scrollTop; renderGloss(); $('app').scrollTop = y; });
+$('btnGlBack').addEventListener('click', () => { showView('title'); renderTitle(); });
+
+/* ---------- 対比カード ---------- */
+function renderCmp() {
+  let h = '';
+  for (const c of Object.keys(D.cats)) {
+    const cs = D.cmps.filter(x => x.c === c); if (!cs.length) continue;
+    h += `<div style="margin:12px 4px 4px;font-size:13px;font-weight:800;color:var(--dim)">${esc(catName(c))}</div>` + cs.map(x => `<details class="cmp"><summary>${esc(x.title)}</summary>
+      <table><tr><th></th>${x.cols.map(cn => `<th>${esc(cn)}</th>`).join('')}</tr>${x.rows.map(r => `<tr>${r.map(v => `<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</table>
+      ${x.n ? `<div class="note">💡 考察：${esc(x.n)}</div>` : ''}<button class="btn" data-cmp="${esc(x.title)}" style="margin:6px 0 10px">この対比でクイズ</button></details>`).join('');
+  }
+  $('cmpList').innerHTML = h;
+}
+$('goCmp').addEventListener('click', () => { renderCmp(); showView('cmp'); });
+$('btnCmpBack').addEventListener('click', () => { showView('title'); renderTitle(); });
+$('btnCmpQuizAll').addEventListener('click', () => { Sound.unlock(); startQuiz('cmp'); });
+$('cmpList').addEventListener('click', e => { const b = e.target.closest('[data-cmp]'); if (b) { Sound.unlock(); startQuiz('cmp', null, b.dataset.cmp); } });
 
 /* ---------- 起動 ---------- */
 ['pointerdown', 'pointerup', 'touchstart', 'touchend', 'click'].forEach(t => document.addEventListener(t, () => { Sound.unlock(); if (settings.bgm && !Sound.bgmOn) syncBgm(); }, { passive: true, capture: true }));
@@ -662,7 +770,7 @@ renderTitle();
   sp.addEventListener('touchend', go); sp.addEventListener('click', go);
 })();
 syncBgm();
-if (location.search.includes('debug')) window.__p = { D, settings, startQuiz, get quiz() { return quiz; }, prog: () => prog, review: () => review, poolList, distractors };
+if (location.search.includes('debug')) window.__p = { D, settings, startQuiz, dailySet, stars: () => stars, dayLog: () => dayLog, get quiz() { return quiz; }, prog: () => prog, review: () => review, poolList, distractors };
 </script>
 </body>
 </html>
