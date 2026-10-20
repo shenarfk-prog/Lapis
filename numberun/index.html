@@ -31,6 +31,7 @@ canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; t
   padding: calc(env(safe-area-inset-top) + 10px) calc(env(safe-area-inset-right) + 12px) 4px calc(env(safe-area-inset-left) + 12px);
   display: flex; align-items: center; gap: 8px;
 }
+#lives { font-size: 26px; letter-spacing: 2px; color: #ff4f7b; text-shadow: 0 2px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff; }
 #stageBadge { padding: 8px 16px; border-radius: 99px; background: #fff; font-weight: 800; font-size: 18px; box-shadow: 0 3px 0 rgba(18,48,90,.25); }
 .spacer { flex: 1; }
 .icon-btn {
@@ -85,6 +86,7 @@ canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; t
 .seg button small { display: block; font-size: 11px; font-weight: 700; opacity: .7; margin-top: 2px; }
 .seg button.on { border-color: var(--accent); background: #fff6e0; }
 .best { margin: 14px 0 6px; font-weight: 800; font-size: 15px; }
+.rule { margin: 0 0 4px; font-size: 13px; font-weight: 800; color: #12305a; opacity: .8; }
 .best b { font-size: 24px; color: #e07d00; margin: 0 4px; }
 h2 { margin: 0 0 8px; font-size: 28px; text-align: center; }
 .sumline { font-size: 22px; font-weight: 800; margin: 6px 0 10px; text-align: center; }
@@ -104,6 +106,7 @@ h2 { margin: 0 0 8px; font-size: 28px; text-align: center; }
 
 <div id="hud">
   <div id="stageBadge">ステージ 1</div>
+  <div id="lives" aria-label="のこりのミス"></div>
   <div class="spacer"></div>
   <button class="icon-btn" id="btnHint" aria-label="ヒント">
     <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3A7 7 0 0 0 12 2zM9 20h6v1.5a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1-.5-.5V20z"/></svg>
@@ -139,6 +142,7 @@ h2 { margin: 0 0 8px; font-size: 28px; text-align: center; }
     </div>
   </div>
   <div class="best" id="titleBest"></div>
+  <div class="rule">♥ ミスは1かいまで（1かい: ひきわけ、2かい: まけ）</div>
   <button class="btn" id="btnStart">スタート</button>
 </div>
 
@@ -527,7 +531,7 @@ const G = {
   n: 10, shown: 10, parN: 10,
   crowdX: 0, crowdTX: 0, crowdY: 0,
   pair: null, phase: 'idle', sel: -1, timer: 0,
-  mistakes: [], hints: 0, scroll: 0, mood: 'normal', moodT: 0, waitAt: 0,
+  mistakes: [], hints: 0, scroll: 0, mood: 'normal', moodT: 0, waitAt: 0, stageMistakes: 0,
   enemy: null,   // {n, shown, y, vis}
   battle: null,
   stageLog: [],
@@ -555,7 +559,7 @@ function resetGame() {
 function startStage() {
   const S = CONFIG.STAGE;
   G.pairsTotal = Math.min(S.PAIRS_BASE + (G.stage - 1) * S.PAIRS_PER_STAGE, S.PAIRS_MAX);
-  G.pairIdx = 0; G.parN = G.n; G.enemy = null; G.battle = null; G.stageLog = [];
+  G.pairIdx = 0; G.parN = G.n; G.enemy = null; G.battle = null; G.stageLog = []; G.stageMistakes = 0;
   G.crowdX = W / 2; G.crowdTX = W / 2; G.crowdY = P.crowdY; G.mood = 'normal'; G.moodT = 0;
   updateHud();
   spawnPair();
@@ -575,11 +579,12 @@ function cross(lane) {
   pr.chosen = lane; pr.revealed = true;
   G.n = g.res;
   const good = lane === pr.best;
+  if (!good) G.stageMistakes++;
   const entry = { stage: G.stage, no: G.pairIdx + 1, nBefore: pr.nBefore, gates: pr.gates.map(x => ({ text: gateText(x), res: x.res })), chosen: lane, best: pr.best, good };
   G.stageLog.push(entry);
   if (!good) G.mistakes.push(entry);
   const x = lane === 0 ? P.laneX[0] : P.laneX[1];
-  addFloater(good ? 'せいかい！' : 'おしい！', x, pr.y - P.gh * 0.75, 34, good ? '#1fae5b' : '#e0701a');
+  addFloater(good ? 'せいかい！' : (G.stageMistakes >= 2 ? 'ミス2かい…' : 'おしい！ ミス1かい'), x, pr.y - P.gh * 0.75, 34, good ? '#1fae5b' : '#e0701a');
   burst(x, pr.y + P.gh / 2, good ? '#ffd24d' : '#ff8a5c', good ? 26 : 12, 260);
   G.mood = good ? 'happy' : 'sad'; G.moodT = 1.5;
   if (good) {
@@ -588,40 +593,48 @@ function cross(lane) {
     Sound.cheer(); vibrate(15);
   } else { Sound.boo(); vibrate([20, 40, 20]); }
   G.phase = 'reveal'; G.timer = CONFIG.REVEAL_MS[settings.mode] / 1000;
+  updateHud();
 }
 function afterReveal() {
   G.pairIdx++;
-  if (G.pairIdx < G.pairsTotal) spawnPair(); else startBattle();
+  if (G.stageMistakes >= 2 || G.pairIdx >= G.pairsTotal) startBattle(); else spawnPair();   // 2回ミスしたら、のこりは飛ばして すぐ しょうぶ
 }
 
 function startBattle() {
-  const par = G.parN;
-  const E = Math.max(CONFIG.ENEMY_MIN, Math.floor(par * (CONFIG.LEVELS[settings.level].enemyRatio || CONFIG.ENEMY_RATIO)));
+  const m = G.stageMistakes, L = CONFIG.LEVELS[settings.level];
+  let E, result;
+  if (m === 0) {
+    result = 'win';
+    E = Math.max(CONFIG.ENEMY_MIN, Math.floor(G.parN * (L.enemyRatio || CONFIG.ENEMY_RATIO)));
+    if (E >= G.n) E = Math.max(0, G.n - 1);
+  } else if (m === 1) { result = 'draw'; E = G.n; }                                   // ミス1回: 同点でひきわけ
+  else { result = 'lose'; E = G.n + Math.max(3, Math.round(G.n * 0.3)); }             // ミス2回: まけ
   G.pair = null;
   G.enemy = { n: E, shown: E, y: -90 };
-  G.battle = { t: 0, win: G.n > E, me0: G.n, en0: E, burstDone: false, closed: false, clashDone: false, popT: 0 };
+  G.battle = { t: 0, result, win: result === 'win', me0: G.n, en0: E, burstDone: false, closed: false, clashDone: false, popT: 0 };
   G.phase = 'battle'; $('btnHint').disabled = true;
   G.crowdTX = W / 2;
   updateHud();
 }
 function finishBattle() {
   const b = G.battle, diff = Math.abs(b.me0 - b.en0);
-  const bestKeyName = bestKey(settings.level);
-  if (b.win) {
-    if (G.stage > getBest(settings.level)) lsSet(bestKeyName, String(G.stage));
+  if (b.result === 'win') {
+    if (G.stage > getBest(settings.level)) lsSet(bestKey(settings.level), String(G.stage));
     G.mood = 'happy'; G.moodT = 99; Sound.win(); Sound.cheer(); vibrate([30, 40, 30, 40, 80]);
-    showResult(true, diff);
+  } else if (b.result === 'draw') {
+    G.mood = 'normal'; G.moodT = 99; Sound.ok(); vibrate(30);
   } else {
     G.mood = 'sad'; G.moodT = 99; Sound.boo(); vibrate([60, 40, 120]);
-    showResult(false, diff);
   }
+  showResult(b.result, diff);
 }
 
-function showResult(win, diff) {
-  const b = G.battle;
-  $('resMascot').innerHTML = mascotSVG(win ? 'happy' : 'sad', '#2f86ff', 110, win);
-  $('resTitle').textContent = win ? `ステージ ${G.stage} クリア！` : 'ざんねん…';
-  $('resSum').innerHTML = `あなた ${b.me0} − てき ${b.en0} = ${win ? diff : '−' + diff}<br><span style="font-size:15px;font-weight:700;opacity:.85">${win ? `${diff}人 のこって かった！` : 'てきのほうが おおかったよ'}</span>`;
+function showResult(result, diff) {
+  const b = G.battle, win = result === 'win';
+  $('resMascot').innerHTML = mascotSVG(win ? 'happy' : result === 'draw' ? 'normal' : 'sad', '#2f86ff', 110, win);
+  $('resTitle').textContent = win ? `ステージ ${G.stage} クリア！` : result === 'draw' ? 'ひきわけ！' : 'ざんねん…';
+  const sub = win ? `${diff}人 のこって かった！ ミスなし！` : result === 'draw' ? 'ミスが1かい。おなじステージを もういちど！（もんだいは かわるよ）' : '2かい まちがえたので まけちゃった…';
+  $('resSum').innerHTML = `あなた ${b.me0} − てき ${b.en0} = ${b.me0 - b.en0}<br><span style="font-size:15px;font-weight:700;opacity:.85">${sub}</span>`;
   const mk = G.stageLog.filter(e => !e.good);
   const rows = [];
   if (mk.length) {
@@ -636,8 +649,7 @@ function showResult(win, diff) {
     rows.push('<div class="item"><span class="ok">ぜんぶ せいかい！ すごい！</span></div>');
   }
   $('resReview').innerHTML = rows.join('');
-  $('btnNext').textContent = win ? 'つぎのステージ' : 'もういちど';
-  G.battle.win = win;
+  $('btnNext').textContent = win ? 'つぎのステージ' : result === 'draw' ? 'おなじステージを もういちど' : 'もういちど';
   setTimeout(() => showScreen('result'), 600);
 }
 
@@ -645,6 +657,8 @@ function showResult(win, diff) {
 function updateHud() {
   $('stageBadge').textContent = `ステージ ${G.stage}`;
   $('hintCount').textContent = G.hints;
+  const left = Math.max(0, 2 - G.stageMistakes);
+  $('lives').textContent = '♥'.repeat(left) + '♡'.repeat(2 - left);
   $('btnHint').disabled = !(G.pair && !G.pair.hinted && G.hints > 0 && (G.phase === 'wait' || G.phase === 'intro'));
 }
 const screens = { title: $('scTitle'), pause: $('scPause'), result: $('scResult') };
@@ -734,17 +748,19 @@ function update(dt) {
       if (k >= 0 && k < 1 && (b.popT -= dt) <= 0) { b.popT = 0.075; Sound.pop(); }
       if (k >= 0) {
         const e = easeInOut(k), diff = Math.abs(b.me0 - b.en0);
-        G.shown = b.win ? b.me0 + (diff - b.me0) * e : b.me0 * (1 - e);
-        G.enemy.shown = b.win ? b.en0 * (1 - e) : b.en0 + (diff - b.en0) * e;
+        const meEnd = Math.max(0, b.me0 - b.en0), enEnd = Math.max(0, b.en0 - b.me0);
+        G.shown = b.me0 + (meEnd - b.me0) * e;
+        G.enemy.shown = b.en0 + (enEnd - b.en0) * e;
         if (!b.burstDone && k > 0.15) { b.burstDone = true; burst(W / 2, (G.crowdY + G.enemy.y) / 2, '#ffd24d', 60, 380); Sound.hit(); }
       }
-      if (k >= 1 && !b.closed) { b.closed = true; Sound.finishHit(); G.shown = b.win ? b.me0 - b.en0 : 0; G.n = b.win ? b.me0 - b.en0 : 0; finishBattle(); }
+      if (k >= 1 && !b.closed) { b.closed = true; Sound.finishHit(); G.shown = Math.max(0, b.me0 - b.en0); G.n = G.shown; finishBattle(); }
       break;
     }
   }
 }
 
 /* ---------- 描画 ---------- */
+function ell(x, y, rx, ry, rot = 0) { ctx.beginPath(); ctx.ellipse(x, y, rx, ry, rot, 0, 7); ctx.fill(); }   // 1つずつ塗る（まとめると円どうしが線でつながる）
 function drawChar(x, y, r, body, edge, mood, enemy, leader, hop, i) {
   const t = performance.now() / 1000, ph = t * hop + i * 0.9;
   const sn = Math.abs(Math.sin(ph));                              // 0=着地 1=ジャンプの頂点
@@ -754,15 +770,15 @@ function drawChar(x, y, r, body, edge, mood, enemy, leader, hop, i) {
   const ink = '#12305a';
   ctx.fillStyle = 'rgba(18,48,90,.16)'; ctx.beginPath(); ctx.ellipse(x, gy + r * 1.02, r * (0.85 - sn * 0.2), r * 0.24, 0, 0, 7); ctx.fill();
   const f = Math.sin(ph * 1.5) * r * 0.14;
-  ctx.fillStyle = edge; ctx.beginPath();                          // あし
-  ctx.ellipse(x - r * 0.42, y + r * 0.92 + f, r * 0.3, r * 0.19, 0, 0, 7); ctx.ellipse(x + r * 0.42, y + r * 0.92 - f, r * 0.3, r * 0.19, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = edge;                                           // あし
+  ell(x - r * 0.42, y + r * 0.92 + f, r * 0.3, r * 0.19); ell(x + r * 0.42, y + r * 0.92 - f, r * 0.3, r * 0.19);
   const arm = mood === 'happy' ? -r * 0.6 : Math.sin(ph + 1) * r * 0.12;
-  ctx.beginPath(); ctx.ellipse(x - r * 1.0, y + r * 0.2 + arm, r * 0.2, r * 0.26, 0.4, 0, 7); ctx.ellipse(x + r * 1.0, y + r * 0.2 + arm, r * 0.2, r * 0.26, -0.4, 0, 7); ctx.fill();
+  ell(x - r * 1.0, y + r * 0.2 + arm, r * 0.2, r * 0.26, 0.4); ell(x + r * 1.0, y + r * 0.2 + arm, r * 0.2, r * 0.26, -0.4);
   ctx.beginPath(); ctx.ellipse(x, y + r * 0.04, rx + 1.4, ry + 1.4, 0, 0, 7); ctx.fill();   // ふち
   ctx.fillStyle = body; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, 7); ctx.fill();
   ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.beginPath(); ctx.ellipse(x, y + r * 0.38, r * 0.66, r * 0.5, 0, 0, 7); ctx.fill();     // おなか
   ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.beginPath(); ctx.ellipse(x - r * 0.42, y - r * 0.6, r * 0.28, r * 0.15, -0.5, 0, 7); ctx.fill();  // つや
-  if (r < 5.5) { ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(x - r * 0.33, y, r * 0.17, 0, 7); ctx.arc(x + r * 0.33, y, r * 0.17, 0, 7); ctx.fill(); return; }
+  if (r < 5.5) { ctx.fillStyle = ink; ell(x - r * 0.33, y, r * 0.17, r * 0.17); ell(x + r * 0.33, y, r * 0.17, r * 0.17); return; }
   // 頭の飾り（先頭=王冠 / てき=つの / なかま=芽）
   const topY = y - ry;
   if (enemy) {
@@ -778,8 +794,7 @@ function drawChar(x, y, r, body, edge, mood, enemy, leader, hop, i) {
   } else {
     ctx.strokeStyle = '#2e9a3a'; ctx.lineWidth = Math.max(1, r * 0.1); ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(x, topY + r * 0.05); ctx.lineTo(x, topY - r * 0.22); ctx.stroke();
-    ctx.fillStyle = '#6fe07a'; ctx.beginPath();
-    ctx.ellipse(x - r * 0.2, topY - r * 0.3, r * 0.22, r * 0.11, -0.5, 0, 7); ctx.ellipse(x + r * 0.2, topY - r * 0.3, r * 0.22, r * 0.11, 0.5, 0, 7); ctx.fill();
+    ctx.fillStyle = '#6fe07a'; ell(x - r * 0.2, topY - r * 0.3, r * 0.22, r * 0.11, -0.5); ell(x + r * 0.2, topY - r * 0.3, r * 0.22, r * 0.11, 0.5);
   }
   const ex = r * 0.38, ey = y - r * 0.02;
   ctx.lineCap = 'round'; ctx.lineWidth = Math.max(1, r * 0.13);
@@ -788,14 +803,13 @@ function drawChar(x, y, r, body, edge, mood, enemy, leader, hop, i) {
     ctx.arc(x - ex, ey + r * 0.08, r * 0.18, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
     ctx.beginPath(); ctx.arc(x + ex, ey + r * 0.08, r * 0.18, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
   } else {                                                        // つぶらな目（ハイライト付き）
-    ctx.fillStyle = ink; ctx.beginPath();
-    ctx.ellipse(x - ex, ey, r * 0.19, r * 0.27, 0, 0, 7); ctx.ellipse(x + ex, ey, r * 0.19, r * 0.27, 0, 0, 7); ctx.fill();
-    ctx.fillStyle = '#fff'; ctx.beginPath();
-    ctx.arc(x - ex - r * 0.05, ey - r * 0.1, r * 0.09, 0, 7); ctx.arc(x + ex - r * 0.05, ey - r * 0.1, r * 0.09, 0, 7);
-    ctx.arc(x - ex + r * 0.06, ey + r * 0.09, r * 0.045, 0, 7); ctx.arc(x + ex + r * 0.06, ey + r * 0.09, r * 0.045, 0, 7); ctx.fill();
+    ctx.fillStyle = ink; ell(x - ex, ey, r * 0.19, r * 0.27); ell(x + ex, ey, r * 0.19, r * 0.27);
+    ctx.fillStyle = '#fff';
+    ell(x - ex - r * 0.05, ey - r * 0.1, r * 0.09, r * 0.09); ell(x + ex - r * 0.05, ey - r * 0.1, r * 0.09, r * 0.09);
+    ell(x - ex + r * 0.06, ey + r * 0.09, r * 0.045, r * 0.045); ell(x + ex + r * 0.06, ey + r * 0.09, r * 0.045, r * 0.045);
   }
   ctx.fillStyle = enemy ? 'rgba(255,200,120,.5)' : 'rgba(255,110,150,.6)';                       // ほっぺ
-  ctx.beginPath(); ctx.ellipse(x - r * 0.7, y + r * 0.3, r * 0.17, r * 0.1, 0, 0, 7); ctx.ellipse(x + r * 0.7, y + r * 0.3, r * 0.17, r * 0.1, 0, 0, 7); ctx.fill();
+  ell(x - r * 0.7, y + r * 0.3, r * 0.17, r * 0.1); ell(x + r * 0.7, y + r * 0.3, r * 0.17, r * 0.1);
   const my = y + r * 0.34;
   ctx.strokeStyle = ink;
   if (enemy) {
@@ -819,7 +833,7 @@ function drawChar(x, y, r, body, edge, mood, enemy, leader, hop, i) {
 }
 
 function drawCrowd(cx, cy, n, shownN, body, edge, label, mood, enemy) {
-  const cnt = Math.max(1, Math.min(Math.round(n), 100));
+  const cnt = Math.max(0, Math.min(Math.round(n), 100));
   const maxR = Math.min(W * 0.2, 96);
   const c = Math.min(maxR / Math.sqrt(cnt), 26), dr = Math.min(c * 0.56, 13);
   const moving = G.phase === 'intro' || G.phase === 'choose' || G.phase === 'battle' || (G.phase === 'reveal' && settings.mode === 'run');
@@ -907,8 +921,8 @@ function render(now, dt) {
   ctx.clearRect(0, 0, W, H);
   drawTrack();
   drawGates();
-  if (G.enemy) drawCrowd(W / 2, G.enemy.y, Math.max(1, G.enemy.shown), G.enemy.shown, '#ff5a5a', '#b82b2b', 'てき', 'normal', true);
-  drawCrowd(G.crowdX, G.crowdY, Math.max(1, G.shown), G.shown, '#2f86ff', '#1a4fb0', G.phase === 'battle' ? 'あなた' : '', G.mood, false);
+  if (G.enemy) drawCrowd(W / 2, G.enemy.y, G.enemy.shown, G.enemy.shown, '#ff5a5a', '#b82b2b', 'てき', 'normal', true);
+  drawCrowd(G.crowdX, G.crowdY, G.shown, G.shown, '#2f86ff', '#1a4fb0', G.phase === 'battle' ? 'あなた' : '', G.mood, false);
   if (G.phase === 'battle' && G.battle && G.battle.t > 0.4 && G.battle.t < 1.4) {
     const my = (G.enemy.y + G.crowdY) / 2 - 30;
     ctx.font = '900 38px "Hiragino Maru Gothic ProN", system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -951,7 +965,9 @@ $('btnToTitle').addEventListener('click', () => { G.phase = 'idle'; G.pair = nul
 $('btnResultTitle').addEventListener('click', () => { G.phase = 'idle'; G.pair = null; G.enemy = null; openTitle(); });
 $('btnNext').addEventListener('click', () => {
   Sound.unlock();
-  if (G.battle && G.battle.win) { G.stage++; G.n = startFor(settings.level, G.stage); G.shown = G.n; $('btnHint').disabled = false; showScreen('play'); startStage(); }
+  const r = G.battle && G.battle.result;
+  if (r === 'win') { G.stage++; G.n = startFor(settings.level, G.stage); G.shown = G.n; $('btnHint').disabled = false; showScreen('play'); startStage(); }
+  else if (r === 'draw') { G.n = startFor(settings.level, G.stage); G.shown = G.n; $('btnHint').disabled = false; showScreen('play'); startStage(); }   // 同じステージを、新しい問題で
   else { startGame(); }
 });
 $('btnSound').addEventListener('click', () => { Sound.unlock(); Sound.setMuted(!Sound.muted); });
