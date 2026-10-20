@@ -220,7 +220,8 @@ const CONFIG = {
   // サウンド
   SOUND: {
     TAP_SPLASH: true,   // 起動時に「タップしてはじめる」を出す（iPhoneは最初のタップまで音が出せないため。falseで無効）
-    BGM_VOLUME: 0.5,   // BGMの音量（0〜1、0でBGM無し）
+    SFX_VOLUME: 1.1,   // 効果音の音量（4つのゲームで同じ大きさになるように調整済み）
+    BGM_VOLUME: 0.65,  // BGMの音量（0〜1、0でBGM無し。これ以上にしてもよい）
     BGM_BPM: 92,       // BGMのテンポ
     IGNORE_SILENT_SWITCH: false, // true にすると、iPhoneの消音スイッチがオンでも鳴らす（アプリ内の消音ボタンは有効）
   },
@@ -482,8 +483,11 @@ const Sound = {
         if (!AC) return;
         this.ctx = new AC();
         this.master = this.ctx.createGain();
-        this.master.gain.value = 0.5;
-        this.master.connect(this.ctx.destination);
+        this.master.gain.value = 1.0;
+        const comp = this.ctx.createDynamicsCompressor();      // 音割れ防止のリミッター（他のゲームと同じ）
+        comp.threshold.value = -14; comp.knee.value = 10; comp.ratio.value = 8; comp.attack.value = 0.003; comp.release.value = 0.2;
+        this.master.connect(comp); comp.connect(this.ctx.destination); this.comp = comp;
+        this.sfx = this.ctx.createGain(); this.sfx.gain.value = CONFIG.SOUND.SFX_VOLUME; this.sfx.connect(this.master);
         this.bgmGain = this.ctx.createGain();
         this.bgmGain.gain.value = this.bgmOn ? this.bgmLevel() : 0;
         this.bgmGain.connect(this.master);
@@ -507,7 +511,7 @@ const Sound = {
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(vol, t + 0.008);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g); g.connect(this.master);
+    o.connect(g); g.connect(this.sfx);
     o.start(t); o.stop(t + dur + 0.02);
   },
   pick() { this.tone(660, 0.07, 'sine', 0.12, 880); },
