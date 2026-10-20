@@ -7,6 +7,7 @@ URL: `https://<ユーザー名>.github.io/Lapis/`
 | ゲーム | フォルダ | 説明 |
 |---|---|---|
 | KIRIKO | [kiriko/](kiriko/) | ブロックパズル（詳細・調整用定数は [kiriko/README.md](kiriko/README.md)） |
+| numberun～ナンバ走り～ | [numberun/](numberun/) | 計算ゲート型ランニング（小学生中学年向け） |
 
 ## 新しいゲームを足すとき
 
