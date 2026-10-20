@@ -115,6 +115,20 @@ summary { font-weight: 900; padding: 10px 0; font-size: 15px; }
 .chart .cn { height: 14px; font-weight: 800; } .chart .cb { flex: 1; width: 100%; display: flex; flex-direction: column; justify-content: flex-end; } .chart .cb i { display: block; width: 100%; } .chart .cb .r { background: var(--acc); } .chart .cb .w { background: var(--ng); } .chart .cd { height: 26px; padding-top: 2px; }
 table.cl { width: 100%; border-collapse: collapse; font-size: 12.5px; } .cl th, .cl td { border: 1px solid var(--line); padding: 5px 4px; text-align: center; } .cl th { background: var(--acc-soft); } .cl td:first-child { text-align: left; font-weight: 800; }
 .es-item { display: flex !important; align-items: center; gap: 8px; width: 100%; margin-bottom: 8px; text-align: left; padding: 14px 12px; font-size: 16px; } .es-item b { flex: 1; } .es-item small { color: var(--dim); font-weight: 700; } .es-item .tag { font-size: 11px; color: var(--acc); background: var(--acc-soft); border-radius: 99px; padding: 2px 8px; font-weight: 800; }
+.mode.teal { background: #2e7d9a; box-shadow: 0 5px 0 #1d556a; } .mode.teal:active { box-shadow: 0 2px 0 #1d556a; }
+.mode.brown { background: #8a5a3c; box-shadow: 0 5px 0 #5e3b25; } .mode.brown:active { box-shadow: 0 2px 0 #5e3b25; }
+.mode.pairm { background: #d9622b; box-shadow: 0 5px 0 #9a421b; } .mode.pairm:active { box-shadow: 0 2px 0 #9a421b; }
+.pin { display: block; width: 100%; border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 15px; margin-top: 8px; background: #fff; font-family: inherit; } textarea.pin { min-height: 80px; line-height: 1.5; }
+.btn:disabled { opacity: .4; box-shadow: none; }
+.blank { display: inline-block; min-width: 4.5em; border-bottom: 3px solid var(--acc); background: var(--acc-soft); border-radius: 4px; margin: 0 2px; }
+.qtext u { text-decoration: none; border-bottom: 2px solid var(--dim); }
+.ord-row { display: flex; gap: 8px; align-items: baseline; padding: 7px 10px; border: 2px solid var(--line); border-radius: 12px; background: #fff; margin: 5px 0; font-size: 15px; font-weight: 700; } .ord-row b { color: var(--acc); min-width: 2.6em; }
+.ord-row.g { border-color: var(--acc); background: var(--acc-soft); } .ord-row.x { border-color: var(--ng); background: var(--ng-soft); } .ord-sel { min-height: 40px; }
+.pairturn { text-align: center; font-weight: 900; font-size: 16px; border-radius: 12px; padding: 6px; margin-bottom: 10px; } .pairturn.p0 { background: #e4f1ed; color: #125548; } .pairturn.p1 { background: #fde8dc; color: #9a421b; }
+.ta-box { margin: -2px 0 10px; } .ta-box .bar { height: 12px; } .ta-box .bar i { transition: width .1s linear; } .ta-box .bar i.low { background: var(--ng); }
+.ta-line { display: flex; justify-content: space-between; font-weight: 900; font-size: 15px; margin-top: 4px; }
+.ta-pts { font-weight: 900; color: var(--gold); font-size: 18px; margin: 4px 0; }
+.toggle small { display: block; font-weight: 600; color: var(--dim); font-size: 12px; margin-top: 2px; line-height: 1.5; }
 .card textarea.esf { width: 100%; min-height: 96px; border: 2px solid var(--line); border-radius: 12px; padding: 8px 10px; font-size: 15px; line-height: 1.6; background: #fffef9; }
 #glQ { width: 100%; border: 2px solid var(--line); border-radius: 14px; padding: 12px 14px; font-size: 16px; background: #fff; }
 .star { border: 2px solid var(--line); background: #fff; border-radius: 99px; padding: 5px 12px; font-weight: 800; font-size: 13px; color: var(--dim); }
@@ -146,17 +160,23 @@ table.cl { width: 100%; border-collapse: collapse; font-size: 12.5px; } .cl th, 
     <button class="mode gold" data-m="card">暗記カード<small>思い出して確認する</small></button>
     <button class="mode rose" data-m="stmt">正誤判定<small>○ か ×</small></button>
     <button class="mode violet wide" data-m="cmp">⚖ 対比クイズ<small>紛らわしい用語を見分ける</small></button>
+    <button class="mode teal" data-m="cloze">📜 条文の穴埋め<small>日本国憲法</small></button>
+    <button class="mode brown" data-m="order">🕰 年表の並べ替え<small>古い順にタップ</small></button>
+    <button class="mode pairm wide" data-m="pair">👥 ペア対戦<small>2人で交代しながら答えて、点を競う</small></button>
   </div>
+  <div class="card" id="pairCard"><h3>ペア対戦の名前（1台を交代で使う）</h3><div class="row2"><input type="text" class="pin" id="p1" placeholder="プレイヤー1" maxlength="10" style="margin-top:0"><input type="text" class="pin" id="p2" placeholder="プレイヤー2" maxlength="10" style="margin-top:0"></div></div>
   <div style="margin:14px 4px 0;font-size:13px;font-weight:800;color:var(--dim)">▼ 出題の絞り込み</div>
   <div class="card"><h3>分野（未選択なら全分野）</h3><div class="chips" id="catChips"></div></div>
   <div class="card"><h3>出題</h3><div class="seg" id="segPool">
     <button class="chip" data-v="all">全て</button><button class="chip" data-v="weak">苦手</button><button class="chip" data-v="new">未学習</button><button class="chip" data-v="star">★</button></div></div>
   <div class="card"><h3>問題数</h3><div class="seg" id="segN"></div></div>
+  <div class="card toggle" id="tgTa"><span>⏱ タイムアタック<small>制限時間つきの得点制。速く・連続で正解するほど高得点。自己ベストも記録（暗記カード・ペア対戦は対象外）</small></span><span class="sw"></span></div>
 
   <div class="links">
     <button class="link" id="goGloss">📖 用語集</button>
     <button class="link" id="goCmp">⚖ 対比カード</button>
     <button class="link" id="goEssay">✎ 論述メモ</button>
+    <button class="link" id="goAdd">➕ 問題の追加</button>
     <button class="link" id="goStats">📊 学習記録</button>
     <button class="link" id="goClass">👥 結果集計</button>
     <button class="link" id="goReview">✎ データ確認</button>
@@ -171,6 +191,7 @@ table.cl { width: 100%; border-collapse: collapse; font-size: 12.5px; } .cl th, 
     <div class="prog"><div class="bar"><i id="qBar" style="width:0%"></i></div></div>
     <div class="count" id="qCount">1 / 10</div>
   </div>
+  <div class="ta-box hidden" id="taBox"><div class="bar"><i id="taBar" style="width:100%"></i></div><div class="ta-line"><span id="taScore">0点</span><span id="taCombo"></span></div></div>
   <div class="card" id="qBody"></div>
   <div id="qFeedback"></div>
 </section>
@@ -180,6 +201,7 @@ table.cl { width: 100%; border-collapse: collapse; font-size: 12.5px; } .cl th, 
   <h2>結果</h2>
   <div class="big" id="resScore"></div>
   <div class="msg" id="resMsg"></div>
+  <div class="msg" id="resTa"></div>
   <div class="card wlist" id="resWrong"></div>
   <button class="btn" id="btnRetryWrong">間違えた問題をもう一度</button>
   <button class="btn sec" id="btnAgain">新しい問題でもう一度</button>
@@ -232,6 +254,30 @@ table.cl { width: 100%; border-collapse: collapse; font-size: 12.5px; } .cl th, 
   <button class="btn sec" id="btnClassBack">タイトルへ</button>
 </section>
 
+<!-- 問題の追加・取り込み -->
+<section class="view hidden" id="vAdd">
+  <h2>➕ 問題の追加・取り込み</h2>
+  <div class="card"><h3>1問ずつ追加</h3>
+    <div class="seg" id="adType"><button class="chip on" data-v="t">用語</button><button class="chip" data-v="s">正誤問題</button></div>
+    <select id="adCat" class="pin"></select>
+    <input type="text" id="adMain" class="pin" placeholder="用語">
+    <textarea id="adDef" class="pin" placeholder="説明"></textarea>
+    <input type="text" id="adNote" class="pin" placeholder="考察のポイント（なくてもよい）">
+    <div class="seg hidden" id="adAns" style="margin-top:8px"><button class="chip on" data-v="1">○ 正しい</button><button class="chip" data-v="0">× 誤り</button></div>
+    <button class="btn" id="btnAdAdd">追加する</button></div>
+  <div class="card"><h3>まとめて追加（1行に1問）</h3>
+    <div class="kline">用語： 用語｜説明｜考察（考察は省略可）<br>正誤： ○｜文｜解説　または　×｜文｜解説<br>分野は、上の「1問ずつ追加」で選んでいるものになります。</div>
+    <textarea id="adBulk" class="pin" placeholder="例）累進課税｜所得が多いほど税率が高くなる仕組み｜なぜ所得再分配になるのか？"></textarea>
+    <button class="btn" id="btnAdBulk">まとめて追加</button></div>
+  <div class="card"><h3>共有コード</h3>
+    <div class="kline">自分で作った問題をコードにして、友だちや先生に送れます。受け取ったコードは下に貼り付けます。</div>
+    <button class="btn sec" id="btnAdExport">追加した問題をコードでコピー</button>
+    <textarea id="adImport" class="pin" placeholder="POLISDATA:… を貼り付け"></textarea>
+    <button class="btn" id="btnAdImport">取り込む</button></div>
+  <div class="card wlist" id="adList"></div>
+  <button class="btn sec" id="btnAdBack">タイトルへ</button>
+</section>
+
 <!-- データかくにん（先生用） -->
 <section class="view hidden" id="vReview">
   <h2>データ確認</h2>
@@ -269,6 +315,8 @@ table.cl { width: 100%; border-collapse: collapse; font-size: 12.5px; } .cl th, 
  * 調整用定数
  * ===================================================================== */
 const CONFIG = {
+  TA_SEC: { choice: 12, tf: 8, cmp: 15, cloze: 15, order: 40 },   // タイムアタックの制限時間（秒）
+  TA_BASE: 100, TA_SPEED: 100, TA_COMBO: 10, TA_COMBO_MAX: 100,     // 得点 = 基本点 + 速さボーナス(残り時間の割合) + コンボボーナス
   N_OPTIONS: [5, 10, 20, 40],            // 問題数の選択肢
   BOX_WEIGHTS: [10, 6, 3, 1.5, 0.6],      // 習熟度(0〜4)ごとの出やすさ。間違えた用語ほど、よく出る
   NEW_WEIGHT: 5,                          // まだ解いていない用語の出やすさ
@@ -290,11 +338,76 @@ D.terms.forEach(t => { t.id = 't:' + t.t; });
 D.stmts.forEach(s => { s.id = 's:' + s.s.slice(0, 24); });
 (D.cmps || (D.cmps = [])).forEach(c => { c.id = 'p:' + c.title; });
 const TERM = new Map(D.terms.map(t => [t.id, t])), STMT = new Map(D.stmts.map(s => [s.id, s]));
+D.cats.J = 'その他・追加問題';
 const catName = c => D.cats[c] || c;
+const catKeys = () => Object.keys(D.cats).filter(c => c !== 'J' || [...D.terms, ...D.stmts].some(x => x.c === 'J'));
+function addItem(kind, o, fromStore) {       // 追加できたら true（同じ問題がすでにあれば false）
+  if (kind === 't') { const id = 't:' + o.t; if (TERM.has(id)) return false; const t = Object.assign({}, o, { id, custom: true }); D.terms.push(t); TERM.set(id, t); if (!fromStore) custom.terms.push(o); }
+  else { const id = 's:' + o.s.slice(0, 24); if (STMT.has(id)) return false; const x = Object.assign({}, o, { id, custom: true }); D.stmts.push(x); STMT.set(id, x); if (!fromStore) custom.stmts.push(o); }
+  return true;
+}
+/* ---------- 条文の穴埋め・年表の並べ替え・タイムアタック ---------- */
+const CLI = [], TLI = D.timelines.map(t => ({ id: 'l:' + t.title, c: t.c, tl: t }));
+const clzParts = z => z.s.split(/【([^】]*)】/);
+D.clozes.forEach(z => { const parts = clzParts(z); for (let bi = 0; bi < (parts.length - 1) / 2; bi++) CLI.push({ id: `k:${z.a}:${bi}`, c: z.c, z, bi, parts, ans: parts[bi * 2 + 1], t: `${z.a}（空欄${bi + 1}）`, d: z.s, n: z.n }); });
+const REVZ = [...D.clozes.map(z => ({ id: 'z:' + z.a, c: z.c, a: z.a, s: z.s, n: z.n, kz: true })), ...D.timelines.map(t => ({ id: 'y:' + t.title, c: t.c, title: t.title, ev: t.ev, n: t.n, ky: true }))];
+const revAll = () => [...D.terms, ...D.stmts, ...D.cmps, ...REVZ];
+function makeOrder(x) {
+  const idx = shuffle(x.tl.ev.map((_, k) => k)).slice(0, 5).sort((a, b) => a - b), evs = idx.map(k => x.tl.ev[k]);
+  return { id: x.id, c: x.c, tl: x.tl, evs, t: x.tl.title, d: evs.map(e => `${e[0]}年 ${e[1]}`).join(' → '), n: x.tl.n };
+}
+function clozeText(it, withBlank) {
+  return it.parts.map((p, i) => i % 2 ? (withBlank && (i - 1) / 2 === it.bi ? '<span class="blank">　　　</span>' : withBlank ? `<u>${esc(p)}</u>` : `<b style="color:var(--acc)">${esc(p)}</b>`) : esc(p)).join('');
+}
+function clozeChoices(it) {
+  const pool = [...new Set(CLI.map(x => x.ans))].filter(a => a !== it.ans && !a.includes(it.ans) && !it.ans.includes(a));
+  const near = shuffle(pool).sort((a, b) => Math.abs(a.length - it.ans.length) - Math.abs(b.length - it.ans.length)).slice(0, 8);
+  return shuffle([it.ans, ...shuffle(near).slice(0, 3)]);
+}
+function renderOrd() {
+  const o = quiz.ord, it = quiz.items[quiz.i];
+  const sel = o.sel.map((k, n) => `<div class="ord-row"><b>${n + 1}</b>${esc(it.evs[k][1])}</div>`).join('') || '<div class="kline">下の出来事を、古い順にタップしよう</div>';
+  const pool = o.pool.filter(k => !o.sel.includes(k)).map(k => `<button class="choice ord-pick" data-k="${k}">${esc(it.evs[k][1])}</button>`).join('');
+  $('ordArea').innerHTML = `<div class="ord-sel">${sel}</div><div class="choices">${pool}</div><div class="row2"><button class="btn sec" id="ordUndo">ひとつ戻す</button><button class="btn" id="ordGo"${o.sel.length === it.evs.length ? '' : ' disabled'}>決定</button></div>`;
+}
+function handleOrd(e, it) {
+  if (quiz.answered) return;
+  const pk = e.target.closest('.ord-pick');
+  if (pk) { quiz.ord.sel.push(+pk.dataset.k); renderOrd(); }
+  else if (e.target.id === 'ordUndo') { quiz.ord.sel.pop(); renderOrd(); }
+  else if (e.target.id === 'ordGo' && quiz.ord.sel.length === it.evs.length) { quiz.answered = true; const ok = quiz.ord.sel.every((k, n) => k === n); record(ok); feedback(ok, it); }
+}
+function ordBody(it) {
+  const sel = quiz.ord ? quiz.ord.sel : [];
+  return `<div class="ans">${esc(it.t)}</div><div class="def">${it.evs.map(e => `<div class="ord-row"><b>${e[0]}</b>${esc(e[1])}</div>`).join('')}</div>` +
+    (sel.length ? `<div class="kline" style="margin-top:6px">あなたの並べ方</div><div class="def">${sel.map((k, n) => `<div class="ord-row ${k === n ? 'g' : 'x'}"><b>${n + 1}</b>${esc(it.evs[k][1])}</div>`).join('')}</div>` : '') +
+    (it.n ? `<div class="note">💡 考察：${esc(it.n)}</div>` : '');
+}
+function clozeBody(it) { return `<div class="ans">${esc(it.ans)}</div><div class="def">【${esc(it.z.a)}】<br>${clozeText(it, false)}</div>${it.n ? `<div class="note">💡 考察：${esc(it.n)}</div>` : ''}`; }
+function stopTimer() { if (quiz && quiz.timer) { clearInterval(quiz.timer); quiz.timer = null; } }
+function startTimer(qm) {
+  if (!quiz.ta) return;
+  const sec = CONFIG.TA_SEC[{ def2term: 'choice', term2def: 'choice', stmt: 'tf' }[qm] || qm]; if (!sec) return;
+  quiz.limit = sec * 1000; quiz.tEnd = Date.now() + quiz.limit; quiz.timer = setInterval(tickTimer, 100); tickTimer();
+}
+function tickTimer() {
+  const left = quiz.tEnd - Date.now();
+  $('taBar').style.width = Math.max(0, left / quiz.limit * 100) + '%'; $('taBar').classList.toggle('low', left < quiz.limit * 0.25);
+  if (left <= 0) timeUp();
+}
+function timeUp() {
+  stopTimer(); if (!quiz || quiz.answered || view !== 'quiz') return;
+  quiz.answered = true; const it = quiz.items[quiz.i];
+  document.querySelectorAll('#qBody .choice:not(.ord-pick)').forEach((b, k) => b.classList.add(k === quiz.correctIdx ? 'ok' : 'dim'));
+  document.querySelectorAll('#qBody .tf button').forEach(b => { b.disabled = true; });
+  record(false); feedback(false, it, '⏱ 時間切れ');
+}
 
-let hist = lsJson('polis.hist.v1', {}), essays = lsJson('polis.essay.v1', {});
+
+let hs = lsJson('polis.hs.v1', {}), custom = lsJson('polis.custom.v1', { terms: [], stmts: [] }), hist = lsJson('polis.hist.v1', {}), essays = lsJson('polis.essay.v1', {});
 const saveHist = () => lsSet('polis.hist.v1', JSON.stringify(hist));
 let prog = lsJson('polis.prog.v1', {}), sprog = lsJson('polis.sprog.v1', {}), memos = lsJson('polis.memo.v1', {}), review = lsJson('polis.review.v1', {});
+custom.terms.slice().forEach(o => addItem('t', o, true)); custom.stmts.slice().forEach(o => addItem('s', o, true));
 let stars = lsJson('polis.star.v1', {}), dayLog = lsJson('polis.days.v1', { last: '', streak: 0, today: '', n: 0 });
 const saveStars = () => lsSet('polis.star.v1', JSON.stringify(stars));
 const ymd = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -304,7 +417,7 @@ function touchStudy() {      // 学習した日を記録（連続学習日数）
   lsSet('polis.days.v1', JSON.stringify(dayLog));
 }
 function streakNow() { const y = new Date(); y.setDate(y.getDate() - 1); return (dayLog.last === ymd() || dayLog.last === ymd(y)) ? dayLog.streak : 0; }
-const settings = Object.assign({ cats: [], pool: 'all', n: 10, name: '' }, lsJson('polis.settings.v1', {}));
+const settings = Object.assign({ cats: [], pool: 'all', n: 10, name: '', ta: false, p1: '', p2: '' }, lsJson('polis.settings.v1', {}));
 const saveAll = () => { lsSet('polis.prog.v1', JSON.stringify(prog)); lsSet('polis.sprog.v1', JSON.stringify(sprog)); };
 const saveSettings = () => lsSet('polis.settings.v1', JSON.stringify(settings));
 function toast(msg) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = msg; document.body.appendChild(d); setTimeout(() => d.remove(), 2200); }
@@ -321,14 +434,14 @@ function copyText(text) {
 /* ---------- 画面 ---------- */
 let view = 'title';
 function showView(name) {
-  view = name;
-  for (const v of ['Title', 'Quiz', 'Result', 'Stats', 'Review', 'Gloss', 'Cmp', 'Essay', 'Class']) $('v' + v).classList.toggle('hidden', v.toLowerCase() !== name);
+  view = name; if (name !== 'quiz') stopTimer();
+  for (const v of ['Title', 'Quiz', 'Result', 'Stats', 'Review', 'Gloss', 'Cmp', 'Essay', 'Class', 'Add']) $('v' + v).classList.toggle('hidden', v.toLowerCase() !== name);
   $('app').scrollTop = 0;
 }
 
 /* ---------- タイトル ---------- */
 function reviewCounts() {
-  const all = [...D.terms, ...D.stmts, ...D.cmps]; let ok = 0, fix = 0;
+  const all = revAll(); let ok = 0, fix = 0;
   for (const x of all) { const r = review[x.id]; if (r && r.s === 'ok') ok++; else if (r && r.s === 'fix') fix++; }
   return { total: all.length, ok, fix };
 }
@@ -344,8 +457,9 @@ function renderTitle() {
   const rc = reviewCounts();
   $('reviewBanner').classList.toggle('hidden', rc.ok === rc.total);
   $('reviewBanner').textContent = `内容は教員が確認中です（確認済み ${rc.ok} / ${rc.total}　要修正 ${rc.fix}）　データ ${D.version}`;
-  $('catChips').innerHTML = Object.keys(D.cats).map(c => `<button class="chip${settings.cats.includes(c) ? ' on' : ''}" data-c="${c}">${esc(catName(c))}</button>`).join('');
+  $('catChips').innerHTML = catKeys().map(c => `<button class="chip${settings.cats.includes(c) ? ' on' : ''}" data-c="${c}">${esc(catName(c))}</button>`).join('');
   document.querySelectorAll('#segPool .chip').forEach(b => b.classList.toggle('on', b.dataset.v === settings.pool));
+  $('tgTa').classList.toggle('on', !!settings.ta); $('p1').value = settings.p1 || ''; $('p2').value = settings.p2 || '';
   $('segN').innerHTML = [...CONFIG.N_OPTIONS, 9999].map(n => `<button class="chip${settings.n === n ? ' on' : ''}" data-n="${n}">${n === 9999 ? '全部' : n + '問'}</button>`).join('');
   const ds = dailySet(), total = ds.dueUse.length + ds.fresh.length;
   $('dailyTitle').textContent = total ? `今日の復習　${total}問` : '今日の復習は完了！';
@@ -355,12 +469,14 @@ function renderTitle() {
 $('catChips').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; const c = b.dataset.c; const i = settings.cats.indexOf(c); if (i >= 0) settings.cats.splice(i, 1); else settings.cats.push(c); saveSettings(); renderTitle(); });
 $('segPool').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; settings.pool = b.dataset.v; saveSettings(); renderTitle(); });
 $('segN').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; settings.n = +b.dataset.n; saveSettings(); renderTitle(); });
+$('tgTa').addEventListener('click', () => { settings.ta = !settings.ta; saveSettings(); renderTitle(); });
+$('p1').addEventListener('input', e => { settings.p1 = e.target.value.trim(); saveSettings(); }); $('p2').addEventListener('input', e => { settings.p2 = e.target.value.trim(); saveSettings(); });
 document.querySelectorAll('.mode').forEach(b => b.addEventListener('click', () => { startQuiz(b.dataset.m); }));
 $('btnDaily').addEventListener('click', () => { const ds = dailySet(); startQuiz('daily', shuffle([...ds.dueUse, ...ds.fresh])); });
 
 /* ---------- 出題 ---------- */
 function poolList(kind) {
-  const items = kind === 'stmt' ? D.stmts : D.terms, P = kind === 'stmt' ? sprog : prog;
+  const items = { stmt: D.stmts, cloze: CLI, order: TLI }[kind] || D.terms, P = kind === 'term' ? prog : sprog;
   let list = items.filter(x => !settings.cats.length || settings.cats.includes(x.c));
   if (settings.pool === 'weak') list = list.filter(x => P[x.id] && P[x.id].s > 0 && P[x.id].b <= 1);
   else if (settings.pool === 'new') list = list.filter(x => !P[x.id] || !P[x.id].s);
@@ -393,24 +509,30 @@ function cmpCells(only) {       // 対比カードの「1マス分の説明」�
   return out;
 }
 function startQuiz(mode, items, only) {
-  const kind = mode === 'stmt' ? 'stmt' : mode === 'cmp' ? 'cmp' : 'term';
+  const kind = { stmt: 'stmt', cmp: 'cmp', cloze: 'cloze', order: 'order' }[mode] || 'term';
+  stopTimer();
   if (!items) {
     const list = kind === 'cmp' ? cmpCells(only) : poolList(kind);
     if (!list.length) { toast('その条件の問題がありません。分野や出題を変更してください'); return; }
-    items = kind === 'cmp' ? shuffle(list).slice(0, Math.min(settings.n, 20)) : sample(list, settings.n, kind === 'stmt' ? sprog : prog);
+    let n = settings.n;
+    if (mode === 'pair') { n = Math.min(n, list.length); n -= n % 2; if (n < 2) { toast('ペア対戦には2問以上の問題が必要です'); return; } }
+    items = kind === 'cmp' ? shuffle(list).slice(0, Math.min(n, 20)) : sample(list, n, kind === 'term' ? prog : sprog);
+    if (kind === 'order') items = items.map(makeOrder);
   }
-  const modes = mode === 'daily' ? items.map(() => (Math.random() < 0.6 ? 'def2term' : 'term2def')) : null;
-  quiz = { mode, kind, items, modes, only, i: 0, right: 0, wrongs: [], answered: false, correctIdx: -1, pick: [], flipped: false };
+  const modes = (mode === 'daily' || mode === 'pair') ? items.map(() => (Math.random() < 0.6 ? 'def2term' : 'term2def')) : null;
+  const pair = mode === 'pair' ? { names: [settings.p1 || 'プレイヤー1', settings.p2 || 'プレイヤー2'], score: [0, 0] } : null;
+  quiz = { mode, kind, items, modes, only, pair, ta: !!settings.ta && !pair && mode !== 'card', score: 0, combo: 0, lastPts: 0, timer: null, i: 0, right: 0, wrongs: [], answered: false, correctIdx: -1, pick: [], flipped: false };
   showView('quiz'); renderQ();
 }
-const MODE_LABEL = { def2term: '説明→用語', term2def: '用語→説明', card: '暗記カード', stmt: '正誤判定', daily: '今日の復習', cmp: '対比クイズ' };
+const MODE_LABEL = { def2term: '説明→用語', term2def: '用語→説明', card: '暗記カード', stmt: '正誤判定', daily: '今日の復習', cmp: '対比クイズ', cloze: '条文の穴埋め', order: '年表の並べ替え', pair: 'ペア対戦' };
 function renderQ() {
   const it = quiz.items[quiz.i], n = quiz.items.length;
   quiz.answered = false; quiz.flipped = false;
   $('qCount').textContent = `${quiz.i + 1} / ${n}`; $('qBar').style.width = (quiz.i / n * 100) + '%';
   $('qFeedback').innerHTML = '';
   const cat = `<span class="qcat">${esc(catName(it.c))}</span>`;
-  const qm = quiz.mode === 'daily' ? quiz.modes[quiz.i] : quiz.mode;
+  const qm = quiz.modes ? quiz.modes[quiz.i] : quiz.mode;
+  $('taBox').classList.toggle('hidden', !quiz.ta); $('taScore').textContent = quiz.score + '点'; $('taCombo').textContent = quiz.combo > 1 ? `🔥${quiz.combo}コンボ` : '';
   let h = '';
   if (qm === 'cmp') {
     quiz.correctIdx = it.col;
@@ -423,14 +545,30 @@ function renderQ() {
     h = `${cat}<div class="qterm">${esc(it.t)}</div><div class="choices">${ch.map((c, i) => `<button class="choice def" data-i="${i}">${esc(c.d)}</button>`).join('')}</div>`;
   } else if (qm === 'card') {
     h = `${cat}<div class="qterm">${esc(it.t)}</div><div id="cardBack"></div><button class="btn" id="btnFlip">答えを見る</button>`;
+  } else if (qm === 'cloze') {
+    const ch = clozeChoices(it); quiz.pick = ch; quiz.correctIdx = ch.indexOf(it.ans);
+    h = `${cat}<div style="font-size:13px;color:var(--dim);font-weight:800;margin:4px 0">📜 日本国憲法　${esc(it.z.a)}</div><div class="qtext" style="font-size:17px">${clozeText(it, true)}</div><div class="choices">${ch.map((c, i) => `<button class="choice" data-i="${i}">${esc(c)}</button>`).join('')}</div>`;
+  } else if (qm === 'order') {
+    let pool; do { pool = shuffle(it.evs.map((_, k) => k)); } while (pool.every((k, n) => k === n));
+    quiz.ord = { pool, sel: [] };
+    h = `${cat}<div class="qtext" style="font-size:17px"><b>${esc(it.t)}</b><br>古い順になるように、出来事をタップして並べよう</div><div id="ordArea"></div>`;
   } else {
     h = `${cat}<div class="qtext">${esc(it.s)}</div><div class="tf"><button class="t" data-a="1">○</button><button class="f" data-a="0">×</button></div>`;
   }
   $('qBody').innerHTML = h;
+  if (quiz.pair) $('qBody').insertAdjacentHTML('afterbegin', `<div class="pairturn p${quiz.i % 2}">▶ ${esc(quiz.pair.names[quiz.i % 2])} の番</div>`);
+  if (qm === 'order') renderOrd();
+  startTimer(qm);
   window.scrollTo(0, 0); $('app').scrollTop = 0;
 }
 function record(ok) {
+  stopTimer();
   const it = quiz.items[quiz.i], P = quiz.kind === 'term' ? prog : sprog;
+  if (quiz.ta) {
+    if (ok) { const left = Math.max(0, (quiz.tEnd - Date.now()) / quiz.limit); quiz.lastPts = CONFIG.TA_BASE + Math.round(CONFIG.TA_SPEED * left) + Math.min(CONFIG.TA_COMBO_MAX, quiz.combo * CONFIG.TA_COMBO); quiz.combo++; quiz.score += quiz.lastPts; } else quiz.combo = 0;
+    $('taScore').textContent = quiz.score + '点'; $('taCombo').textContent = quiz.combo > 1 ? `🔥${quiz.combo}コンボ` : '';
+  }
+  if (quiz.pair) { if (ok) { quiz.pair.score[quiz.i % 2]++; quiz.right++; } else quiz.wrongs.push(it); return; }
   const p = P[it.id] || (P[it.id] = { b: 0, s: 0, r: 0, w: 0 });
   p.s++; if (ok) { p.r++; p.b = Math.min(4, p.b + 1); } else { p.w++; p.b = 0; }
   p.d = Date.now() + CONFIG.INTERVAL_DAYS[p.b] * 86400000;      // 次に復習する日
@@ -439,12 +577,13 @@ function record(ok) {
 function feedback(ok, it, extraHead) {
   const last = quiz.i === quiz.items.length - 1, memo = memos[it.id] || '';
   const isStmt = quiz.kind === 'stmt', isCmp = quiz.kind === 'cmp';
-  const body = isCmp
+  const taHtml = quiz.ta ? `<div class="ta-pts">${ok ? `+${quiz.lastPts}点${quiz.combo > 1 ? `　🔥${quiz.combo}コンボ` : ''}` : '0点（コンボ終了）'}</div>` : '', who = quiz.pair ? `（${esc(quiz.pair.names[quiz.i % 2])}）` : '';
+  const body = quiz.kind === 'order' ? ordBody(it) : quiz.kind === 'cloze' ? clozeBody(it) : isCmp
     ? `<div class="ans">${esc(it.cmp.cols[it.col])}</div><div class="def">【${esc(it.label)}】${esc(it.text)}</div>${it.n ? `<div class="note">💡 考察：${esc(it.n)}</div>` : ''}`
     : isStmt
     ? `<div class="ans">${it.a ? '○（正しい）' : '×（誤り）'}</div><div class="def">${esc(it.e)}</div>`
     : `<div class="ans">${esc(it.t)}</div><div class="def">${esc(it.d)}</div>${it.n ? `<div class="note">💡 考察：${esc(it.n)}</div>` : ''}`;
-  $('qFeedback').innerHTML = `<div class="fb ${ok ? 'ok' : 'ng'}"><div class="head">${extraHead || (ok ? '○ 正解！' : '× 不正解')}${quiz.kind === 'term' ? `<button class="star${stars[it.id] ? ' on' : ''}" id="btnStar" style="float:right">${stars[it.id] ? '★ 登録済み' : '☆ 後で見直す'}</button>` : ''}</div>${body}
+  $('qFeedback').innerHTML = `<div class="fb ${ok ? 'ok' : 'ng'}"><div class="head">${(extraHead || (ok ? '○ 正解！' : '× 不正解')) + who}${quiz.kind === 'term' ? `<button class="star${stars[it.id] ? ' on' : ''}" id="btnStar" style="float:right">${stars[it.id] ? '★ 登録済み' : '☆ 後で見直す'}</button>` : ''}</div>${body}${taHtml}
     <textarea id="memo" placeholder="自分の言葉でメモ（なぜ？ 他との違いは？）">${esc(memo)}</textarea></div>
     <button class="btn" id="btnNext">${last ? '結果を見る' : '次へ'}</button>`;
   $('memo').addEventListener('input', e => { memos[it.id] = e.target.value; lsSet('polis.memo.v1', JSON.stringify(memos)); });
@@ -456,6 +595,7 @@ function next() { if (quiz.i < quiz.items.length - 1) { quiz.i++; renderQ(); } e
 $('qBody').addEventListener('click', e => {
   if (!quiz) return;
   const it = quiz.items[quiz.i];
+  if (quiz.kind === 'order') { handleOrd(e, it); return; }
   const ch = e.target.closest('.choice');
   if (ch && !quiz.answered) {
     quiz.answered = true; const i = +ch.dataset.i, ok = i === quiz.correctIdx;
@@ -498,29 +638,37 @@ function finish() {
   $('resMsg').textContent = pct === 100 ? '満点！' : pct >= 80 ? 'よくできました！' : pct >= 50 ? 'あと少し。間違えた用語を、もう一度。' : '大丈夫。間違えた用語から、もう一度。';
   $('resWrong').innerHTML = wrongHtml(quiz.wrongs);
   $('btnRetryWrong').classList.toggle('hidden', !quiz.wrongs.length);
+  stopTimer(); $('resTa').innerHTML = '';
+  if (quiz.pair) { const [a, b] = quiz.pair.score, [na, nb] = quiz.pair.names; $('resScore').innerHTML = `${a}<small> 対 </small>${b}`; $('resMsg').textContent = a === b ? `引き分け！（${na} ${a} － ${b} ${nb}）` : `🏆 ${a > b ? na : nb} の勝ち！（${na} ${a} － ${b} ${nb}）`; $('btnRetryWrong').classList.add('hidden'); }
+  if (quiz.ta) {
+    const key = `${quiz.mode}:${n}`, best = hs[key] || 0, isNew = quiz.score > best; if (isNew) { hs[key] = quiz.score; lsSet('polis.hs.v1', JSON.stringify(hs)); }
+    $('resTa').innerHTML = `<div style="font-size:13px;color:var(--dim)">⏱ タイムアタック</div><div class="big" style="font-size:44px;color:var(--gold)">${quiz.score}<small> 点</small></div>自己ベスト ${Math.max(best, quiz.score)}点${isNew && best ? '　🏆 更新！' : ''}`;
+  }
 }
 $('btnRetryWrong').addEventListener('click', () => startQuiz(quiz.mode, shuffle(quiz.wrongs)));
 $('btnAgain').addEventListener('click', () => { if (quiz.mode === 'daily') { const ds = dailySet(); startQuiz('daily', shuffle([...ds.dueUse, ...ds.fresh])); } else startQuiz(quiz.mode, null, quiz.only); });
 $('btnResTitle').addEventListener('click', () => { showView('title'); renderTitle(); });
 $('btnCopyRes').addEventListener('click', () => {
   const d = new Date(), ds = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
-  let t = `【polis academy】${ds}　${MODE_LABEL[quiz.mode]}　${quiz.right} / ${quiz.items.length}\n`;
+  let t = `【polis academy】${ds}　${MODE_LABEL[quiz.mode]}　${quiz.right} / ${quiz.items.length}${quiz.ta ? `　⏱${quiz.score}点` : ''}${quiz.pair ? `　${quiz.pair.names[0]} ${quiz.pair.score[0]} － ${quiz.pair.score[1]} ${quiz.pair.names[1]}` : ''}\n`;
   if (quiz.wrongs.length) { t += '\n間違えた問題:\n'; for (const x of quiz.wrongs) t += `・${x.t || x.s}\n   ${x.d || x.e}${memos[x.id] ? '\n   ✎ ' + memos[x.id] : ''}\n`; }
   copyText(t);
 });
 
 /* ---------- きろく ---------- */
-const KIND_LABEL = { t: '用語', s: '正誤判定', c: '対比' };
+const KIND_LABEL = { t: '用語', s: '正誤判定', c: '対比', k: '条文', o: '年表' };
 function allProg() {       // 用語・正誤・対比の、すべての学習状況を1つの表にまとめる
   const rows = [];
   D.terms.forEach(t => rows.push({ id: t.id, k: 't', c: t.c, p: prog[t.id], label: t.t, def: t.d }));
   D.stmts.forEach(s => rows.push({ id: s.id, k: 's', c: s.c, p: sprog[s.id], label: s.s, def: s.e }));
   D.cmps.forEach(x => x.rows.forEach((r, ri) => x.cols.forEach((col, ci) => { const id = `p:${x.title}:${ri}:${ci}`; rows.push({ id, k: 'c', c: x.c, p: sprog[id], label: `${x.title}（${r[0]}）`, def: `${col}：${r[ci + 1]}` }); })));
+  CLI.forEach(x => rows.push({ id: x.id, k: 'k', c: x.c, p: sprog[x.id], label: x.t, def: x.d }));
+  TLI.forEach(x => rows.push({ id: x.id, k: 'o', c: x.c, p: sprog[x.id], label: x.tl.title, def: x.tl.ev.map(e => `${e[0]} ${e[1]}`).join(' → ') }));
   return rows;
 }
 function statsData() {
   const rows = allProg(), z = () => ({ total: 0, seen: 0, mastered: 0, ans: 0, ok: 0 });
-  const kind = { t: z(), s: z(), c: z() }, cat = {}, all = z();
+  const kind = { t: z(), s: z(), c: z(), k: z(), o: z() }, cat = {}, all = z();
   Object.keys(D.cats).forEach(c => { cat[c] = z(); });
   for (const x of rows) {
     const p = x.p, ms = !!(p && p.b >= CONFIG.MASTERED_BOX);
@@ -537,10 +685,10 @@ function renderStats() {
   $('stBig').innerHTML = `${a.mastered}<small> / ${a.total} 項目 覚えた</small>`;
   $('stMsg').textContent = `累計 ${a.ans}問に解答　正答率 ${pctOf(a.ok, a.ans)}%　🔥 連続 ${streakNow()}日`;
   const bar = (l, r, v, t) => `<div class="catbar"><div class="l"><span>${l}</span><span>${r}</span></div><div class="bar"><i style="width:${t ? v / t * 100 : 0}%"></i></div></div>`;
-  $('stKinds').innerHTML = '<h3>種類別（覚えた数 / 全体）</h3>' + ['t', 's', 'c'].map(k => { const o = S.kind[k]; return bar(KIND_LABEL[k], `${o.mastered} / ${o.total}　解答 ${o.ans}問・正答率 ${pctOf(o.ok, o.ans)}%`, o.mastered, o.total); }).join('');
+  $('stKinds').innerHTML = '<h3>種類別（覚えた数 / 全体）</h3>' + ['t', 's', 'c', 'k', 'o'].map(k => { const o = S.kind[k]; return bar(KIND_LABEL[k], `${o.mastered} / ${o.total}　解答 ${o.ans}問・正答率 ${pctOf(o.ok, o.ans)}%`, o.mastered, o.total); }).join('');
   const mx = Math.max(5, ...S.days.map(d => d.n)), WD = '日月火水木金土';
   $('stChart').innerHTML = '<h3>この14日間の解答数</h3><div class="chart">' + S.days.map(d => `<div class="col"><div class="cn">${d.n || ''}</div><div class="cb"><i class="w" style="height:${(d.n - d.r) / mx * 100}%"></i><i class="r" style="height:${d.r / mx * 100}%"></i></div><div class="cd">${+d.k.slice(8)}<br>${WD[d.wd]}</div></div>`).join('') + '</div><div class="kline">緑＝正解　赤＝不正解（この機能を入れた日から記録されます）</div>';
-  $('stCats').innerHTML = '<h3>分野別（覚えた数 / 全体）</h3>' + Object.keys(S.cat).map(c => { const o = S.cat[c]; return bar(esc(catName(c)), `${o.mastered} / ${o.total}　正答率 ${o.ans ? pctOf(o.ok, o.ans) + '%' : '―'}`, o.mastered, o.total); }).join('');
+  $('stCats').innerHTML = '<h3>分野別（覚えた数 / 全体）</h3>' + Object.keys(S.cat).filter(c => S.cat[c].total).map(c => { const o = S.cat[c]; return bar(esc(catName(c)), `${o.mastered} / ${o.total}　正答率 ${o.ans ? pctOf(o.ok, o.ans) + '%' : '―'}`, o.mastered, o.total); }).join('');
   $('stWeak').innerHTML = S.weak.length ? '<h3 style="margin:0 0 6px;font-size:14px;color:var(--dim)">苦手（誤答の多い順・用語／正誤／対比）</h3>' + S.weak.map(x => `<div class="item"><div class="t">${esc(x.label)}　<span style="font-size:12px;color:var(--ng)">×${x.p.w}</span> <span class="kt">${KIND_LABEL[x.k]}</span></div><div class="d">${esc(x.def)}</div>${memos[x.id] ? `<div class="m">✎ ${esc(memos[x.id])}</div>` : ''}</div>`).join('') : '<div class="msg">苦手な項目はまだありません</div>';
   $('stName').value = settings.name || '';
 }
@@ -557,7 +705,7 @@ function buildSummary() {
   return { v: 1, n: settings.name || '(無名)', t: Date.now(), a: S.all.ans, o: S.all.ok, d: S.days.filter(x => x.n).length, s: streakNow(), m: S.all.mastered, tot: S.all.total, cat, w: S.weak.slice(0, 5).map(x => x.label) };
 }
 $('btnCode').addEventListener('click', () => { if (!settings.name) { toast('先に名前（出席番号など）を入力してください'); $('stName').focus(); return; } copyText('POLIS1:' + b64e(buildSummary())); });
-$('btnBkCopy').addEventListener('click', () => copyText('POLISBACKUP:' + b64e({ prog, sprog, memos, stars, hist, dayLog, essays, review, name: settings.name || '' })));
+$('btnBkCopy').addEventListener('click', () => copyText('POLISBACKUP:' + b64e({ prog, sprog, memos, stars, hist, dayLog, essays, review, custom, name: settings.name || '' })));
 $('btnBkOpen').addEventListener('click', () => $('bkBox').classList.toggle('hidden'));
 $('btnBkDo').addEventListener('click', () => {
   const t = $('bkText').value.trim();
@@ -568,6 +716,7 @@ $('btnBkDo').addEventListener('click', () => {
     prog = o.prog || {}; sprog = o.sprog || {}; memos = o.memos || {}; stars = o.stars || {}; hist = o.hist || {}; essays = o.essays || {}; review = o.review || review;
     dayLog = o.dayLog || dayLog; if (o.name) settings.name = o.name;
     saveAll(); saveHist(); saveStars(); saveSettings(); lsSet('polis.memo.v1', JSON.stringify(memos)); lsSet('polis.essay.v1', JSON.stringify(essays)); lsSet('polis.review.v1', JSON.stringify(review)); lsSet('polis.days.v1', JSON.stringify(dayLog));
+    if (o.custom) { custom = o.custom; saveCustom(); setTimeout(() => location.reload(), 700); }
     $('bkText').value = ''; $('bkBox').classList.add('hidden'); renderStats(); toast('復元しました');
   } catch (e) { toast('コードを読み取れませんでした'); }
 });
@@ -613,6 +762,66 @@ $('btnEsList').addEventListener('click', renderEssayList);
 $('goEssay').addEventListener('click', () => { renderEssayList(); showView('essay'); });
 $('btnEsBack').addEventListener('click', () => { showView('title'); renderTitle(); });
 
+/* ---------- 問題の追加・取り込み ---------- */
+const saveCustom = () => lsSet('polis.custom.v1', JSON.stringify(custom));
+let adType = 't', adAns = '1';
+function removeItem(kind, id) {
+  if (kind === 't') { custom.terms = custom.terms.filter(o => 't:' + o.t !== id); const i = D.terms.findIndex(x => x.id === id); if (i >= 0) D.terms.splice(i, 1); TERM.delete(id); delete prog[id]; }
+  else { custom.stmts = custom.stmts.filter(o => 's:' + o.s.slice(0, 24) !== id); const i = D.stmts.findIndex(x => x.id === id); if (i >= 0) D.stmts.splice(i, 1); STMT.delete(id); delete sprog[id]; }
+  saveCustom(); saveAll();
+}
+function parseBulk(text, c) {
+  let ok = 0, dup = 0, bad = 0;
+  for (const line of text.split('\n')) {
+    const l = line.trim(); if (!l) continue;
+    const p = l.split(/[｜|\t]/).map(x => x.trim());
+    if (p[0] === '○' || p[0] === '×') { if (!p[1] || !p[2]) { bad++; continue; } addItem('s', { c, s: p[1], a: p[0] === '○', e: p[2] }) ? ok++ : dup++; }
+    else { if (!p[0] || !p[1]) { bad++; continue; } addItem('t', { c, t: p[0], d: p[1], n: p[2] || '' }) ? ok++ : dup++; }
+  }
+  saveCustom(); return { ok, dup, bad };
+}
+function renderAdList() {
+  const items = [...custom.terms.map(o => ({ k: 't', id: 't:' + o.t, h: o.t, d: o.d })), ...custom.stmts.map(o => ({ k: 's', id: 's:' + o.s.slice(0, 24), h: `【${o.a ? '○' : '×'}】${o.s}`, d: o.e }))];
+  $('adList').innerHTML = items.length ? `<h3 style="margin:0 0 6px;font-size:14px;color:var(--dim)">追加した問題（${items.length}）</h3>` + items.map(x => `<div class="item"><div class="t">${esc(x.h)}　<button class="star" data-k="${x.k}" data-id="${esc(x.id)}">削除</button></div><div class="d">${esc(x.d)}</div></div>`).join('') : '<div class="msg">まだ追加した問題はありません</div>';
+}
+function renderAdd() {
+  $('adCat').innerHTML = Object.keys(D.cats).map(c => `<option value="${c}">${esc(catName(c))}</option>`).join('');
+  document.querySelectorAll('#adType .chip').forEach(b => b.classList.toggle('on', b.dataset.v === adType));
+  document.querySelectorAll('#adAns .chip').forEach(b => b.classList.toggle('on', b.dataset.v === adAns));
+  $('adAns').classList.toggle('hidden', adType !== 's'); $('adNote').classList.toggle('hidden', adType !== 't');
+  $('adMain').placeholder = adType === 't' ? '用語' : '文（正しいか誤りかを判断する文）';
+  $('adDef').placeholder = adType === 't' ? '説明（用語そのものは書かない）' : '解説（なぜ正しい／誤りか）';
+  renderAdList();
+}
+$('goAdd').addEventListener('click', () => { renderAdd(); showView('add'); });
+$('btnAdBack').addEventListener('click', () => { showView('title'); renderTitle(); });
+$('adType').addEventListener('click', e => { const b = e.target.closest('.chip'); if (b) { adType = b.dataset.v; renderAdd(); } });
+$('adAns').addEventListener('click', e => { const b = e.target.closest('.chip'); if (b) { adAns = b.dataset.v; renderAdd(); } });
+$('btnAdAdd').addEventListener('click', () => {
+  const c = $('adCat').value, m = $('adMain').value.trim(), d = $('adDef').value.trim();
+  if (!m || !d) { toast(adType === 't' ? '用語と説明を入力してください' : '文と解説を入力してください'); return; }
+  if (adType === 't' && d.includes(m) && !confirm('説明の中に用語が入っています（問題で答えが見えてしまいます）。このまま追加しますか？')) return;
+  const ok = adType === 't' ? addItem('t', { c, t: m, d, n: $('adNote').value.trim() }) : addItem('s', { c, s: m, a: adAns === '1', e: d });
+  if (!ok) { toast('同じ問題がすでにあります'); return; }
+  saveCustom(); $('adMain').value = ''; $('adDef').value = ''; $('adNote').value = ''; renderAddList(); toast('追加しました');
+});
+function renderAddList() { renderAdList(); }
+$('btnAdBulk').addEventListener('click', () => {
+  const t = $('adBulk').value; if (!t.trim()) { toast('1行に1問ずつ入力してください'); return; }
+  const r = parseBulk(t, $('adCat').value); $('adBulk').value = ''; renderAdList(); toast(`追加 ${r.ok}件${r.dup ? `・重複 ${r.dup}件` : ''}${r.bad ? `・形式エラー ${r.bad}件` : ''}`);
+});
+$('btnAdExport').addEventListener('click', () => { if (!custom.terms.length && !custom.stmts.length) { toast('追加した問題がありません'); return; } copyText('POLISDATA:' + b64e({ v: 1, terms: custom.terms, stmts: custom.stmts })); });
+$('btnAdImport').addEventListener('click', () => {
+  const t = $('adImport').value.trim(); if (!t.startsWith('POLISDATA:')) { toast('共有コード（POLISDATA:…）を貼り付けてください'); return; }
+  try {
+    const o = b64d(t.slice(10)); let ok = 0, dup = 0; const str = x => typeof x === 'string' && x.trim();
+    (o.terms || []).slice(0, 500).forEach(x => { if (str(x.t) && str(x.d) && D.cats[x.c]) { addItem('t', { c: x.c, t: x.t, d: x.d, n: typeof x.n === 'string' ? x.n : '' }) ? ok++ : dup++; } });
+    (o.stmts || []).slice(0, 500).forEach(x => { if (str(x.s) && str(x.e) && D.cats[x.c]) { addItem('s', { c: x.c, s: x.s, a: !!x.a, e: x.e }) ? ok++ : dup++; } });
+    saveCustom(); $('adImport').value = ''; renderAdList(); toast(`取り込み ${ok}件${dup ? `・重複 ${dup}件` : ''}`);
+  } catch (e) { toast('コードを読み取れませんでした'); }
+});
+$('adList').addEventListener('click', e => { const b = e.target.closest('[data-id]'); if (b && confirm('この問題を削除しますか？')) { removeItem(b.dataset.k, b.dataset.id); renderAdList(); } });
+
 /* ---------- データかくにん（先生用） ---------- */
 let rvFilter = 'all';
 function rvStatus(id) { return (review[id] && review[id].s) || ''; }
@@ -621,16 +830,16 @@ function renderReview() {
   $('rvSummary').textContent = `確認済み ${rc.ok} / ${rc.total}　要修正 ${rc.fix}　未確認 ${rc.total - rc.ok - rc.fix}　（データ ${D.version}）`;
   document.querySelectorAll('#rvFilter .chip').forEach(b => b.classList.toggle('on', b.dataset.v === rvFilter));
   const show = x => rvFilter === 'all' || (rvFilter === 'todo' && !rvStatus(x.id)) || (rvFilter === 'fix' && rvStatus(x.id) === 'fix');
-  const row = (x, isS) => { const isC = !!x.title, st = rvStatus(x.id), c = (review[x.id] && review[x.id].c) || ''; return `<div class="rv ${st ? 's-' + st : ''}" data-id="${esc(x.id)}">
-    <div class="t">${isC ? '⚖ ' + esc(x.title) : esc(isS ? x.s : x.t)}${isS ? `　<span style="font-weight:700;color:var(--dim)">【${x.a ? '○' : '×'}】</span>` : ''}</div><div class="d">${isC ? x.rows.map(r => esc(r[0]) + '：' + r.slice(1).map(esc).join(' ／ ')).join('<br>') : esc(isS ? x.e : x.d)}</div>${x.n ? `<div class="n">💡 ${esc(x.n)}</div>` : ''}
+  const row = (x, isS) => { const isC = !!x.rows, st = rvStatus(x.id), c = (review[x.id] && review[x.id].c) || ''; return `<div class="rv ${st ? 's-' + st : ''}" data-id="${esc(x.id)}">
+    <div class="t">${x.kz ? '📜 ' + esc(x.a) : x.ky ? '🕰 ' + esc(x.title) : isC ? '⚖ ' + esc(x.title) : esc(isS ? x.s : x.t)}${isS ? `　<span style="font-weight:700;color:var(--dim)">【${x.a ? '○' : '×'}】</span>` : ''}</div><div class="d">${x.kz ? esc(x.s) : x.ky ? x.ev.map(e => e[0] + '年　' + esc(e[1])).join('<br>') : isC ? x.rows.map(r => esc(r[0]) + '：' + r.slice(1).map(esc).join(' ／ ')).join('<br>') : esc(isS ? x.e : x.d)}</div>${x.n ? `<div class="n">💡 ${esc(x.n)}</div>` : ''}
     <div class="acts"><button class="ok${st === 'ok' ? ' on' : ''}" data-s="ok">○ 確認済み</button><button class="fix${st === 'fix' ? ' on' : ''}" data-s="fix">✎ 要修正</button></div>
     <input type="text" placeholder="コメント（修正箇所と修正案）" value="${esc(c)}"></div>`; };
   let h = '';
   for (const c of Object.keys(D.cats)) {
-    const ts = D.terms.filter(t => t.c === c && show(t)), ss = D.stmts.filter(s => s.c === c && show(s)), cs = D.cmps.filter(x => x.c === c && show(x));
-    if (!ts.length && !ss.length && !cs.length) continue;
-    const allOk = [...D.terms, ...D.stmts, ...D.cmps].filter(x => x.c === c).every(x => rvStatus(x.id) === 'ok');
-    h += `<details><summary>${esc(catName(c))}（用語${ts.length}・正誤${ss.length}・対比${cs.length}）${allOk ? ' ✔' : ''}</summary>${ts.map(t => row(t, false)).join('')}${ss.map(s => row(s, true)).join('')}${cs.map(x => row(x, false)).join('')}
+    const ts = D.terms.filter(t => t.c === c && show(t)), ss = D.stmts.filter(s => s.c === c && show(s)), cs = D.cmps.filter(x => x.c === c && show(x)), zs = REVZ.filter(x => x.c === c && show(x));
+    if (!ts.length && !ss.length && !cs.length && !zs.length) continue;
+    const allOk = revAll().filter(x => x.c === c).every(x => rvStatus(x.id) === 'ok');
+    h += `<details><summary>${esc(catName(c))}（用語${ts.length}・正誤${ss.length}・対比${cs.length}・条文年表${zs.length}）${allOk ? ' ✔' : ''}</summary>${ts.map(t => row(t, false)).join('')}${ss.map(s => row(s, true)).join('')}${cs.map(x => row(x, false)).join('')}${zs.map(x => row(x, false)).join('')}
       <button class="btn sec" data-allok="${c}" style="margin:8px 0">この分野を全て「確認済み」にする</button></details>`;
   }
   $('rvList').innerHTML = h || '<div class="msg">該当するものはありません</div>';
@@ -643,7 +852,7 @@ $('rvList').addEventListener('click', e => {
     setReview(id, { s: rvStatus(id) === s ? '' : s });
     const open = [...document.querySelectorAll('#rvList details')].map(d => d.open); renderReview(); document.querySelectorAll('#rvList details').forEach((d, i) => { d.open = !!open[i]; });
   } else if (all) {
-    const c = all.dataset.allok; [...D.terms, ...D.stmts, ...D.cmps].filter(x => x.c === c).forEach(x => setReview(x.id, { s: 'ok' }));
+    const c = all.dataset.allok; revAll().filter(x => x.c === c).forEach(x => setReview(x.id, { s: 'ok' }));
     const open = [...document.querySelectorAll('#rvList details')].map(d => d.open); renderReview(); document.querySelectorAll('#rvList details').forEach((d, i) => { d.open = !!open[i]; });
   }
 });
@@ -652,18 +861,18 @@ $('rvFilter').addEventListener('click', e => { const b = e.target.closest('.chip
 $('goReview').addEventListener('click', () => { renderReview(); showView('review'); });
 $('btnRvBack').addEventListener('click', () => { showView('title'); renderTitle(); });
 $('btnCopyRv').addEventListener('click', () => {
-  const all = [...D.terms, ...D.stmts, ...D.cmps], rc = reviewCounts();
+  const all = revAll(), rc = reviewCounts();
   let t = `【polis academy データ確認】データ ${D.version}\n確認済み ${rc.ok} / ${rc.total}　要修正 ${rc.fix}\n`;
   const items = all.filter(x => rvStatus(x.id) === 'fix' || (review[x.id] && review[x.id].c));
   if (!items.length) t += '\n（要修正・コメントはありません）\n';
-  for (const x of items) t += `\n・[${catName(x.c)}] ${x.t || x.s || ('対比: ' + x.title)}\n   ${rvStatus(x.id) === 'fix' ? '【要修正】' : ''}${(review[x.id] && review[x.id].c) || ''}\n`;
+  for (const x of items) t += `\n・[${catName(x.c)}] ${x.t || x.s || (x.kz ? '条文: ' + x.a : x.ky ? '年表: ' + x.title : '対比: ' + x.title)}\n   ${rvStatus(x.id) === 'fix' ? '【要修正】' : ''}${(review[x.id] && review[x.id].c) || ''}\n`;
   copyText(t);
 });
 
 /* ---------- 用語集 ---------- */
 let gl = { q: '', cats: [], star: false };
 function renderGloss() {
-  $('glCats').innerHTML = `<button class="chip${gl.star ? ' on' : ''}" data-star="1">★ 登録のみ（${Object.keys(stars).length}）</button>` + Object.keys(D.cats).map(c => `<button class="chip${gl.cats.includes(c) ? ' on' : ''}" data-c="${c}">${esc(catName(c))}</button>`).join('');
+  $('glCats').innerHTML = `<button class="chip${gl.star ? ' on' : ''}" data-star="1">★ 登録のみ（${Object.keys(stars).length}）</button>` + catKeys().map(c => `<button class="chip${gl.cats.includes(c) ? ' on' : ''}" data-c="${c}">${esc(catName(c))}</button>`).join('');
   const q = gl.q.trim().toLowerCase();
   const list = D.terms.filter(t => (!gl.cats.length || gl.cats.includes(t.c)) && (!gl.star || stars[t.id]) && (!q || (t.t + ' ' + t.d + ' ' + (t.n || '') + ' ' + (memos[t.id] || '')).toLowerCase().includes(q)));
   $('glCount').textContent = `${list.length} 語`;
@@ -699,7 +908,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 }
 renderTitle();
-if (location.search.includes('debug')) window.__p = { D, hist: () => hist, essays: () => essays, buildSummary, statsData, settings, startQuiz, dailySet, stars: () => stars, dayLog: () => dayLog, get quiz() { return quiz; }, prog: () => prog, review: () => review, poolList, distractors };
+if (location.search.includes('debug')) window.__p = { D, CLI, TLI, hs: () => hs, custom: () => custom, addItem, hist: () => hist, essays: () => essays, buildSummary, statsData, settings, startQuiz, dailySet, stars: () => stars, dayLog: () => dayLog, get quiz() { return quiz; }, prog: () => prog, review: () => review, poolList, distractors };
 </script>
 </body>
 </html>
