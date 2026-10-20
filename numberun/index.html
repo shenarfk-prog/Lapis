@@ -212,6 +212,7 @@ const CONFIG = {
 
   // サウンド
   SOUND: {
+    SFX_VOLUME: 0.6,         // 効果音の音量（1で最大。BGMとは別に調整できる）
     BGM_VOLUME: 0.8,
     BGM_MIX: 'A',            // 'A' = 前のミックス（低音が太い） / 'B' = 中高音を厚くしたミックス
     BGM_BPM: 138,            // BGMのテンポ（速いほど急かされる）
@@ -310,6 +311,7 @@ const Sound = {
         const comp = this.ctx.createDynamicsCompressor();      // 音割れ防止のリミッター
         comp.threshold.value = -14; comp.knee.value = 10; comp.ratio.value = 8; comp.attack.value = 0.003; comp.release.value = 0.2;
         this.master.connect(comp); comp.connect(this.ctx.destination); this.comp = comp;
+        this.sfx = this.ctx.createGain(); this.sfx.gain.value = CONFIG.SOUND.SFX_VOLUME; this.sfx.connect(this.master);   // 効果音の音量
         this.bgmGain = this.ctx.createGain(); this.bgmGain.gain.value = 0; this.bgmGain.connect(this.master);
         // 効果音に、ほんのり響きをつける（リバーブ）
         const len = Math.floor(this.ctx.sampleRate * 1.3), ir = this.ctx.createBuffer(2, len, this.ctx.sampleRate);
@@ -317,7 +319,7 @@ const Sound = {
         const conv = this.ctx.createConvolver(); conv.buffer = ir;
         this.revSend = this.ctx.createGain(); this.revSend.gain.value = 1;
         const wet = this.ctx.createGain(); wet.gain.value = 0.35;
-        this.revSend.connect(conv); conv.connect(wet); wet.connect(this.master);
+        this.revSend.connect(conv); conv.connect(wet); wet.connect(this.sfx);
       }
       if (this.ctx.state !== 'running') this.ctx.resume();
       if (!this.primed) {
@@ -332,7 +334,7 @@ const Sound = {
     o.type = type; o.frequency.setValueAtTime(freq, t);
     if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g); g.connect(this.master); o.start(t); o.stop(t + dur + 0.02);
+    o.connect(g); g.connect(this.sfx); o.start(t); o.stop(t + dur + 0.02);
   },
   select() { this.tone(700, 0.08, 'sine', 0.3, 900); },
   ready() { return !(this.muted || !this.ctx || this.ctx.state !== 'running'); },
@@ -345,7 +347,7 @@ const Sound = {
     mg.gain.setValueAtTime(freq * 1.5, t); mg.gain.exponentialRampToValueAtTime(1, t + dur * 0.6);
     mod.connect(mg); mg.connect(car.frequency);
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    car.connect(g); g.connect(this.master); g.connect(this.revSend);
+    car.connect(g); g.connect(this.sfx); g.connect(this.revSend);
     car.start(t); mod.start(t); car.stop(t + dur + 0.05); mod.stop(t + dur + 0.05);
   },
   // 人数がふえたときの音。level が大きい（たくさん増えた）ほど、音が多くなる
@@ -385,7 +387,7 @@ const Sound = {
       const b = c.createBiquadFilter(); b.type = 'bandpass'; b.frequency.value = fr * (0.96 + Math.random() * 0.08); b.Q.value = q;
       const g = c.createGain(); g.gain.value = gn; o.connect(b); b.connect(g); g.connect(out);
     });
-    out.connect(this.master); out.connect(this.revSend);
+    out.connect(this.sfx); out.connect(this.revSend);
     o.start(t); lfo.start(t); o.stop(t + dur + 0.05); lfo.stop(t + dur + 0.05);
   },
   burstNoise(delay, dur, freq, q, vol) {
@@ -393,38 +395,33 @@ const Sound = {
     const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
     s.buffer = this.noise(); f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q;
     g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    s.connect(f); f.connect(g); g.connect(this.master); s.start(t, Math.random() * 0.5, dur + 0.02);
+    s.connect(f); f.connect(g); g.connect(this.sfx); s.start(t, Math.random() * 0.5, dur + 0.02);
   },
   swell(delay, dur, freq, q, vol) {     // 群衆の「ざわーっ」というノイズ
     const c = this.ctx, t = c.currentTime + delay;
     const src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
     src.buffer = this.noise(); src.loop = true; f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q;
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + dur * 0.3); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    src.connect(f); f.connect(g); g.connect(this.master); src.start(t); src.stop(t + dur + 0.05);
+    src.connect(f); f.connect(g); g.connect(this.sfx); src.start(t); src.stop(t + dur + 0.05);
   },
-  // 歓声「わーっ！」: 拍手 + 短くて高い声（少なめ） + ヒューッという笛 + クラッカー
+  // 歓声: 拍手 + 「ヒューッ」という笛 + クラッカー + きらきら（合成の声は怖く聞こえるので使わない）
   cheer() {
     if (!this.ready()) return;
-    const A = [[900, 7, 5], [1500, 8, 3.5], [3000, 10, 1.5]];
-    for (let i = 0; i < 5; i++) {
-      const f0 = 420 * Math.pow(2, (Math.random() * 9) / 12);           // 高めで明るい声（5人だけ）
-      this.voice(f0, A, 0.38 + Math.random() * 0.12, 0.3, 0.02 + Math.random() * 0.1, 1.25, 0.22);
-    }
-    this.burstNoise(0, 0.12, 3000, 0.6, 0.55);                          // 「パンッ」（クラッカー）
-    this.tone(1200, 0.5, 'sine', 0.18, 2600, 0.05);                      // 「ヒューッ」（笛）
-    [1568, 2093, 2637].forEach((f, i) => this.bell(f, 0.1 + i * 0.07, 0.12, 0.5));
-    for (let i = 0; i < 46; i++) this.burstNoise(0.12 + Math.random() * 1.0, 0.035 + Math.random() * 0.03, 2500 + Math.random() * 3500, 0.7, 0.2 + Math.random() * 0.14);   // はくしゅ
+    this.burstNoise(0, 0.12, 3000, 0.6, 0.5);                            // 「パンッ」
+    this.tone(1200, 0.45, 'sine', 0.16, 2600, 0.04);                      // 「ヒューッ」
+    [1568, 2093, 2637, 3136].forEach((f, i) => this.bell(f, 0.1 + i * 0.07, 0.12, 0.5));
+    for (let i = 0; i < 55; i++) this.burstNoise(0.12 + Math.random() * 1.1, 0.035 + Math.random() * 0.03, 2500 + Math.random() * 3500, 0.7, 0.2 + Math.random() * 0.14);   // はくしゅ
   },
   // ブーイング「ぶーーーーー…」。len を大きくするほど長くなる
-  boo(len = 1) {
+  boo(len = 0.65) {
     if (!this.ready()) return;
     const U = [[420, 7, 4.5], [900, 8, 3.5], [2300, 10, 1.2]];
     for (let i = 0; i < 10; i++) {
       const f0 = 175 * Math.pow(2, (Math.random() * 8) / 12);           // 175〜280Hz
-      this.voice(f0, U, (1.9 + Math.random() * 0.5) * len, 0.27, Math.random() * 0.14, 0.82 + Math.random() * 0.05, 0.1, 0.6);
+      this.voice(f0, U, (1.9 + Math.random() * 0.5) * len, 0.2, Math.random() * 0.14, 0.82 + Math.random() * 0.05, 0.1, 0.6);
     }
-    this.swell(0, 2.2 * len, 900, 0.7, 0.22);
-    this.voice(300, [[700, 6, 4], [1200, 7, 3]], 1.7 * len, 0.2, 0.02, 0.78, 0.1, 0.6);   // 「ブーッ」というブザー感
+    this.swell(0, 2.2 * len, 900, 0.7, 0.16);
+    this.voice(300, [[700, 6, 4], [1200, 7, 3]], 1.7 * len, 0.14, 0.02, 0.78, 0.1, 0.6);   // 「ブーッ」というブザー感
   },
   // たたかいの効果音
   clash() {
@@ -615,7 +612,7 @@ function finishBattle() {
     G.mood = 'happy'; G.moodT = 99; Sound.win(); Sound.cheer(); vibrate([30, 40, 30, 40, 80]);
     showResult(true, diff);
   } else {
-    G.mood = 'sad'; G.moodT = 99; Sound.lose(); Sound.boo(1.5); vibrate([60, 40, 120]);
+    G.mood = 'sad'; G.moodT = 99; Sound.boo(); vibrate([60, 40, 120]);
     showResult(false, diff);
   }
 }
@@ -1003,7 +1000,7 @@ if (location.search.includes('soundtest')) {
   box.innerHTML = '<div style="font-weight:900;font-size:20px">サウンド確認（numberun）</div><div style="font-size:13px;opacity:.8">ボタンを押すと音が鳴ります。消音スイッチと音量を確認してください。</div>';
   const items = [
     ['ふえる（ちょっと）', () => Sound.up(0)], ['ふえる（そこそこ）', () => Sound.up(1)], ['ふえる（けっこう）', () => Sound.up(2)], ['ふえる（すごく）', () => Sound.up(3)],
-    ['せいかい（へったけど正解）', () => Sound.ok()], ['歓声', () => Sound.cheer()], ['ブーイング（まちがい）', () => Sound.boo()], ['ブーイング（ゲームオーバー）', () => { Sound.lose(); Sound.boo(1.5); }],
+    ['せいかい（へったけど正解）', () => Sound.ok()], ['歓声', () => Sound.cheer()], ['ブーイング', () => Sound.boo()],
     ['たたかい（ぶつかる）', () => Sound.clash()], ['たたかい（ポップ連打）', () => { for (let i = 0; i < 14; i++) setTimeout(() => Sound.pop(), i * 75); }], ['たたかい（決着）', () => Sound.finishHit()],
     ['クリアのファンファーレ', () => { Sound.win(); Sound.cheer(); }], 
     ['BGM A（前のミックス）', () => { Sound.bgmStop(); Sound.bgmMix = 'A'; setTimeout(() => Sound.bgmStart(), 400); }],
