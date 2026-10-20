@@ -72,9 +72,15 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: 
 h2 { margin: 0 0 8px; font-size: 28px; text-align: center; }
 .big { font-size: 46px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--gold); margin: 4px 0; }
 .sumline { text-align: center; font-size: 15px; font-weight: 700; line-height: 1.8; opacity: .9; margin-bottom: 8px; }
+#tapSplash { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.5);
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); color: #fff; font-weight: 900; font-size: 24px; letter-spacing: .06em; touch-action: manipulation; }
+#tapSplash .msg { padding: 16px 28px; border-radius: 99px; background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.5); animation: splashPulse 1.2s ease-in-out infinite; }
+@keyframes splashPulse { 50% { transform: scale(1.07); } }
+#tapSplash.hidden { opacity: 0; pointer-events: none; transition: opacity .25s; }
 </style>
 </head>
 <body>
+<div id="tapSplash"><div class="msg">♪ タップして はじめる</div></div>
 <div id="app">
   <div id="top">
     <div class="chip" id="chipLevel">ふつう</div>
@@ -143,7 +149,9 @@ const CONFIG = {
     normal: { label: 'ふつう',     cols: 9,  rows: 13, mines: 22 },
     hard:   { label: 'むずかしい', cols: 10, rows: 16, mines: 38 },
   },
-  SOUND: { SFX_VOLUME: 0.6, BGM_VOLUME: 0.85, BGM_BPM: 108 },
+  SOUND: {
+    TAP_SPLASH: true,   // 起動時に「タップしてはじめる」を出す（iPhoneは最初のタップまで音が出せないため。falseで無効）
+    SFX_VOLUME: 0.6, BGM_VOLUME: 0.85, BGM_BPM: 108 },
   FX: { REVEAL_STAGGER_MS: 14, EXPLODE_STAGGER_MS: 90, VIBRATE: true },
 };
 const $ = id => document.getElementById(id);
@@ -571,6 +579,16 @@ Sound.setMuted(Sound.muted);
 newGame(settings.level);
 openTitle();
 requestAnimationFrame(frame);
+// 起動時の「タップしてはじめる」: iPhoneは最初のタップまで音を出せないので、ここでタップしてもらい、タイトルのBGMを流す
+(function () {
+  const sp = document.getElementById('tapSplash');
+  if (!sp) return;
+  if (Sound.muted || CONFIG.SOUND.TAP_SPLASH === false) { sp.remove(); return; }
+  let done = false;
+  const go = e => { if (done) return; done = true; Sound.unlock(); syncBgm(); sp.classList.add('hidden'); setTimeout(() => sp.remove(), 300); if (e) e.preventDefault(); };
+  sp.addEventListener('touchend', go); sp.addEventListener('click', go);
+})();
+
 if (location.search.includes('debug')) window.__g = { G, CONFIG, dig, toggleFlag, chordAt, neighbors, newGame, layout: () => B, setMode, lose, win };
 </script>
 </body>

@@ -107,9 +107,15 @@ canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; t
 #newRecord { color: var(--accent); font-weight: 900; letter-spacing: .14em; font-size: 16px; height: 24px; margin-bottom: 4px; animation: pulse .6s ease-out infinite alternate; }
 #confirmMsg { white-space: pre-line; }
 h2 { margin: 0 0 18px; font-size: 26px; letter-spacing: .2em; }
+#tapSplash { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.5);
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); color: #fff; font-weight: 900; font-size: 24px; letter-spacing: .06em; touch-action: manipulation; }
+#tapSplash .msg { padding: 16px 28px; border-radius: 99px; background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.5); animation: splashPulse 1.2s ease-in-out infinite; }
+@keyframes splashPulse { 50% { transform: scale(1.07); } }
+#tapSplash.hidden { opacity: 0; pointer-events: none; transition: opacity .25s; }
 </style>
 </head>
 <body>
+<div id="tapSplash"><div class="msg">♪ タップして はじめる</div></div>
 <canvas id="c"></canvas>
 <div id="sab"></div>
 
@@ -205,6 +211,7 @@ const CONFIG = {
 
   // サウンド
   SOUND: {
+    TAP_SPLASH: true,   // 起動時に「タップしてはじめる」を出す（iPhoneは最初のタップまで音が出せないため。falseで無効）
     BGM_VOLUME: 0.5,   // BGMの音量（0〜1、0でBGM無し）
     BGM_BPM: 92,       // BGMのテンポ
     IGNORE_SILENT_SWITCH: false, // true にすると、iPhoneの消音スイッチがオンでも鳴らす（アプリ内の消音ボタンは有効）
@@ -419,13 +426,16 @@ function continueGame() {
 /* ---------- 画面切り替え ---------- */
 const $ = id => document.getElementById(id);
 const scTitle = $('scTitle'), scPause = $('scPause'), scOver = $('scOver');
+function syncBgm() {        // タイトルとプレイ中はBGMを流し、一時停止とゲームオーバーでは止める
+  if (screen === 'title' || (screen === 'play' && !state.over)) Sound.bgmStart(); else Sound.bgmStop();
+}
 function showScreen(name) {
   screen = name;
   scTitle.classList.toggle('hidden', name !== 'title');
   scPause.classList.toggle('hidden', name !== 'pause');
   scOver.classList.toggle('hidden', name !== 'over');
   if (name !== 'play') cancelDrag();
-  if (name === 'play' && !state.over) Sound.bgmStart(); else Sound.bgmStop();
+  syncBgm();
 }
 function openTitle() {
   $('titleBest').textContent = best.toLocaleString();
@@ -467,7 +477,7 @@ const Sound = {
         this.master.gain.value = 0.5;
         this.master.connect(this.ctx.destination);
         this.bgmGain = this.ctx.createGain();
-        this.bgmGain.gain.value = 0;
+        this.bgmGain.gain.value = this.bgmOn ? this.bgmLevel() : 0;
         this.bgmGain.connect(this.master);
       }
       if (this.ctx.state !== 'running') this.ctx.resume();
@@ -1045,7 +1055,7 @@ document.addEventListener('touchmove', e => e.preventDefault(), { passive: false
   document.addEventListener(t, e => e.preventDefault()));
 // iOSは「指を離した」「クリック」の時点でないと音を許可しないことがあるので、全部で解除を試す
 ['pointerdown', 'pointerup', 'touchstart', 'touchend', 'click'].forEach(t =>
-  document.addEventListener(t, () => Sound.unlock(), { passive: true, capture: true }));
+  document.addEventListener(t, () => { Sound.unlock(); if (!Sound.bgmOn) syncBgm(); }, { passive: true, capture: true }));
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) { Sound.onHide(); if (screen === 'play' && !state.over) { saveGame(); showScreen('pause'); } }
   else Sound.unlock();
@@ -1077,6 +1087,16 @@ openTitle();
 requestAnimationFrame(frame);
 
 // テスト用フック（URL に ?debug を付けた時だけ）
+// 起動時の「タップしてはじめる」: iPhoneは最初のタップまで音を出せないので、ここでタップしてもらい、タイトルのBGMを流す
+(function () {
+  const sp = document.getElementById('tapSplash');
+  if (!sp) return;
+  if (Sound.muted || CONFIG.SOUND.TAP_SPLASH === false) { sp.remove(); return; }
+  let done = false;
+  const go = e => { if (done) return; done = true; Sound.unlock(); syncBgm(); sp.classList.add('hidden'); setTimeout(() => sp.remove(), 300); if (e) e.preventDefault(); };
+  sp.addEventListener('touchend', go); sp.addEventListener('click', go);
+})();
+
 if (location.search.includes('debug')) window.__game = { state, CONFIG, SHAPES, generateSet, fitsAnywhere, placePiece, layout: () => L, newGame };
 </script>
 </body>

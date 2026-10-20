@@ -98,9 +98,15 @@ h2 { margin: 0 0 8px; font-size: 28px; text-align: center; }
 .review .ok { color: #8cf5a8; font-weight: 800; }
 .review .ng { color: #ffd27a; font-weight: 800; }
 @media (max-height: 760px) { .word { font-size: 46px; } .chip { font-size: 20px; padding: 4px 12px; } .runners svg { width: 44px; height: 44px; } .runners span:nth-child(2) svg { width: 56px; height: 56px; } .group { margin-top: 6px; } .btn { padding: 14px 0; } }
+#tapSplash { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.5);
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); color: #fff; font-weight: 900; font-size: 24px; letter-spacing: .06em; touch-action: manipulation; }
+#tapSplash .msg { padding: 16px 28px; border-radius: 99px; background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.5); animation: splashPulse 1.2s ease-in-out infinite; }
+@keyframes splashPulse { 50% { transform: scale(1.07); } }
+#tapSplash.hidden { opacity: 0; pointer-events: none; transition: opacity .25s; }
 </style>
 </head>
 <body>
+<div id="tapSplash"><div class="msg">♪ タップして はじめる</div></div>
 <canvas id="c"></canvas>
 <div id="sab"></div>
 
@@ -216,6 +222,7 @@ const CONFIG = {
 
   // サウンド
   SOUND: {
+    TAP_SPLASH: true,   // 起動時に「タップしてはじめる」を出す（iPhoneは最初のタップまで音が出せないため。falseで無効）
     SFX_VOLUME: 0.6,         // 効果音の音量（1で最大。BGMとは別に調整できる）
     BGM_VOLUME: 0.8,
     BGM_MIX: 'A',            // 'A' = 前のミックス（低音が太い） / 'B' = 中高音を厚くしたミックス
@@ -316,7 +323,7 @@ const Sound = {
         comp.threshold.value = -14; comp.knee.value = 10; comp.ratio.value = 8; comp.attack.value = 0.003; comp.release.value = 0.2;
         this.master.connect(comp); comp.connect(this.ctx.destination); this.comp = comp;
         this.sfx = this.ctx.createGain(); this.sfx.gain.value = CONFIG.SOUND.SFX_VOLUME; this.sfx.connect(this.master);   // 効果音の音量
-        this.bgmGain = this.ctx.createGain(); this.bgmGain.gain.value = 0; this.bgmGain.connect(this.master);
+        this.bgmGain = this.ctx.createGain(); this.bgmGain.gain.value = this.bgmOn ? this.bgmLevel() : 0; this.bgmGain.connect(this.master);
         // 効果音に、ほんのり響きをつける（リバーブ）
         const len = Math.floor(this.ctx.sampleRate * 1.3), ir = this.ctx.createBuffer(2, len, this.ctx.sampleRate);
         for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let k = 0; k < len; k++) d[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / len, 2.6); }
@@ -444,7 +451,7 @@ const Sound = {
   win() { [0, 4, 7, 12, 16, 19, 24].forEach((s, i) => this.tone(392 * Math.pow(2, s / 12), 0.35, 'triangle', 0.22, 0, i * 0.09)); },
   lose() { [0, -3, -7, -12].forEach((s, i) => this.tone(330 * Math.pow(2, s / 12), 0.35, 'sawtooth', 0.09, 0, i * 0.16)); },
   // BGM（コードで生成）
-  bgmOn: false, bgmTimer: null, bgmNext: 0, bgmStep: 0,
+  bgmOn: false, bgmTimer: null, bgmNext: 0, bgmStep: 0, bgmScene: 'play',
   bgmLevel() { return this.muted ? 0 : CONFIG.SOUND.BGM_VOLUME; },
   bgmFade(to, sec) {
     if (!this.ctx || !this.bgmGain) return;
@@ -483,7 +490,7 @@ const Sound = {
     if (!this.ctx || this.ctx.state !== 'running') { this.bgmNext = 0; return; }
     const now = this.ctx.currentTime;
     if (!this.bgmNext || this.bgmNext < now) this.bgmNext = now + 0.1;
-    const S = CONFIG.SOUND, bpm = S.BGM_BPM + Math.min(S.BGM_BPM_MAX_UP, Math.max(0, G.stage - 1) * S.BGM_BPM_PER_STAGE);
+    const S = CONFIG.SOUND, T = this.bgmScene === 'title', bpm = T ? 100 : S.BGM_BPM + Math.min(S.BGM_BPM_MAX_UP, Math.max(0, G.stage - 1) * S.BGM_BPM_PER_STAGE);
     const sx = 60 / bpm / 4;                       // 16分音符
     // Am - F - G - E（Aからの半音数）。短調で、せまってくる感じ
     const CH = [[0, 3, 7, 12], [-4, 0, 3, 8], [-2, 2, 5, 10], [-5, -1, 2, 7]];
@@ -492,20 +499,25 @@ const Sound = {
     const B = (this.bgmMix || CONFIG.SOUND.BGM_MIX) === 'B';
     while (this.bgmNext < now + 0.4) {
       const bar = Math.floor(this.bgmStep / 16) % 4, k = this.bgmStep % 16, ch = CH[bar], t = this.bgmNext;
+      if (T && k % 2 === 1) { this.bgmNext += sx; this.bgmStep++; continue; }
       if (B) {            // ミックスB: 中高音を厚く
         if (k === 0) for (const n of [ch[0], ch[1], ch[2]]) this.bgmNote(hz(n + 12), t, sx * 16, 'sawtooth', 0.018);
-        if (k % 4 === 0) { this.bgmKick(t, 0.3); this.bgmHat(t, 0.1); }
-        if (k % 2 === 1) this.bgmHat(t, k % 4 === 3 ? 0.16 : 0.09);
-        if (k % 2 === 0) this.bgmNote(hz(ch[0] - (k % 8 === 6 ? 0 : 12)), t, sx * 1.7, 'square', 0.05);
+        if (!T && k % 4 === 0) { this.bgmKick(t, 0.3); this.bgmHat(t, 0.1); }
+        if (!T && k % 2 === 1) this.bgmHat(t, k % 4 === 3 ? 0.16 : 0.09);
+        if (!T && k % 2 === 0) this.bgmNote(hz(ch[0] - (k % 8 === 6 ? 0 : 12)), t, sx * 1.7, 'square', 0.05);
         this.bgmNote(hz(ch[ARP[k]] + 12), t, sx * 1.5, 'square', 0.07);
         this.bgmNote(hz(ch[ARP[k]] + 24), t, sx * 1.2, 'triangle', 0.09);
       } else {            // ミックスA: 前のバージョン（音量だけ上げた）
         if (k === 0) for (const n of [ch[0], ch[1], ch[2]]) this.bgmNote(hz(n), t, sx * 16, 'sawtooth', 0.012);
-        if (k % 4 === 0) this.bgmKick(t, 0.5);
-        if (k % 2 === 1) this.bgmHat(t, k % 4 === 3 ? 0.07 : 0.035);
-        if (k % 2 === 0) this.bgmNote(hz(ch[0] - 12 + (k % 8 === 6 ? 12 : 0)), t, sx * 1.7, 'square', 0.055);
+        if (!T && k % 4 === 0) this.bgmKick(t, 0.5);
+        if (!T && k % 2 === 1) this.bgmHat(t, k % 4 === 3 ? 0.07 : 0.035);
+        if (!T && k % 2 === 0) this.bgmNote(hz(ch[0] - 12 + (k % 8 === 6 ? 12 : 0)), t, sx * 1.7, 'square', 0.055);
         this.bgmNote(hz(ch[ARP[k]] + 12), t, sx * 1.5, 'square', 0.022);
         this.bgmNote(hz(ch[ARP[k]] + 12), t, sx * 1.5, 'triangle', 0.05);
+      }
+      if (T) {            // タイトルは、リズムを抜いたぶん、メロディとパッドをはっきり聞かせる
+        if (k === 0) for (const n of [ch[0], ch[1], ch[2]]) this.bgmNote(hz(n + 12), t, sx * 16, 'sine', 0.07);
+        this.bgmNote(hz(ch[ARP[k]] + 24), t, sx * 1.8, 'triangle', 0.13);
       }
       this.bgmNext += sx; this.bgmStep++;
     }
@@ -662,10 +674,15 @@ function updateHud() {
   $('btnHint').disabled = !(G.pair && !G.pair.hinted && G.hints > 0 && (G.phase === 'wait' || G.phase === 'intro'));
 }
 const screens = { title: $('scTitle'), pause: $('scPause'), result: $('scResult') };
+function syncBgm() {        // タイトル=静かな版 / プレイ中=ベースとリズム入り / それ以外=止める
+  if (screen === 'title') { Sound.bgmScene = 'title'; Sound.bgmStart(); }
+  else if (screen === 'play') { Sound.bgmScene = 'play'; Sound.bgmStart(); }
+  else Sound.bgmStop();
+}
 function showScreen(name) {
   screen = name;
   for (const k in screens) screens[k].classList.toggle('hidden', k !== name);
-  if (name === 'play') Sound.bgmStart(); else Sound.bgmStop();
+  syncBgm();
 }
 function openTitle() {
   document.querySelectorAll('#segLevel button').forEach(b => b.classList.toggle('on', b.dataset.v === settings.level));
@@ -974,7 +991,7 @@ $('btnSound').addEventListener('click', () => { Sound.unlock(); Sound.setMuted(!
 
 document.addEventListener('touchmove', e => { if (!e.target.closest('.review, .screen')) e.preventDefault(); }, { passive: false });
 ['gesturestart', 'gesturechange', 'gestureend', 'contextmenu', 'dragstart', 'selectstart'].forEach(t => document.addEventListener(t, e => e.preventDefault()));
-['pointerdown', 'pointerup', 'touchstart', 'touchend', 'click'].forEach(t => document.addEventListener(t, () => Sound.unlock(), { passive: true, capture: true }));
+['pointerdown', 'pointerup', 'touchstart', 'touchend', 'click'].forEach(t => document.addEventListener(t, () => { Sound.unlock(); if (!Sound.bgmOn) syncBgm(); }, { passive: true, capture: true }));
 document.addEventListener('visibilitychange', () => { if (document.hidden && screen === 'play') showScreen('pause'); else if (!document.hidden) Sound.unlock(); });
 window.addEventListener('resize', layout);
 window.addEventListener('orientationchange', () => setTimeout(layout, 200));
@@ -1009,6 +1026,16 @@ Sound.setMuted(Sound.muted);
 layout();
 openTitle();
 requestAnimationFrame(frame);
+
+// 起動時の「タップしてはじめる」: iPhoneは最初のタップまで音を出せないので、ここでタップしてもらい、タイトルのBGMを流す
+(function () {
+  const sp = document.getElementById('tapSplash');
+  if (!sp) return;
+  if (Sound.muted || CONFIG.SOUND.TAP_SPLASH === false) { sp.remove(); return; }
+  let done = false;
+  const go = e => { if (done) return; done = true; Sound.unlock(); syncBgm(); sp.classList.add('hidden'); setTimeout(() => sp.remove(), 300); if (e) e.preventDefault(); };
+  sp.addEventListener('touchend', go); sp.addEventListener('click', go);
+})();
 
 if (location.search.includes('soundtest')) {
   const box = document.createElement('div');
