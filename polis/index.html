@@ -318,9 +318,11 @@ const CONFIG = {
   TA_SEC: { choice: 12, tf: 8, cmp: 15, cloze: 15, order: 40 },   // タイムアタックの制限時間（秒）
   TA_BASE: 100, TA_SPEED: 100, TA_COMBO: 10, TA_COMBO_MAX: 100,     // 得点 = 基本点 + 速さボーナス(残り時間の割合) + コンボボーナス
   N_OPTIONS: [5, 10, 20, 40],            // 問題数の選択肢
-  BOX_WEIGHTS: [10, 6, 3, 1.5, 0.6],      // 習熟度(0〜4)ごとの出やすさ。間違えた用語ほど、よく出る
-  NEW_WEIGHT: 5,                          // まだ解いていない用語の出やすさ
+  BOX_WEIGHTS: [10, 5, 2, 1, 0.4],      // 習熟度(0〜4)ごとの出やすさ。間違えた用語ほど、よく出る
+  NEW_WEIGHT: 12,                         // まだ解いていない用語の出やすさ
   MASTERED_BOX: 3,                        // この習熟度以上を「覚えた」とみなす
+  NOT_DUE_FACTOR: 0.2,                    // 復習の期限がまだ来ていない問題の出やすさ（倍率）
+  COOLDOWN_MIN: 30, COOLDOWN_FACTOR: 0.05, // 直近30分以内に出した問題は、ほとんど出さない
   INTERVAL_DAYS: [0, 1, 3, 7, 14],        // 習熟度ごとの、次の復習までの日数（「今日の復習」に使う）
   DAILY_MAX: 20,                          // 「今日の復習」に出す、復習期限の用語の最大数
   DAILY_NEW: 5,                           // 「今日の復習」に加える、新しい用語の数
@@ -486,7 +488,8 @@ function poolList(kind) {
 function sample(list, n, P) {
   const arr = list.slice(), out = [];
   while (out.length < n && arr.length) {
-    const ws = arr.map(x => (P[x.id] && P[x.id].s) ? CONFIG.BOX_WEIGHTS[P[x.id].b] : CONFIG.NEW_WEIGHT);
+    const now = Date.now();
+    const ws = arr.map(x => { const p = P[x.id]; if (!p || !p.s) return CONFIG.NEW_WEIGHT; let w = CONFIG.BOX_WEIGHTS[p.b]; if (p.d > now) w *= CONFIG.NOT_DUE_FACTOR; if (p.t && now - p.t < CONFIG.COOLDOWN_MIN * 60000) w *= CONFIG.COOLDOWN_FACTOR; return w; });
     let r = Math.random() * ws.reduce((a, b) => a + b, 0), k = 0;
     for (; k < arr.length - 1; k++) { r -= ws[k]; if (r <= 0) break; }
     out.push(arr.splice(k, 1)[0]);
@@ -571,7 +574,7 @@ function record(ok) {
   if (quiz.pair) { if (ok) { quiz.pair.score[quiz.i % 2]++; quiz.right++; } else quiz.wrongs.push(it); return; }
   const p = P[it.id] || (P[it.id] = { b: 0, s: 0, r: 0, w: 0 });
   p.s++; if (ok) { p.r++; p.b = Math.min(4, p.b + 1); } else { p.w++; p.b = 0; }
-  p.d = Date.now() + CONFIG.INTERVAL_DAYS[p.b] * 86400000;      // 次に復習する日
+  p.t = Date.now(); p.d = p.t + CONFIG.INTERVAL_DAYS[p.b] * 86400000;      // 次に復習する日
   touchStudy(); { const k = ymd(), h = hist[k] || (hist[k] = { n: 0, r: 0 }); h.n++; if (ok) h.r++; saveHist(); } saveAll(); if (ok) quiz.right++; else quiz.wrongs.push(it);
 }
 function feedback(ok, it, extraHead) {
