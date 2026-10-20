@@ -105,6 +105,7 @@ canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; t
 .btn.sec:active { box-shadow: inset 0 2px 0 rgba(255,255,255,.2), 0 2px 0 #231f52, 0 6px 12px rgba(0,0,0,.4); }
 .btn[hidden] { display: none; }
 #newRecord { color: var(--accent); font-weight: 900; letter-spacing: .14em; font-size: 16px; height: 24px; margin-bottom: 4px; animation: pulse .6s ease-out infinite alternate; }
+#confirmMsg { white-space: pre-line; }
 h2 { margin: 0 0 18px; font-size: 26px; letter-spacing: .2em; }
 </style>
 </head>
@@ -154,6 +155,12 @@ h2 { margin: 0 0 18px; font-size: 26px; letter-spacing: .2em; }
   <button class="btn sec" id="btnOverTitle">タイトルへ</button>
 </div>
 
+<div class="screen hidden dim" id="scConfirm" style="z-index:20">
+  <h2 id="confirmMsg" style="font-size:20px;letter-spacing:.06em;text-align:center;line-height:1.6"></h2>
+  <button class="btn" id="btnConfirmOk">はい</button>
+  <button class="btn sec" id="btnConfirmNo">やめる</button>
+</div>
+
 <script>
 'use strict';
 /* =====================================================================
@@ -191,6 +198,7 @@ const CONFIG = {
 
   // 操作
   DRAG: {
+    TRAY_SCALE: 0.75,     // 手持ちブロックの大きさ（盤面のマスに対する比率。大きいほど掴みやすい）
     LIFT_CELLS: 1.5,      // 指よりブロックを上に浮かせる量（マス単位）
     PICKUP_MS: 110,       // 掴んで盤面サイズに拡大するまでの時間
   },
@@ -543,13 +551,14 @@ function layout() {
   const cell = (boardSize - pad * 2) / N;
   const bx = Math.round((W - boardSize) / 2), by = Math.round(hudB + 8 + extra);
   const remaining = H - sb - (by + boardSize);
-  const slotH = Math.min(remaining - 20, 170);
+  const slotH = Math.min(remaining - 16, Math.max(170, cell * 4));
   const trayTop = by + boardSize + (remaining - slotH) / 2;
   const gap = 8, margin = Math.max(10, (W - boardSize) / 2);
   const slotW = (W - margin * 2 - gap * 2) / 3;
-  const trayCell = Math.min(cell * 0.62, (slotW - 10) / 5, (slotH - 8) / 5);
+  const trayCell = cell * CONFIG.DRAG.TRAY_SCALE;   // 手持ちの基本サイズ。入りきらない形だけ縮める
   L = { bx, by, boardSize, pad, cell, gx: bx + pad, gy: by + pad, trayTop, slotH, slotW, gap, margin, trayCell, boardBottom: by + boardSize };
 }
+const trayCellFor = shape => Math.min(L.trayCell, (L.slotW - 12) / shape.w, (L.slotH - 10) / shape.h);
 const slotCenter = i => ({
   x: L.margin + i * (L.slotW + L.gap) + L.slotW / 2,
   y: L.trayTop + L.slotH / 2,
@@ -660,7 +669,7 @@ canvas.addEventListener('pointerdown', e => {
   if (performance.now() < p.spawnAt) return;
   try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
   const sc = slotCenter(idx);
-  drag = { id: e.pointerId, idx, px: e.clientX, py: e.clientY, x: sc.x, y: sc.y, s: L.trayCell, t0: performance.now(), sx: e.clientX, sy: e.clientY, moved: false };
+  drag = { id: e.pointerId, idx, px: e.clientX, py: e.clientY, x: sc.x, y: sc.y, s: trayCellFor(p.shape), t0: performance.now(), sx: e.clientX, sy: e.clientY, moved: false };
   Sound.pick();
   e.preventDefault();
 });
@@ -892,14 +901,14 @@ function drawTray(now) {
     const t = (now - p.spawnAt) / 280;
     if (t <= 0) continue;
     const k = easeOutBack(t);
-    drawPiece(p.shape, sc.x, sc.y, L.trayCell, p.placeable ? 1 : 0.3, Math.max(0, k));
+    drawPiece(p.shape, sc.x, sc.y, trayCellFor(p.shape), p.placeable ? 1 : 0.3, Math.max(0, k));
   }
   // 戻りアニメ
   for (const key of Object.keys(returning)) {
     const i = +key, rt = returning[i], p = state.pieces[i];
     if (!p) { delete returning[i]; continue; }
     const k = easeOutCubic((now - rt.t0) / rt.dur), sc = slotCenter(i);
-    drawPiece(p.shape, rt.x + (sc.x - rt.x) * k, rt.y + (sc.y - rt.y) * k, rt.s + (L.trayCell - rt.s) * k, p.placeable ? 1 : 0.3);
+    drawPiece(p.shape, rt.x + (sc.x - rt.x) * k, rt.y + (sc.y - rt.y) * k, rt.s + (trayCellFor(p.shape) - rt.s) * k, p.placeable ? 1 : 0.3);
     if (k >= 1) delete returning[i];
   }
 }
@@ -913,7 +922,8 @@ function drawDrag(now, dt) {
   const kk = 1 - Math.exp(-dt * 32);
   drag.x += (t.cx - drag.x) * kk; drag.y += (t.cy - drag.y) * kk;
   const g = easeOutCubic((now - drag.t0) / CONFIG.DRAG.PICKUP_MS);
-  drag.s = L.trayCell + (L.cell - L.trayCell) * g;
+  const tc = trayCellFor(sh);
+  drag.s = tc + (L.cell - tc) * g;
 
   if (t.valid) {
     const f = fullLinesAfter(state.board, sh, t.r, t.c);
@@ -982,11 +992,20 @@ function drawFloaters(now) {
 
 /* ---------- UI ---------- */
 function startNew() { newGame(); showScreen('play'); }
-$('btnStart').addEventListener('click', () => { Sound.unlock(); startNew(); });
+let confirmCb = null;
+function askConfirm(msg, cb) { $('confirmMsg').textContent = msg; confirmCb = cb; $('scConfirm').classList.remove('hidden'); }
+function closeConfirm() { $('scConfirm').classList.add('hidden'); confirmCb = null; }
+$('btnConfirmOk').addEventListener('click', () => { const cb = confirmCb; closeConfirm(); if (cb) cb(); });
+$('btnConfirmNo').addEventListener('click', closeConfirm);
+$('btnStart').addEventListener('click', () => {
+  Sound.unlock();
+  if (loadSave()) askConfirm('とちゅうのゲームが消えます。\nはじめからやり直しますか？', startNew);
+  else startNew();
+});
 $('btnContinue').addEventListener('click', () => { Sound.unlock(); continueGame(); showScreen(state.over ? 'over' : 'play'); });
 $('btnPause').addEventListener('click', () => { if (screen === 'play' && !state.over) { saveGame(); showScreen('pause'); } });
 $('btnResume').addEventListener('click', () => showScreen('play'));
-$('btnRestart').addEventListener('click', startNew);
+$('btnRestart').addEventListener('click', () => askConfirm('今のゲームが消えます。\nはじめからやり直しますか？', startNew));
 $('btnRetry').addEventListener('click', startNew);
 $('btnToTitle').addEventListener('click', () => { saveGame(); openTitle(); });
 $('btnOverTitle').addEventListener('click', openTitle);
@@ -1015,6 +1034,10 @@ window.addEventListener('orientationchange', () => setTimeout(layout, 200));
     el.appendChild(t);
   });
 })();
+
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
 
 Sound.setMuted(Sound.muted);
 layout();

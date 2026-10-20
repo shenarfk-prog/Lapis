@@ -39,3 +39,4 @@ iPhone の Safari で遊ぶ、自分用の 8×8 ブロック配置パズル。`i
 - `index.html` … ゲーム本体
 - `icon.svg` / `apple-touch-icon.png` / `icon-192.png` / `icon-512.png` … アイコン
 - `manifest.webmanifest` … ホーム画面追加用
+- `sw.js` … オフライン用（ネットがあれば常に最新を取得）
